@@ -1,1 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교육 목록 - 스마트 교육관리</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .user-info { font-weight: bold; color: #333; }
+        .edu-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; display: flex; flex-direction: column; position: relative; }
+        .badge { position: absolute; top: 15px; right: 15px; padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; }
+        .badge-online { background: #e1f5fe; color: #039be5; } /* 게시 교육 */
+        .badge-offline { background: #fff3e0; color: #ef6c00; } /* 대면 교육 */
+        .title { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; width: 80%; }
+        .info { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+        .d-day { color: #e74c3c; font-weight: bold; }
+        .btn-sign { background: #333; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="user-info" id="user-display">사용자 정보 로딩 중...</div>
+        <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; cursor:pointer;">로그아웃</button>
+    </div>
+
+    <div id="edu-list">
+        <div class="edu-card">
+            <span class="badge badge-online">💻 게시교육</span>
+            <div class="title">4월 전동차 주요 고장 사례 교육</div>
+            <div class="info">기한: ~ 2026.04.30 <span class="d-day">(D-22)</span></div>
+            <button class="btn-sign">자료보기 및 서명</button>
+        </div>
+
+        <div class="edu-card">
+            <span class="badge badge-offline">👥 대면교육</span>
+            <div class="title">안전운행 실무 특별 교육</div>
+            <div class="info">일시: 2026.04.15 14:00</div>
+            <div class="info">장소: 월배사업소 2층 대강당</div>
+            <button class="btn-sign" style="background: #e67e22;">장소/시간 인증하기</button>
+        </div>
+    </div>
+
+    <script>
+        // 로그인 정보 가져오기
+        const user = JSON.parse(localStorage.getItem("loginUser"));
+        if(!user) {
+            alert("로그인이 필요합니다.");
+            location.href = "index.html";
+        } else {
+            document.getElementById("user-display").innerText = `${user.team} ${user.name} 기관사님`;
+        }
+    </script>
+</body>
+</html>
 
