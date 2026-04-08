@@ -1,21 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 모드 - 스마트 교육관리</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .admin-title { font-size: 1.1rem; font-weight: bold; color: #333; }
+        
+        /* 요약 카드 디자인 */
+        .summary-card { background: #333; color: white; padding: 20px; border-radius: 15px; margin-bottom: 25px; display: flex; justify-content: space-around; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .summary-item div { font-size: 0.85rem; opacity: 0.8; margin-bottom: 8px; }
+        .summary-item span { font-size: 1.4rem; font-weight: bold; color: #2ecc71; }
+
+        /* 메뉴 그리드 디자인 */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-card { background: white; padding: 25px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; cursor: pointer; border: none; transition: transform 0.2s; }
+        .menu-card:active { transform: scale(0.95); background: #f0f0f0; }
+        .menu-card .icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .menu-card span { font-weight: bold; font-size: 0.95rem; color: #333; display: block; }
+        
+        .footer-info { text-align: center; margin-top: 40px; font-size: 0.8rem; color: #bbb; }
+    </style>
+</head>
 <body>
+
     <div class="header">
         <div class="admin-title" id="admin-info">관리자 모드</div>
-        <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; font-weight:bold;">로그아웃</button>
+        <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; font-weight:bold; cursor:pointer;">로그아웃</button>
     </div>
 
     <div class="summary-card">
         <div class="summary-item">
             <div>진행 중 교육</div>
-            <span id="count-edu">0</span>건
+            <span id="count-edu">0</span>
         </div>
         <div class="summary-item">
             <div>미이수 인원</div>
-            <span id="count-pending">0</span>명
+            <span id="count-pending">0</span>
         </div>
     </div>
 
-    <div class="menu-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="menu-grid">
         <div class="menu-card" onclick="location.href='admin_edu_add.html'">
             <span class="icon">📝</span>
             <span>교육 등록/게시</span>
@@ -24,7 +51,7 @@
             <span class="icon">📊</span>
             <span>교육 이수 현황</span>
         </div>
-        <div class="menu-card" onclick="alert('인원 관리 기능 준비 중')">
+        <div class="menu-card" onclick="alert('인원 관리 기능 준비 중입니다.')">
             <span class="icon">👥</span>
             <span>기관사 관리</span>
         </div>
@@ -33,4 +60,30 @@
             <span>시스템 설정</span>
         </div>
     </div>
+
+    <div class="footer-info">Smart Education Management v1.0</div>
+
+    <script>
+        const adminTeam = localStorage.getItem("loginAdmin");
+        if(!adminTeam) { location.href = "index.html"; }
+        document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
+
+        function loadSummary() {
+            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
+            const totalStaff = 58; // 추후 인원관리 메뉴와 연동 가능
+
+            document.getElementById('count-edu').innerText = `${eduList.length}건`;
+            
+            // 미이수 인원 계산 (단순 예시 로직)
+            // 실제로는 교육별로 계산해야 하지만, 메인에서는 전체적인 느낌만 보여줌
+            const totalRequiredSigns = eduList.length * totalStaff;
+            const currentSigns = completeData.length;
+            const pending = Math.max(0, totalRequiredSigns - currentSigns);
+            document.getElementById('count-pending').innerText = `${pending}명`;
+        }
+
+        loadSummary();
+    </script>
 </body>
+</html>
