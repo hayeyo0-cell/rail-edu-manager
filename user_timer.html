@@ -69,7 +69,6 @@
         document.getElementById('top-title').innerText = currentEduTitle;
         document.getElementById('doc-title').innerText = currentEduTitle;
 
-        // 시연용 10초 타이머
         let timeLeft = 10; 
         const timerDisplay = document.getElementById('time-display');
         const timerBar = document.getElementById('timer-bar');
@@ -99,8 +98,9 @@
             btnOpenSign.onclick = openSignModal;
         }
 
-        /* --- 서명 패드 로직 --- */
+        /* --- 서명 패드 로직 (안전장치 추가) --- */
         let canvas, ctx, drawing = false;
+        let hasSigned = false; // 💡 사인 여부 확인용 변수
 
         function openSignModal() {
             document.getElementById('sign-modal').style.display = 'flex';
@@ -114,7 +114,11 @@
             canvas.addEventListener("mousemove", draw);
             canvas.addEventListener("mouseup", stopDrawing);
         }
-        function startDrawing(e) { drawing = true; ctx.beginPath(); moveDraw(e); }
+        function startDrawing(e) { 
+            drawing = true; 
+            hasSigned = true; // 💡 화면에 터치하는 순간 사인을 한 것으로 인정!
+            ctx.beginPath(); moveDraw(e); 
+        }
         function stopDrawing() { drawing = false; }
         function draw(e) { if(!drawing) return; e.preventDefault(); moveDraw(e); }
         function moveDraw(e) {
@@ -123,11 +127,19 @@
             const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
             ctx.lineTo(x, y); ctx.stroke();
         }
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function clearCanvas() { 
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            hasSigned = false; // 💡 지우기를 누르면 다시 빈 화면 상태로 되돌림!
+        }
 
         // 🚀 구글 시트로 서명 데이터 전송
         function finishEdu() {
-            // 기관사님의 구글 스크립트 주소!
+            // 🚨 빈 서명 방지 안전장치 작동!
+            if (hasSigned === false) {
+                alert("서명을 직접 그려주세요! (빈 화면 제출 불가)");
+                return; // 제출을 중단시킴
+            }
+
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec";
             
             const btnSubmit = document.getElementById('btn-submit');
@@ -139,12 +151,11 @@
             const eduId = parseInt(localStorage.getItem('currentEduId')); 
             const currentDate = new Date().toLocaleString();
 
-            // 🎁 이수 시간(duration) 데이터가 새롭게 추가되었습니다!
             const payload = {
                 userId: user.id,
                 userName: user.name,
                 eduTitle: currentEduTitle,
-                duration: "10초 (정상 이수)", // 시간 데이터 추가됨!
+                duration: "10초 (정상 이수)", 
                 sign: dataURL,
                 date: currentDate
             };
