@@ -1,122 +1,69 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이수 현황 - 스마트 교육관리</title>
+    <title>이수 현황 - 관리자</title>
     <style>
         body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
         .header { display: flex; align-items: center; margin-bottom: 20px; }
         .back-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; margin-right: 10px; }
+        h2 { font-size: 1.1rem; margin: 0; }
+        .section-title { font-size: 1rem; color: #555; margin: 25px 0 12px; border-left: 4px solid #2ecc71; padding-left: 10px; font-weight: bold; }
         
-        h2 { font-size: 1.2rem; margin: 0; color: #333; }
-        h3 { font-size: 1rem; color: #555; margin: 25px 0 12px; border-left: 4px solid #2ecc71; padding-left: 10px; }
-
-        /* 교육별 이수율 카드 */
-        .status-card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .edu-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .edu-name { font-weight: bold; font-size: 1rem; color: #333; }
-        .edu-count { font-size: 0.85rem; color: #273c75; font-weight: bold; }
-        
+        .status-card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 12px; }
+        .edu-info { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
         .progress-container { width: 100%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; }
         .progress-bar { background: #2ecc71; height: 100%; transition: width 0.5s; }
 
-        /* 실시간 서명 목록 테이블 */
         .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: #f1f1f1; padding: 12px 10px; color: #666; font-weight: bold; }
-        td { padding: 12px 10px; border-bottom: 1px solid #f9f9f9; text-align: center; }
-        .sign-img { width: 50px; height: 28px; border: 1px solid #eee; background: #fff; cursor: pointer; border-radius: 4px; }
-
-        /* 서명 확대 팝업 */
-        .sign-pop { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center; }
-        .sign-pop img { background:white; width: 85%; max-width: 320px; border-radius: 15px; padding: 10px; }
+        th { background: #f1f1f1; padding: 12px; color: #666; }
+        td { padding: 12px; border-bottom: 1px solid #f9f9f9; text-align: center; }
+        .sign-img { width: 45px; height: 25px; border: 1px solid #eee; cursor: pointer; }
     </style>
 </head>
 <body>
-
     <div class="header">
         <button class="back-btn" onclick="location.href='admin_main.html'">←</button>
-        <h2>교육 이수 현황</h2>
+        <h2>📊 교육 이수 현황</h2>
     </div>
 
-    <h3>📊 교육별 이수율 (전체 58명 기준)</h3>
-    <div id="edu-progress-list">
-        </div>
+    <div class="section-title">교육별 이수율 (58명 기준)</div>
+    <div id="edu-progress-list"></div>
 
-    <h3>✅ 최근 실시간 서명 기록</h3>
+    <div class="section-title">✅ 실시간 서명 기록</div>
     <div class="table-container">
         <table>
-            <thead>
-                <tr>
-                    <th>성명</th>
-                    <th>교육명</th>
-                    <th>서명</th>
-                </tr>
-            </thead>
-            <tbody id="realtime-sign-list">
-                </tbody>
+            <thead><tr><th>성명</th><th>교육명</th><th>서명</th></tr></thead>
+            <tbody id="realtime-sign-list"></tbody>
         </table>
-    </div>
-
-    <div id="sign-pop" class="sign-pop" onclick="this.style.display='none'">
-        <img id="pop-img" src="" alt="서명확대">
     </div>
 
     <script>
         const adminTeam = localStorage.getItem("loginAdmin");
-        const totalStaff = 58; // 전체 인원
+        const totalStaff = 58;
 
         function loadStatusData() {
             const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
             const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
 
-            // 1. 교육별 이수율 리스트 생성
-            const progressContainer = document.getElementById('edu-progress-list');
-            if(eduList.length === 0) {
-                progressContainer.innerHTML = "<p style='text-align:center; color:#999;'>게시된 교육이 없습니다.</p>";
-            } else {
-                progressContainer.innerHTML = eduList.map(edu => {
-                    const count = completeData.filter(c => c.eduId === edu.id).length;
-                    const percent = Math.min(Math.round((count / totalStaff) * 100), 100);
-                    return `
-                        <div class="status-card">
-                            <div class="edu-info">
-                                <span class="edu-name">${edu.title}</span>
-                                <span class="edu-count">${count}명 / ${totalStaff}명 (${percent}%)</span>
-                            </div>
-                            <div class="progress-container">
-                                <div class="progress-bar" style="width: ${percent}%"></div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
+            const pList = document.getElementById('edu-progress-list');
+            pList.innerHTML = eduList.map(edu => {
+                const count = completeData.filter(c => c.eduId === edu.id).length;
+                const percent = Math.min(Math.round((count / totalStaff) * 100), 100);
+                return `<div class="status-card">
+                    <div class="edu-info"><b>${edu.title}</b><span>${count}/${totalStaff}명 (${percent}%)</span></div>
+                    <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div>
+                </div>`;
+            }).join('') || "<p style='text-align:center; color:#999;'>진행 중인 교육이 없습니다.</p>";
 
-            // 2. 실시간 서명 목록 생성
-            const signContainer = document.getElementById('realtime-sign-list');
-            if(completeData.length === 0) {
-                signContainer.innerHTML = "<tr><td colspan='3' style='padding:30px; color:#999;'>서명 기록이 없습니다.</td></tr>";
-            } else {
-                signContainer.innerHTML = completeData.slice().reverse().map(item => {
-                    const edu = eduList.find(e => e.id === item.eduId);
-                    return `
-                        <tr>
-                            <td style="font-weight:bold;">${item.userName}</td>
-                            <td style="color:#666;">${edu ? edu.title : '삭제된 교육'}</td>
-                            <td><img src="${item.sign}" class="sign-img" onclick="showSign('${item.sign}')"></td>
-                        </tr>
-                    `;
-                }).join('');
-            }
+            const sList = document.getElementById('realtime-sign-list');
+            sList.innerHTML = completeData.slice().reverse().map(item => {
+                const edu = eduList.find(e => e.id === item.eduId);
+                return `<tr><td>${item.userName}</td><td>${edu ? edu.title : '삭제됨'}</td><td><img src="${item.sign}" class="sign-img"></td></tr>`;
+            }).join('') || "<tr><td colspan='3' style='padding:20px; color:#999;'>기록 없음</td></tr>";
         }
-
-        function showSign(src) {
-            document.getElementById('pop-img').src = src;
-            document.getElementById('sign-pop').style.display = 'flex';
-        }
-
         loadStatusData();
     </script>
 </body>
