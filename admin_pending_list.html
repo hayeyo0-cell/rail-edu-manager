@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미이수자 관리 - 관리자</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; padding: 20px; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .back-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; margin-right: 10px; }
+        .section { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .edu-selector { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 1rem; background:white; }
+        .pending-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .badge-wait { background: #ff7675; color: white; padding: 3px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header"><button class="back-btn" onclick="location.href='admin_main.html'">←</button><h2>👥 미이수자 명단</h2></div>
+    <select id="edu-select" class="edu-selector" onchange="loadPendingList()"></select>
+    <div class="section" id="pending-container"></div>
+
+    <script>
+        const adminTeam = localStorage.getItem("loginAdmin");
+        const allStaff = Array.from({length: 58}, (_, i) => ({ id: 20050001 + i, name: `기관사 ${i + 1}` }));
+
+        function init() {
+            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            const select = document.getElementById('edu-select');
+            if(eduList.length === 0) { select.innerHTML = "<option>등록된 교육 없음</option>"; return; }
+            select.innerHTML = eduList.map(edu => `<option value="${edu.id}">${edu.title}</option>`).join('');
+            loadPendingList();
+        }
+
+        function loadPendingList() {
+            const eduId = parseInt(document.getElementById('edu-select').value);
+            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
+            const container = document.getElementById('pending-container');
+            const doneIds = completeData.filter(c => c.eduId === eduId).map(c => c.userId);
+            const pending = allStaff.filter(s => !doneIds.includes(s.id.toString()));
+
+            container.innerHTML = pending.length === 0 
+                ? "<p style='text-align:center; color:#2ecc71;'>이수 완료! ✅</p>"
+                : `<p style="font-size:0.8rem; color:#888;">미이수: ${pending.length}명</p>` + 
+                  pending.map(s => `<div class="pending-item"><span>${s.name} (${s.id})</span><span class="badge-wait">미이수</span></div>`).join('');
+        }
+        init();
+    </script>
+</body>
+</html>
 
