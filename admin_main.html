@@ -1,69 +1,165 @@
-<style>
-    /* 이수율 프로그레스 바 스타일 */
-    .progress-container { width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden; }
-    .progress-bar { background: #2ecc71; height: 100%; transition: width 0.3s; }
-    .edu-stats-text { font-size: 0.75rem; color: #273c75; font-weight: bold; margin-top: 5px; display: block; }
-</style>
-
-<script>
-    function updateDashboard() {
-        const adminTeam = localStorage.getItem("loginAdmin");
-        const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-        const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 모드 - 스마트 교육관리</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        .admin-title { font-size: 1.1rem; font-weight: bold; color: #333; }
         
-        // 실제 인원수 (예시로 58명 설정, 나중에 인원관리 DB와 연동 가능)
-        const totalStaff = 58; 
+        /* 상단 요약 카드 */
+        .summary-card { background: #333; color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; justify-content: space-around; text-align: center; }
+        .summary-item div { font-size: 0.8rem; opacity: 0.8; margin-bottom: 5px; }
+        .summary-item span { font-size: 1.2rem; font-weight: bold; }
 
-        // 1. 요약 정보
-        document.getElementById('count-edu').innerText = eduList.length;
-        const today = new Date().toLocaleDateString();
-        const todaySigns = completeData.filter(c => c.date.includes(today)).length;
-        document.getElementById('count-today').innerText = todaySigns;
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .menu-card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; cursor: pointer; border: none; }
+        .menu-card .icon { font-size: 1.5rem; margin-bottom: 5px; display: block; }
+        .menu-card span { font-weight: bold; font-size: 0.9rem; color: #333; }
 
-        // 2. 교육 게시 현황 (이수율 포함)
-        const eduContainer = document.getElementById('admin-edu-list');
-        if(eduList.length === 0) {
-            eduContainer.innerHTML = "<p style='text-align:center; color:#999; font-size:0.9rem;'>게시된 교육이 없습니다.</p>";
-        } else {
-            eduContainer.innerHTML = eduList.map((edu, index) => {
-                // 해당 교육(edu.id)에 서명한 인원수 계산
-                const completedCount = completeData.filter(c => c.eduId === edu.id).length;
-                const percent = Math.round((completedCount / totalStaff) * 100);
+        h3 { font-size: 1rem; color: #555; margin-bottom: 12px; margin-top: 25px; border-left: 4px solid #333; padding-left: 10px; }
+        
+        /* 교육 게시 현황 리스트 스타일 */
+        .edu-list-container { background: white; border-radius: 12px; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .edu-item { padding: 15px; border-bottom: 1px solid #f0f0f0; display: flex; flex-direction: column; }
+        .edu-item:last-child { border-bottom: none; }
+        .edu-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .edu-name { font-weight: bold; font-size: 0.95rem; color: #333; }
+        .edu-meta { font-size: 0.8rem; color: #888; }
+        .btn-del { background: #ffefef; color: #ff7675; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
 
-                return `
-                    <div class="edu-item" style="flex-direction: column; align-items: flex-start;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                            <div class="edu-info">
-                                <div class="edu-name">${edu.title}</div>
-                                <div class="edu-meta">기한: ~${edu.date}</div>
+        /* 이수율 게이지 바 */
+        .progress-container { width: 100%; background: #eee; height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .progress-bar { background: #2ecc71; height: 100%; transition: width 0.3s; }
+        .edu-stats-text { font-size: 0.75rem; color: #273c75; font-weight: bold; margin-top: 5px; }
+
+        /* 실시간 서명자 테이블 */
+        .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #eee; padding: 10px; color: #555; }
+        td { padding: 10px; border-bottom: 1px solid #f0f0f0; text-align: center; }
+        .sign-img { width: 45px; height: 25px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="admin-title" id="admin-info">관리자 모드</div>
+        <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; font-weight:bold;">로그아웃</button>
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-item">
+            <div>게시 중인 교육</div>
+            <span id="count-edu">0</span>
+        </div>
+        <div class="summary-item">
+            <div>오늘의 서명자</div>
+            <span id="count-today">0</span>
+        </div>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-card" onclick="location.href='admin_edu_add.html'">
+            <span class="icon">📝</span>
+            <span>교육 등록</span>
+        </div>
+        <div class="menu-card" onclick="location.href='admin_setting.html'">
+            <span class="icon">⚙️</span>
+            <span>시스템 설정</span>
+        </div>
+    </div>
+
+    <h3>📢 교육 게시 현황 (이수율)</h3>
+    <div class="edu-list-container" id="admin-edu-list"></div>
+
+    <h3>✅ 최근 실시간 서명</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>성명</th>
+                    <th>교육명</th>
+                    <th>서명</th>
+                </tr>
+            </thead>
+            <tbody id="complete-list"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const adminTeam = localStorage.getItem("loginAdmin");
+        if(!adminTeam) { location.href = "index.html"; }
+        document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
+
+        const totalStaff = 58; // 전체 인원 기준
+
+        function updateDashboard() {
+            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
+            
+            // 1. 요약 정보
+            document.getElementById('count-edu').innerText = eduList.length;
+            const today = new Date().toLocaleDateString();
+            const todaySigns = completeData.filter(c => c.date.includes(today)).length;
+            document.getElementById('count-today').innerText = todaySigns;
+
+            // 2. 게시 현황 리스트 (게이지 바 포함)
+            const eduContainer = document.getElementById('admin-edu-list');
+            if(eduList.length === 0) {
+                eduContainer.innerHTML = "<p style='text-align:center; color:#999; padding:20px;'>게시된 교육이 없습니다.</p>";
+            } else {
+                eduContainer.innerHTML = eduList.map((edu, index) => {
+                    const completedCount = completeData.filter(c => c.eduId === edu.id).length;
+                    const percent = Math.min(Math.round((completedCount / totalStaff) * 100), 100);
+                    return `
+                        <div class="edu-item">
+                            <div class="edu-top">
+                                <div class="edu-info">
+                                    <div class="edu-name">${edu.title}</div>
+                                    <div class="edu-meta">기한: ~${edu.date}</div>
+                                </div>
+                                <button class="btn-del" onclick="deleteEdu(${index})">삭제</button>
                             </div>
-                            <button class="btn-del" onclick="deleteEdu(${index})">삭제</button>
-                        </div>
-                        
-                        <div style="width: 100%; margin-top: 10px;">
-                            <span class="edu-stats-text">이수 현황: ${completedCount}명 / ${totalStaff}명 (${percent}%)</span>
+                            <div class="edu-stats-text">현황: ${completedCount}명 / ${totalStaff}명 (${percent}%)</div>
                             <div class="progress-container">
                                 <div class="progress-bar" style="width: ${percent}%"></div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
+
+            // 3. 서명자 목록
+            const completeContainer = document.getElementById('complete-list');
+            if(completeData.length === 0) {
+                completeContainer.innerHTML = "<tr><td colspan='3' style='padding:20px; color:#999;'>이수자가 없습니다.</td></tr>";
+            } else {
+                completeContainer.innerHTML = completeData.slice(-5).map(item => {
+                    const edu = eduList.find(e => e.id === item.eduId);
+                    return `
+                        <tr>
+                            <td style="font-weight:bold;">${item.userName}</td>
+                            <td style="font-size:0.8rem; color:#666;">${edu ? edu.title : '삭제됨'}</td>
+                            <td><img src="${item.sign}" class="sign-img"></td>
+                        </tr>
+                    `;
+                }).reverse().join('');
+            }
         }
 
-        // 3. 실시간 서명자 목록 (기존과 동일)
-        const completeContainer = document.getElementById('complete-list');
-        completeContainer.innerHTML = completeData.length === 0 
-            ? "<tr><td colspan='3' style='padding:20px; color:#999;'>이수자가 없습니다.</td></tr>"
-            : completeData.map(item => {
-                const edu = eduList.find(e => e.id === item.eduId);
-                return `
-                    <tr>
-                        <td style="font-weight:bold;">${item.userName}</td>
-                        <td style="font-size:0.8rem; color:#666;">${edu ? edu.title : '삭제됨'}</td>
-                        <td><img src="${item.sign}" class="sign-img" onclick="showSign('${item.sign}')"></td>
-                    </tr>
-                `;
-            }).reverse().join('');
-    }
-</script>
+        function deleteEdu(index) {
+            if(confirm("이 교육을 삭제하시겠습니까?")) {
+                let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+                eduList.splice(index, 1);
+                localStorage.setItem(`eduList_${adminTeam}`, JSON.stringify(eduList));
+                updateDashboard();
+            }
+        }
+
+        updateDashboard();
+    </script>
+</body>
+</html>
