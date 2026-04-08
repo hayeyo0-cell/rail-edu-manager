@@ -8,58 +8,59 @@
         body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
         .admin-title { font-size: 1.2rem; font-weight: bold; color: #333; }
+        .stats { background: #333; color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .stats-item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9rem; }
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .menu-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; cursor: pointer; }
         .menu-card h3 { margin: 10px 0 5px 0; font-size: 1rem; }
-        .menu-card p { font-size: 0.8rem; color: #888; margin: 0; }
         .icon { font-size: 2rem; }
-        .stats { background: #333; color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        .stats-item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-
     <div class="header">
-        <div class="admin-title" id="admin-info">사업소 관리자</div>
+        <div class="admin-title" id="admin-info">관리자 모드</div>
         <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; cursor:pointer;">로그아웃</button>
     </div>
 
     <div class="stats">
         <div style="font-weight: bold; margin-bottom: 10px;">📊 교육 현황 요약</div>
-        <div class="stats-item"><span>진행 중인 교육</span> <span>2건</span></div>
-        <div class="stats-item"><span>미이수 인원</span> <span style="color:#ff7675;">15명</span></div>
+        <div class="stats-item"><span>등록된 교육</span> <span id="edu-count">0건</span></div>
     </div>
 
     <div class="menu-grid">
-        <div class="menu-card" onclick="alert('교육 등록 페이지로 이동합니다.')">
+        <div class="menu-card" onclick="location.href='admin_edu_add.html'">
             <div class="icon">📝</div>
             <h3>교육 등록</h3>
-            <p>신규 교육/자료 업로드</p>
         </div>
-        <div class="menu-card" onclick="alert('이수 현황 확인 페이지로 이동합니다.')">
+        <div class="menu-card" onclick="alert('준비 중인 기능입니다.')">
             <div class="icon">✅</div>
             <h3>이수 확인</h3>
-            <p>실시간 서명부 확인</p>
         </div>
-        <div class="menu-card" onclick="alert('인원 관리 페이지로 이동합니다.')">
+        <div class="menu-card" onclick="alert('준비 중인 기능입니다.')">
             <div class="icon">👥</div>
             <h3>인원 관리</h3>
-            <p>기관사 명단 수정/추가</p>
         </div>
-        <div class="menu-card" onclick="alert('설정 페이지로 이동합니다.')">
-            <div class="icon">⚙️</div>
-            <h3>시스템 설정</h3>
-            <p>비밀번호 및 권한 설정</p>
+        <div class="menu-card" onclick="resetAdmin()">
+            <div class="icon">🔄</div>
+            <h3>권한 초기화</h3>
         </div>
     </div>
 
     <script>
         const adminTeam = localStorage.getItem("loginAdmin");
-        if(!adminTeam) {
-            alert("관리자 로그인이 필요합니다.");
-            location.href = "index.html";
-        } else {
-            document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
+        if(!adminTeam) { location.href = "index.html"; }
+        document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
+
+        // 등록된 교육 개수 표시
+        const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+        document.getElementById("edu-count").innerText = `${eduList.length}건`;
+
+        function resetAdmin() {
+            if(confirm("관리자 정보를 초기화하고 1234 상태로 되돌릴까요?")) {
+                localStorage.removeItem(`adminConfig_${adminTeam}`);
+                alert("초기화되었습니다. 다시 로그인해주세요.");
+                location.href = "index.html";
+            }
         }
     </script>
 </body>
