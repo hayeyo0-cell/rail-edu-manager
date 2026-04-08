@@ -5,50 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>스마트 교육관리 시스템</title>
     <style>
-        :root {
-            --ks-color: #e74c3c; --my-color: #2ecc71;
-            --wb-color: #e67e22; --as-color: #3498db;
-        }
         body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
-        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: #333; }
-        .btn { width: 100%; padding: 1rem; margin: 0.5rem 0; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-        .btn-user { background: #333; color: white; }
-        .btn-admin { background: #fff; color: #333; border: 2px solid #333; }
-        .team-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1rem; }
-        .btn-ks { background: var(--ks-color); color: white; }
-        .btn-my { background: var(--my-color); color: white; }
-        .btn-wb { background: var(--wb-color); color: white; }
-        .btn-as { background: var(--as-color); color: white; }
-        .hidden { display: none; }
+        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 380px; text-align: center; }
+        h1 { font-size: 1.4rem; margin-bottom: 1.5rem; color: #333; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; font-weight: bold; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        .btn-login { width: 100%; padding: 15px; background: #333; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .mode-select { display: flex; gap: 10px; margin-bottom: 20px; }
+        .mode-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 0.9rem; }
+        .active { background: #333; color: white; border-color: #333; }
     </style>
 </head>
 <body>
-    <div class="card" id="start-node">
-        <h1>스마트 교육관리</h1>
-        <button class="btn btn-user" onclick="goStep2('user')">기관사 로그인</button>
-        <button class="btn btn-admin" onclick="goStep2('admin')">관리자 로그인</button>
+
+<div class="card">
+    <h1 id="title">기관사 교육관리</h1>
+    
+    <div class="mode-select">
+        <button id="btn-user" class="mode-btn active" onclick="setMode('user')">기관사</button>
+        <button id="btn-admin" class="mode-btn" onclick="setMode('admin')">관리자</button>
     </div>
-    <div class="card hidden" id="team-select">
-        <h1 id="select-title">소속 팀 선택</h1>
-        <div class="team-grid">
-            <button class="btn btn-ks" onclick="handleSelect('KS')">KS (경산)</button>
-            <button class="btn btn-my" onclick="handleSelect('MY')">MY (문양)</button>
-            <button class="btn btn-wb" onclick="handleSelect('WB')">WB (월배)</button>
-            <button class="btn btn-as" onclick="handleSelect('AS') )">AS (안심)</button>
-        </div>
-        <button onclick="location.reload()" style="margin-top:20px; background:none; border:none; color:#666; text-decoration:underline;">뒤로가기</button>
+
+    <div class="input-group">
+        <label>소속 사업소</label>
+        <select id="team-select">
+            <option value="">사업소를 선택하세요</option>
+            <option value="KS">KS (경산)</option>
+            <option value="MY">MY (문양)</option>
+            <option value="WB">WB (월배)</option>
+            <option value="AS">AS (안심)</option>
+        </select>
     </div>
-    <script>
-        let role = '';
-        function goStep2(selectedRole) {
-            role = selectedRole;
-            document.getElementById('start-node').classList.add('hidden');
-            document.getElementById('team-select').classList.remove('hidden');
+
+    <div class="input-group">
+        <label id="id-label">사번</label>
+        <input type="text" id="id-input" placeholder="숫자만 입력하세요">
+    </div>
+
+    <div class="input-group">
+        <label>비밀번호</label>
+        <input type="password" id="pw-input" placeholder="비밀번호를 입력하세요">
+    </div>
+
+    <button class="btn-login" onclick="handleLogin()">로그인</button>
+</div>
+
+<script>
+    let currentMode = 'user';
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('btn-user').classList.toggle('active', mode === 'user');
+        document.getElementById('btn-admin').classList.toggle('active', mode === 'admin');
+        document.getElementById('title').innerText = mode === 'user' ? '기관사 교육관리' : '관리자 교육관리';
+        document.getElementById('id-label').innerText = mode === 'user' ? '사번' : '관리자 ID';
+    }
+
+    function handleLogin() {
+        const team = document.getElementById('team-select').value;
+        const id = document.getElementById('id-input').value;
+        const pw = document.getElementById('pw-input').value;
+
+        if(!team || !id || !pw) {
+            alert("모든 정보를 입력해주세요.");
+            return;
         }
-        function handleSelect(team) {
-            alert(team + " 팀 " + (role === 'user' ? '기관사' : '관리자') + " 로그인을 시작합니다.");
-        }
-    </script>
+
+        // 로그인 로직 (다음 단계에서 실제 명단과 대조할 예정)
+        alert(`${team}팀 ${currentMode} 로그인 시도\nID: ${id}`);
+    }
+</script>
+
 </body>
 </html>
