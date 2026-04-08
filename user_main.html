@@ -9,7 +9,6 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .user-info { font-weight: bold; color: #333; }
         
-        /* 교육 카드 스타일 */
         .edu-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
         .badge { position: absolute; top: 15px; right: 15px; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
         .badge-online { background: #e1f5fe; color: #039be5; }
@@ -17,16 +16,10 @@
         .title { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; width: 70%; line-height: 1.3; }
         .info { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
         .d-day { color: #e74c3c; font-weight: bold; }
-        .btn-sign { width: 100%; background: #333; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        
+        /* 버튼 스타일 변경 */
+        .btn-sign { width: 100%; background: #3498db; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
         .btn-complete { width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: default; }
-
-        /* 🖋️ 서명 팝업창(모달) 스타일 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
-        #signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 10px; margin-top: 10px; touch-action: none; }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-clear { flex: 1; padding: 12px; background: #eee; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-save-sign { flex: 2; padding: 12px; background: #3498db; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -38,28 +31,11 @@
 
     <div id="edu-list"></div>
 
-    <div id="sign-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="sign-title" style="margin:0; font-size: 1.1rem;">교육 서명</h3>
-            <p style="font-size:0.8rem; color:#888; margin: 5px 0 15px;">아래 박스에 손가락으로 정자 서명하세요.</p>
-            <canvas id="signature-pad" width="300" height="200"></canvas>
-            <div class="btn-group">
-                <button class="btn-clear" onclick="clearCanvas()">지우기</button>
-                <button class="btn-save-sign" onclick="saveSignature()">서명 완료</button>
-            </div>
-            <button onclick="closeSignModal()" style="margin-top:15px; background:none; border:none; color:#999; text-decoration:underline;">닫기</button>
-        </div>
-    </div>
-
     <script>
         const user = JSON.parse(localStorage.getItem("loginUser"));
         if(!user) { location.href = "index.html"; }
         document.getElementById("user-display").innerText = `${user.team} ${user.name} 기관사님`;
 
-        let canvas, ctx, drawing = false;
-        let currentEduId = null;
-
-        // 1. 교육 목록 불러오기
         function loadEduList() {
             const eduList = JSON.parse(localStorage.getItem(`eduList_${user.team}`)) || [];
             const completionData = JSON.parse(localStorage.getItem(`complete_${user.team}`)) || [];
@@ -83,72 +59,18 @@
                         <div class="info">기한: ~ ${edu.date} <span class="d-day">${dDay}</span></div>
                         ${isDone 
                             ? `<button class="btn-complete">이수 완료 ✅</button>` 
-                            : `<button class="btn-sign" onclick="openSignModal('${edu.id}', '${edu.title}')">자료보기 및 서명</button>`
+                            : `<button class="btn-sign" onclick="goToTimer('${edu.id}', '${edu.title}')">⏱️ 교육 입장 및 시뮬레이션</button>`
                         }
                     </div>
                 `;
             }).join('');
         }
 
-        // 2. 서명 팝업 열기 및 캔버스 설정
-        function openSignModal(eduId, eduTitle) {
-            currentEduId = eduId;
-            document.getElementById('sign-title').innerText = eduTitle;
-            document.getElementById('sign-modal').style.display = 'flex';
-            
-            canvas = document.getElementById('signature-pad');
-            ctx = canvas.getContext('2d');
-            ctx.strokeStyle = "#222";
-            ctx.lineWidth = 3;
-            ctx.lineCap = "round";
-
-            // 마우스/터치 이벤트 등록
-            canvas.addEventListener("touchstart", startDrawing);
-            canvas.addEventListener("touchmove", draw);
-            canvas.addEventListener("touchend", stopDrawing);
-            canvas.addEventListener("mousedown", startDrawing);
-            canvas.addEventListener("mousemove", draw);
-            canvas.addEventListener("mouseup", stopDrawing);
-        }
-
-        function startDrawing(e) { drawing = true; ctx.beginPath(); moveDraw(e); }
-        function stopDrawing() { drawing = false; }
-        function draw(e) { if(!drawing) return; e.preventDefault(); moveDraw(e); }
-        function moveDraw(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-            ctx.lineTo(x, y);
-            ctx.stroke();
-        }
-
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-        function closeSignModal() { document.getElementById('sign-modal').style.display = 'none'; clearCanvas(); }
-
-        // 3. 서명 저장
-        function saveSignature() {
-            // 서명이 비어있는지 확인 (간단 체크)
-            const blank = document.createElement('canvas');
-            blank.width = canvas.width; blank.height = canvas.height;
-            if (canvas.toDataURL() === blank.toDataURL()) {
-                alert("서명을 해주세요!"); return;
-            }
-
-            const dataURL = canvas.toDataURL();
-            const completionData = JSON.parse(localStorage.getItem(`complete_${user.team}`)) || [];
-            
-            completionData.push({
-                eduId: parseInt(currentEduId),
-                userId: user.id,
-                userName: user.name,
-                sign: dataURL,
-                date: new Date().toLocaleString()
-            });
-            
-            localStorage.setItem(`complete_${user.team}`, JSON.stringify(completionData));
-            alert("서명이 완료되었습니다!");
-            closeSignModal();
-            loadEduList(); // 목록 새로고침하여 '이수 완료'로 변경
+        // 🚀 타이머 화면으로 넘어가는 함수!
+        function goToTimer(id, title) {
+            localStorage.setItem('currentEduId', id);       // 어떤 교육인지 임시 저장
+            localStorage.setItem('currentEduTitle', title); // 제목 임시 저장
+            location.href = 'user_timer.html';              // 타이머 화면으로 이동!
         }
 
         function calculateDDay(targetDate) {
