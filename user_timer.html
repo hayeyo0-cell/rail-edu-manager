@@ -65,12 +65,11 @@
     </div>
 
     <script>
-        // 동적으로 제목 표시
         const currentEduTitle = localStorage.getItem('currentEduTitle') || "시뮬레이션 교육";
         document.getElementById('top-title').innerText = currentEduTitle;
         document.getElementById('doc-title').innerText = currentEduTitle;
 
-        // 1. 타이머 작동 로직
+        // 시연용 10초 타이머
         let timeLeft = 10; 
         const timerDisplay = document.getElementById('time-display');
         const timerBar = document.getElementById('timer-bar');
@@ -126,43 +125,42 @@
         }
         function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-        // 🚀 구글 시트로 서명 데이터 전송하는 마법의 로직!
+        // 🚀 구글 시트로 서명 데이터 전송
         function finishEdu() {
+            // 기관사님의 구글 스크립트 주소!
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec";
             
-            // 저장 버튼을 '전송 중'으로 변경하여 중복 클릭 방지
             const btnSubmit = document.getElementById('btn-submit');
             btnSubmit.innerText = "서버 저장 중... ⏳";
             btnSubmit.disabled = true;
 
-            const dataURL = canvas.toDataURL(); // 서명 이미지
+            const dataURL = canvas.toDataURL(); 
             const user = JSON.parse(localStorage.getItem("loginUser"));
             const eduId = parseInt(localStorage.getItem('currentEduId')); 
             const currentDate = new Date().toLocaleString();
 
-            // 구글 시트로 보낼 짐(데이터) 꾸리기
+            // 🎁 이수 시간(duration) 데이터가 새롭게 추가되었습니다!
             const payload = {
                 userId: user.id,
                 userName: user.name,
                 eduTitle: currentEduTitle,
+                duration: "10초 (정상 이수)", // 시간 데이터 추가됨!
                 sign: dataURL,
                 date: currentDate
             };
 
-            // 구글로 발사!
             fetch(SCRIPT_URL, {
                 method: "POST",
                 headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
             .then(response => {
-                // 전송 성공 시, 스마트폰(앱) 내부에도 저장
                 const completionData = JSON.parse(localStorage.getItem(`complete_${user.team}`)) || [];
                 completionData.push({ eduId: eduId, userId: user.id, userName: user.name, sign: dataURL, date: currentDate });
                 localStorage.setItem(`complete_${user.team}`, JSON.stringify(completionData));
                 
-                alert("✅ 서명이 구글 시트에 안전하게 기록되었습니다!");
-                location.href = "user_main.html"; // 메인으로 복귀
+                alert("✅ 서명과 이수 시간이 구글 시트에 안전하게 기록되었습니다!");
+                location.href = "user_main.html"; 
             })
             .catch(error => {
                 alert("앗, 전송 중 오류가 발생했습니다. 인터넷 연결을 확인해주세요.");
@@ -171,7 +169,7 @@
             });
         }
 
-        startTimer(); // 페이지 시작과 동시에 타이머 가동!
+        startTimer();
     </script>
 </body>
 </html>
