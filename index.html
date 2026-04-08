@@ -1,68 +1,16 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스마트 교육관리 시스템</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 90%; max-width: 380px; text-align: center; }
-        h1 { font-size: 1.4rem; margin-bottom: 1.5rem; color: #333; }
-        .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 0.9rem; color: #666; margin-bottom: 5px; font-weight: bold; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn-login { width: 100%; padding: 15px; background: #333; color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .mode-select { display: flex; gap: 10px; margin-bottom: 20px; }
-        .mode-btn { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 0.9rem; }
-        .active { background: #333; color: white; border-color: #333; }
-    </style>
-</head>
-<body>
-
-<div class="card">
-    <h1 id="title">기관사 교육관리</h1>
-    
-    <div class="mode-select">
-        <button id="btn-user" class="mode-btn active" onclick="setMode('user')">기관사</button>
-        <button id="btn-admin" class="mode-btn" onclick="setMode('admin')">관리자</button>
-    </div>
-
-    <div class="input-group">
-        <label>소속 사업소</label>
-        <select id="team-select">
-            <option value="">사업소를 선택하세요</option>
-            <option value="KS">KS (경산)</option>
-            <option value="MY">MY (문양)</option>
-            <option value="WB">WB (월배)</option>
-            <option value="AS">AS (안심)</option>
-        </select>
-    </div>
-
-    <div class="input-group">
-        <label id="id-label">사번</label>
-        <input type="text" id="id-input" placeholder="사번을 입력하세요">
-    </div>
-
-    <div class="input-group">
-        <label>비밀번호</label>
-        <input type="password" id="pw-input" placeholder="비밀번호를 입력하세요">
-    </div>
-
-    <button class="btn-login" onclick="handleLogin()">로그인</button>
-</div>
-
-<script>
-    // --- [여기에 명단을 직접 입력합니다] ---
+    // --- [데이터베이스 영역] ---
+    // 모든 팀에 기관사님의 정보를 복사해서 넣었습니다.
+    const commonUser = {id: "20050552", name: "테스터", pw: "1234"};
     const userDB = {
-        "KS": [ {id: "1001", name: "홍길동", pw: "1234"}, {id: "1002", name: "이순신", pw: "1234"} ],
-        "MY": [ {id: "2001", name: "김철수", pw: "2222"} ],
-        "WB": [ {id: "3001", name: "박영희", pw: "3333"} ],
-        "AS": [ {id: "4001", name: "최배달", pw: "4444"} ]
+        "KS": [ commonUser ],
+        "MY": [ commonUser ],
+        "WB": [ commonUser ],
+        "AS": [ commonUser ]
     };
 
-    // 관리자 비번 (팀별로 다르게 설정 가능)
+    // 관리자 비번도 모든 팀 1234로 통일
     const adminDB = {
-        "KS": "ksadmin1!", "MY": "myadmin2!", "WB": "wbadmin3!", "AS": "asadmin4!"
+        "KS": "1234", "MY": "1234", "WB": "1234", "AS": "1234"
     };
 
     let currentMode = 'user';
@@ -86,21 +34,21 @@
             const teamUsers = userDB[team];
             const user = teamUsers.find(u => u.id === id && u.pw === pw);
             if(user) {
-                alert(`${user.name} 기관사님, 환영합니다!`);
-                // 여기서 다음 페이지로 이동 (예: user_main.html)
+                // 로그인 정보 저장
+                localStorage.setItem("loginUser", JSON.stringify({ ...user, team: team }));
+                alert(`${team} 사업소 ${user.name}님 환영합니다!`);
+                window.location.href = "user_main.html";
             } else {
                 alert("사번 또는 비밀번호가 틀렸습니다.");
             }
         } else {
-            // 관리자 로그인 로직
-            if(id === "admin" && pw === adminDB[team]) {
+            // 관리자 로그인: ID 상관없이 선택한 팀의 비번만 맞으면 통과
+            if(pw === adminDB[team]) {
+                localStorage.setItem("loginAdmin", team);
                 alert(`${team} 관리자 모드로 접속합니다.`);
-                // 여기서 관리자 페이지로 이동 (예: admin_main.html)
+                window.location.href = "admin_main.html";
             } else {
-                alert("관리자 정보가 일치하지 않습니다.");
+                alert("관리자 비밀번호가 일치하지 않습니다.");
             }
         }
     }
-</script>
-</body>
-</html>
