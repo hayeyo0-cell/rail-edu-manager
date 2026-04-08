@@ -9,11 +9,17 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
         .admin-title { font-size: 1.2rem; font-weight: bold; color: #333; }
         .stats { background: #333; color: white; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        .stats-item { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9rem; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .menu-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; cursor: pointer; }
-        .menu-card h3 { margin: 10px 0 5px 0; font-size: 1rem; }
-        .icon { font-size: 2rem; }
+        .icon { font-size: 1.5rem; margin-bottom: 5px; }
+        
+        /* 교육 관리 목록 스타일 */
+        .edu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .edu-info { flex: 1; }
+        .edu-info div { font-weight: bold; font-size: 1rem; color: #333; }
+        .edu-info span { font-size: 0.8rem; color: #888; }
+        .btn-group button { padding: 8px 12px; border-radius: 8px; border: none; font-size: 0.8rem; cursor: pointer; margin-left: 5px; }
+        .btn-del { background: #ff7675; color: white; }
     </style>
 </head>
 <body>
@@ -22,46 +28,66 @@
         <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; cursor:pointer;">로그아웃</button>
     </div>
 
-    <div class="stats">
-        <div style="font-weight: bold; margin-bottom: 10px;">📊 교육 현황 요약</div>
-        <div class="stats-item"><span>등록된 교육</span> <span id="edu-count">0건</span></div>
-    </div>
-
     <div class="menu-grid">
         <div class="menu-card" onclick="location.href='admin_edu_add.html'">
             <div class="icon">📝</div>
-            <h3>교육 등록</h3>
-        </div>
-        <div class="menu-card" onclick="alert('준비 중인 기능입니다.')">
-            <div class="icon">✅</div>
-            <h3>이수 확인</h3>
-        </div>
-        <div class="menu-card" onclick="alert('준비 중인 기능입니다.')">
-            <div class="icon">👥</div>
-            <h3>인원 관리</h3>
+            <div style="font-weight:bold; font-size:0.9rem;">교육 등록</div>
         </div>
         <div class="menu-card" onclick="resetAdmin()">
             <div class="icon">🔄</div>
-            <h3>권한 초기화</h3>
+            <div style="font-weight:bold; font-size:0.9rem;">권한 초기화</div>
         </div>
     </div>
+
+    <h3 style="font-size: 1rem; color: #555;">📋 등록된 교육 관리</h3>
+    <div id="admin-edu-list">
+        </div>
 
     <script>
         const adminTeam = localStorage.getItem("loginAdmin");
         if(!adminTeam) { location.href = "index.html"; }
         document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
 
-        // 등록된 교육 개수 표시
-        const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-        document.getElementById("edu-count").innerText = `${eduList.length}건`;
+        function loadAdminEduList() {
+            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            const container = document.getElementById("admin-edu-list");
+            
+            if(eduList.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#999; font-size:0.9rem;'>등록된 교육이 없습니다.</p>";
+                return;
+            }
+
+            container.innerHTML = eduList.map((edu, index) => `
+                <div class="edu-item">
+                    <div class="edu-info">
+                        <div>${edu.title}</div>
+                        <span>기한: ${edu.date} (${edu.type === 'online' ? '게시' : '대면'})</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn-del" onclick="deleteEdu(${index})">삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteEdu(index) {
+            if(confirm("이 교육을 삭제할까요? 관련 서명 데이터도 삭제될 수 있습니다.")) {
+                let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+                eduList.splice(index, 1); // 해당 순서의 교육 삭제
+                localStorage.setItem(`eduList_${adminTeam}`, JSON.stringify(eduList));
+                loadAdminEduList(); // 화면 새로고침
+                alert("삭제되었습니다.");
+            }
+        }
 
         function resetAdmin() {
-            if(confirm("관리자 정보를 초기화하고 1234 상태로 되돌릴까요?")) {
+            if(confirm("관리자 정보를 초기화할까요?")) {
                 localStorage.removeItem(`adminConfig_${adminTeam}`);
-                alert("초기화되었습니다. 다시 로그인해주세요.");
                 location.href = "index.html";
             }
         }
+
+        loadAdminEduList();
     </script>
 </body>
 </html>
