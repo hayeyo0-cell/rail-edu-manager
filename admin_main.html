@@ -9,20 +9,23 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
         .admin-title { font-size: 1.1rem; font-weight: bold; color: #333; }
         
-        /* 메뉴 카드 그리드 */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .menu-card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; cursor: pointer; border: none; }
         .menu-card .icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
         .menu-card span { font-weight: bold; font-size: 0.9rem; color: #333; }
 
-        /* 하단 목록 스타일 */
-        h3 { font-size: 1rem; color: #555; margin-bottom: 12px; display: flex; align-items: center; }
-        .edu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-        .edu-info div { font-weight: bold; font-size: 1rem; color: #333; margin-bottom: 4px; }
-        .edu-info span { font-size: 0.8rem; color: #888; }
-        .btn-del { background: #ff7675; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+        h3 { font-size: 1rem; color: #555; margin-bottom: 12px; margin-top: 25px; border-left: 4px solid #333; padding-left: 10px; }
         
-        .empty-msg { text-align: center; color: #999; font-size: 0.9rem; margin-top: 30px; }
+        /* 이수 명단 테이블 스타일 */
+        .table-container { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th { background: #eee; padding: 10px; color: #555; text-align: center; }
+        td { padding: 10px; border-bottom: 1px solid #f0f0f0; text-align: center; }
+        .sign-img { width: 50px; height: 30px; border: 1px solid #ddd; background: #fff; cursor: pointer; vertical-align: middle; }
+        
+        /* 서명 확대 팝업 */
+        .sign-pop { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center; }
+        .sign-pop img { background:white; width: 80%; max-width: 300px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -42,45 +45,65 @@
         </div>
     </div>
 
-    <h3>📋 등록된 교육 관리</h3>
-    <div id="admin-edu-list">
-        </div>
+    <h3>✅ 실시간 이수 확인</h3>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>성명</th>
+                    <th>교육명</th>
+                    <th>서명</th>
+                    <th>일시</th>
+                </tr>
+            </thead>
+            <tbody id="complete-list">
+                </tbody>
+        </table>
+    </div>
+
+    <div id="sign-pop" class="sign-pop" onclick="this.style.display='none'">
+        <img id="pop-img" src="" alt="서명확대">
+    </div>
 
     <script>
         const adminTeam = localStorage.getItem("loginAdmin");
         if(!adminTeam) { location.href = "index.html"; }
         document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
 
-        function loadAdminEduList() {
+        function loadCompletionList() {
+            // 기관사가 저장한 서명 데이터 불러오기
+            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
             const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-            const container = document.getElementById("admin-edu-list");
+            const container = document.getElementById("complete-list");
             
-            if(eduList.length === 0) {
-                container.innerHTML = "<p class='empty-msg'>등록된 교육이 없습니다.</p>";
+            if(completeData.length === 0) {
+                container.innerHTML = "<tr><td colspan='4' style='padding:30px; color:#999;'>아직 이수자가 없습니다.</td></tr>";
                 return;
             }
 
-            container.innerHTML = eduList.map((edu, index) => `
-                <div class="edu-item">
-                    <div class="edu-info">
-                        <div>${edu.title}</div>
-                        <span>~ ${edu.date} (${edu.type === 'online' ? '게시' : '대면'})</span>
-                    </div>
-                    <button class="btn-del" onclick="deleteEdu(${index})">삭제</button>
-                </div>
-            `).join('');
+            container.innerHTML = completeData.map(item => {
+                // 교육 ID로 교육 제목 찾기
+                const edu = eduList.find(e => e.id === item.eduId);
+                const title = edu ? edu.title : "삭제된 교육";
+                
+                return `
+                    <tr>
+                        <td style="font-weight:bold;">${item.userName}</td>
+                        <td style="color:#666;">${title}</td>
+                        <td><img src="${item.sign}" class="sign-img" onclick="showSign('${item.sign}')"></td>
+                        <td style="font-size:0.7rem; color:#999;">${item.date.split(' ')[1]}</td>
+                    </tr>
+                `;
+            }).reverse().join(''); // 최신순으로 정렬
         }
 
-        function deleteEdu(index) {
-            if(confirm("이 교육을 삭제하시겠습니까?")) {
-                let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-                eduList.splice(index, 1);
-                localStorage.setItem(`eduList_${adminTeam}`, JSON.stringify(eduList));
-                loadAdminEduList();
-            }
+        function showSign(src) {
+            document.getElementById('pop-img').src = src;
+            document.getElementById('sign-pop').style.display = 'flex';
         }
 
-        loadAdminEduList();
+        // 페이지 열자마자 목록 불러오기
+        loadCompletionList();
     </script>
 </body>
 </html>
