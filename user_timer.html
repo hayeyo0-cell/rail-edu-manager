@@ -1,1 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>시뮬레이션 교육 - 스마트 교육관리</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* 상단 고정 헤더 & 타이머 */
+        .header { background: #fff; padding: 15px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; display: flex; align-items: center; justify-content: space-between; }
+        .back-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #333; }
+        .title { font-weight: bold; font-size: 1.1rem; color: #333; }
+        
+        .timer-bar { background: #e74c3c; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 1.1rem; transition: background 0.3s; }
+        .timer-bar.done { background: #2ecc71; }
+
+        /* 교육 자료 (본문) 영역 */
+        .content-area { flex: 1; overflow-y: auto; padding: 20px; background: #fff; text-align: center; }
+        .manual-box { border: 2px dashed #ccc; background: #fafafa; height: 600px; display: flex; align-items: center; justify-content: center; border-radius: 10px; color: #888; flex-direction: column; }
+        
+        /* 하단 고정 서명 버튼 */
+        .footer { padding: 15px; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .btn-sign { width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; color: white; background: #bdc3c7; transition: background 0.3s; }
+        .btn-sign.active { background: #3498db; cursor: pointer; box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3); }
+
+        /* 서명 팝업창 (이전과 동일) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
+        #signature-pad { border: 2px dashed #ccc; background: #fafafa; border-radius: 10px; margin-top: 10px; touch-action: none; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-clear { flex: 1; padding: 12px; background: #eee; border: none; border-radius: 10px; font-weight: bold; }
+        .btn-save-sign { flex: 2; padding: 12px; background: #3498db; color: white; border: none; border-radius: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <button class="back-btn" onclick="location.href='user_main.html'">←</button>
+        <div class="title">전동차 고장처치 시뮬레이션</div>
+        <div style="width: 24px;"></div> </div>
+
+    <div id="timer-bar" class="timer-bar">
+        남은 필수 이수 시간 ⏳ <span id="time-display">00:10</span>
+    </div>
+
+    <div class="content-area">
+        <div class="manual-box">
+            <span style="font-size: 3rem; margin-bottom: 15px;">🚂</span>
+            <h3>고장처치 매뉴얼 (시연용)</h3>
+            <p>이곳에 실제 PDF 도면이나<br>시뮬레이션 영상이 표시됩니다.</p>
+            <p style="font-size: 0.8rem; color: #aaa; margin-top: 50px;">(아래로 스크롤 해보세요)</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button id="btn-open-sign" class="btn-sign" disabled>시간을 모두 채워야 서명할 수 있습니다</button>
+    </div>
+
+    <div id="sign-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="margin:0;">교육 이수 서명</h3>
+            <canvas id="signature-pad" width="300" height="200"></canvas>
+            <div class="btn-group">
+                <button class="btn-clear" onclick="clearCanvas()">지우기</button>
+                <button class="btn-save-sign" onclick="finishEdu()">서명 완료</button>
+            </div>
+            <button onclick="document.getElementById('sign-modal').style.display='none'" style="margin-top:15px; background:none; border:none; color:#999;">닫기</button>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 10; // 시연용 10초 설정 (실제는 3600초 등으로 설정)
+        const timerDisplay = document.getElementById('time-display');
+        const timerBar = document.getElementById('timer-bar');
+        const btnOpenSign = document.getElementById('btn-open-sign');
+        let timerId;
+
+        // 1. 타이머 작동 로직
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                let s = (timeLeft % 60).toString().padStart(2, '0');
+                timerDisplay.innerText = `${m}:${s}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerFinished();
+                }
+            }, 1000);
+        }
+
+        // 2. 시간이 다 되었을 때 로직
+        function timerFinished() {
+            timerBar.classList.add('done');
+            timerBar.innerHTML = "✅ 필수 이수 시간을 모두 채웠습니다!";
+            
+            btnOpenSign.disabled = false;
+            btnOpenSign.classList.add('active');
+            btnOpenSign.innerText = "이수 완료 및 서명하기";
+            btnOpenSign.onclick = openSignModal;
+        }
+
+        /* --- 이하 서명 패드 로직 (기존과 동일) --- */
+        let canvas, ctx, drawing = false;
+
+        function openSignModal() {
+            document.getElementById('sign-modal').style.display = 'flex';
+            canvas = document.getElementById('signature-pad');
+            ctx = canvas.getContext('2d');
+            ctx.strokeStyle = "#222"; ctx.lineWidth = 3; ctx.lineCap = "round";
+            canvas.addEventListener("touchstart", startDrawing);
+            canvas.addEventListener("touchmove", draw);
+            canvas.addEventListener("touchend", stopDrawing);
+            canvas.addEventListener("mousedown", startDrawing);
+            canvas.addEventListener("mousemove", draw);
+            canvas.addEventListener("mouseup", stopDrawing);
+        }
+        function startDrawing(e) { drawing = true; ctx.beginPath(); moveDraw(e); }
+        function stopDrawing() { drawing = false; }
+        function draw(e) { if(!drawing) return; e.preventDefault(); moveDraw(e); }
+        function moveDraw(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+            ctx.lineTo(x, y); ctx.stroke();
+        }
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+        function finishEdu() {
+            alert("시뮬레이션 교육 이수가 완료되었습니다! (시연 종료)");
+            location.href = "user_main.html"; // 메인으로 복귀
+        }
+
+        // 페이지 열리자마자 타이머 시작
+        startTimer();
+    </script>
+</body>
+</html>
 
