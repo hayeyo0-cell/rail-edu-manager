@@ -3,76 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>교육 등록 - 관리자</title>
+    <title>교육 등록 및 관리 - 관리자</title>
     <style>
         body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; margin-top: 0; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; font-size: 0.9rem; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 1rem; }
-        .btn-save { width: 100%; padding: 16px; background: #2ecc71; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 10px; }
-        .btn-back { width: 100%; padding: 12px; background: none; border: 1px solid #ccc; border-radius: 12px; margin-top: 15px; color: #777; cursor: pointer; font-weight: bold; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .back-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; margin-right: 10px; }
+        
+        h2 { font-size: 1.1rem; margin: 0; }
+        .section-title { font-size: 1rem; color: #555; margin: 25px 0 12px; border-left: 4px solid #3498db; padding-left: 10px; font-weight: bold; }
+
+        /* 게시 목록 카드 스타일 */
+        .edu-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .edu-info div { font-weight: bold; font-size: 0.95rem; color: #333; margin-bottom: 3px; }
+        .edu-info span { font-size: 0.8rem; color: #888; }
+        .btn-del { background: #ffefef; color: #ff7675; border: none; padding: 7px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+
+        /* 등록 폼 스타일 */
+        .form-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        .btn-save { width: 100%; background: #3498db; color: white; border: none; padding: 15px; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>📑 신규 교육 등록</h2>
+
+    <div class="header">
+        <button class="back-btn" onclick="location.href='admin_main.html'">←</button>
+        <h2>📝 교육 등록 및 관리</h2>
+    </div>
+
+    <div class="section-title">📢 현재 게시 중인 교육</div>
+    <div id="current-edu-list">
+        </div>
+
+    <div class="section-title">✨ 새 교육 등록하기</div>
+    <div class="form-card">
         <div class="form-group">
             <label>교육 제목</label>
-            <input type="text" id="edu-title" placeholder="예: 4월 전동차 사고사례 교육">
+            <input type="text" id="edu-title" placeholder="예: 4월 사고사례 교육">
         </div>
         <div class="form-group">
-            <label>교육 유형</label>
+            <label>교육 구분</label>
             <select id="edu-type">
-                <option value="online">💻 게시교육 (자료확인)</option>
-                <option value="offline">👥 대면교육 (현장인증)</option>
+                <option value="online">💻 게시 교육 (온라인)</option>
+                <option value="offline">👥 대면 교육 (오프라인)</option>
             </select>
         </div>
         <div class="form-group">
-            <label>마감 기한</label>
+            <label>이수 기한</label>
             <input type="date" id="edu-date">
         </div>
-        <div class="form-group">
-            <label>상세 내용 / 장소</label>
-            <textarea id="edu-desc" rows="3" placeholder="장소나 전달사항을 입력하세요"></textarea>
-        </div>
-        <button class="btn-save" onclick="saveEdu()">등록 완료</button>
-        <button class="btn-back" onclick="location.href='admin_main.html'">취소하고 돌아가기</button>
+        <button class="btn-save" onclick="saveEdu()">교육 게시하기</button>
     </div>
 
     <script>
+        const adminTeam = localStorage.getItem("loginAdmin");
+
+        function loadEduList() {
+            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            const container = document.getElementById('current-edu-list');
+            
+            if(eduList.length === 0) {
+                container.innerHTML = "<p style='text-align:center; color:#999; font-size:0.9rem; padding:20px;'>게시된 교육이 없습니다.</p>";
+                return;
+            }
+
+            container.innerHTML = eduList.map((edu, index) => `
+                <div class="edu-item">
+                    <div class="edu-info">
+                        <div>${edu.title}</div>
+                        <span>기한: ~${edu.date}</span>
+                    </div>
+                    <button class="btn-del" onclick="deleteEdu(${index})">삭제</button>
+                </div>
+            `).join('');
+        }
+
         function saveEdu() {
             const title = document.getElementById('edu-title').value;
             const type = document.getElementById('edu-type').value;
             const date = document.getElementById('edu-date').value;
-            const desc = document.getElementById('edu-desc').value;
-            const adminTeam = localStorage.getItem("loginAdmin");
 
-            if(!title || !date) {
-                alert("제목과 날짜를 입력해주세요!");
-                return;
-            }
+            if(!title || !date) { alert("제목과 날짜를 입력해주세요!"); return; }
 
-            // 기존 교육 목록 가져오기
-            let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-            
-            // 새 교육 데이터 추가
             const newEdu = {
                 id: Date.now(),
                 title: title,
                 type: type,
-                date: date,
-                desc: desc,
-                team: adminTeam
+                date: date
             };
 
-            eduList.unshift(newEdu); // 최신 교육이 위로 오게 추가
+            let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            eduList.unshift(newEdu);
             localStorage.setItem(`eduList_${adminTeam}`, JSON.stringify(eduList));
-
-            alert("성공적으로 등록되었습니다!");
-            location.href = 'admin_main.html';
+            
+            alert("교육이 게시되었습니다!");
+            location.reload(); // 목록 갱신을 위해 새로고침
         }
+
+        function deleteEdu(index) {
+            if(confirm("이 교육을 삭제하시겠습니까?")) {
+                let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+                eduList.splice(index, 1);
+                localStorage.setItem(`eduList_${adminTeam}`, JSON.stringify(eduList));
+                loadEduList();
+            }
+        }
+
+        loadEduList();
     </script>
 </body>
 </html>
