@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>교육 등록 - 관리자</title>
+    <style>
+        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-top: 0; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; font-size: 0.9rem; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 1rem; }
+        .btn-save { width: 100%; padding: 16px; background: #2ecc71; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 10px; }
+        .btn-back { width: 100%; padding: 12px; background: none; border: 1px solid #ccc; border-radius: 12px; margin-top: 15px; color: #777; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>📑 신규 교육 등록</h2>
+        <div class="form-group">
+            <label>교육 제목</label>
+            <input type="text" id="edu-title" placeholder="예: 4월 전동차 사고사례 교육">
+        </div>
+        <div class="form-group">
+            <label>교육 유형</label>
+            <select id="edu-type">
+                <option value="online">💻 게시교육 (자료확인)</option>
+                <option value="offline">👥 대면교육 (현장인증)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>마감 기한</label>
+            <input type="date" id="edu-date">
+        </div>
+        <div class="form-group">
+            <label>상세 내용 / 장소</label>
+            <textarea id="edu-desc" rows="3" placeholder="장소나 전달사항을 입력하세요"></textarea>
+        </div>
+        <button class="btn-save" onclick="saveEdu()">등록 완료</button>
+        <button class="btn-back" onclick="location.href='admin_main.html'">취소하고 돌아가기</button>
+    </div>
+
+    <script>
+        function saveEdu() {
+            const title = document.getElementById('edu-title').value;
+            const type = document.getElementById('edu-type').value;
+            const date = document.getElementById('edu-date').value;
+            const desc = document.getElementById('edu-desc').value;
+            const adminTeam = localStorage.getItem("loginAdmin");
+
+            if(!title || !date) {
+                alert("제목과 날짜를 입력해주세요!");
+                return;
+            }
+
+            // 기존 교육 목록 가져오기
+            let eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
+            
+            // 새 교육 데이터 추가
+            const newEdu = {
+                id: Date.now(),
+                title: title,
+                type: type,
+                date: date,
+                desc: desc,
+                team: adminTeam
+            };
+
+            eduList.unshift(newEdu); // 최신 교육이 위로 오게 추가
+            localStorage.setItem(`eduList_${adminTeam}`, JSON.stringify(eduList));
+
+            alert("성공적으로 등록되었습니다!");
+            location.href = 'admin_main.html';
+        }
+    </script>
+</body>
+</html>
