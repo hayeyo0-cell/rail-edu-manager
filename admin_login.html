@@ -7,7 +7,7 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         
-        /* 스크롤 없이 한 화면에 고정 */
+        /* 스크롤 방지 및 중앙 정렬 */
         html, body { height: 100%; overflow: hidden; }
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
@@ -17,13 +17,31 @@
             justify-content: center; align-items: center; 
         }
 
-        /* 슬림한 제목 */
-        .main-title { 
-            font-size: 1.5rem; font-weight: bold; color: #222; 
-            margin-bottom: 25px; letter-spacing: -1px; 
-            text-align: center;
+        /* [통일 수정] 로고와 제목을 중앙 위아래로 배치 */
+        .brand-area { 
+            text-align: center; 
+            margin-bottom: 25px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .main-title span { color: var(--dtro-blue); font-size: 0.85rem; display: block; margin-bottom: 4px; font-weight: 500; }
+
+        .brand-logo { 
+            height: 20px; /* 통일된 슬림 사이즈 */
+            margin-bottom: 6px; /* 제목과 밀착 */
+            opacity: 0.8;
+        }
+
+        .main-title { 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+            color: #222; 
+            margin: 0; 
+            letter-spacing: -1px;
+            position: relative;
+        }
+        /* 관리자용임을 나타내는 작은 서브 타이틀 */
+        .admin-sub { color: var(--dtro-blue); font-size: 0.85rem; font-weight: 500; display: block; margin-bottom: 2px; }
 
         /* 관리자 로그인 카드 */
         .login-card { 
@@ -32,7 +50,6 @@
             padding: 35px 22px 25px 22px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
             text-align: center;
-            margin-bottom: 15px;
         }
         
         .input-group { text-align: left; margin-bottom: 18px; }
@@ -54,14 +71,14 @@
         .btn-admin:active { transform: scale(0.98); }
 
         .back-link { margin-top: 20px; display: inline-block; font-size: 0.75rem; color: #bbb; text-decoration: none; border-bottom: 1px solid #eee; }
-
-        /* 카드 하단 밀착 로고 */
-        .footer-logo { height: 24px; opacity: 0.8; display: block; }
     </style>
 </head>
 <body>
 
-    <h1 class="main-title"><span>Administrator</span>관리자 로그인</h1>
+    <div class="brand-area">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <h1 class="main-title"><span class="admin-sub">Administrator</span>관리자 로그인</h1>
+    </div>
 
     <div class="login-card">
         <div class="input-group">
@@ -80,8 +97,6 @@
 
         <a href="index.html" class="back-link">일반 사용자 페이지로 돌아가기</a>
     </div>
-
-    <img src="logo.png" class="footer-logo" alt="DTRO">
 
 </body>
 </html>
