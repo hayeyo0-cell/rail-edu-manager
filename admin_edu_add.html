@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>교육 등록 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
+        :root { --dtro-blue: #0072bc; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
 
-        /* [디자인] 상단 슬림 헤더 */
+        /* 상단 헤더 */
         .header { 
             width: 100%; background: white; padding: 12px 0; 
             display: flex; align-items: center; justify-content: space-between; 
@@ -22,39 +22,39 @@
         .container { width: 92%; max-width: 480px; margin: 15px auto; padding-bottom: 30px; }
         .card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        .page-title { font-size: 1.05rem; font-weight: bold; margin-bottom: 22px; display: flex; align-items: center; }
+        .page-title { font-size: 1rem; font-weight: bold; margin-bottom: 22px; display: flex; align-items: center; }
         .page-title::before { content: '✍️'; margin-right: 8px; }
 
-        /* [통일성] 모든 입력 그룹의 간격과 크기 고정 */
         .input-group { margin-bottom: 18px; }
         label { display: block; font-size: 0.8rem; font-weight: bold; color: #777; margin-bottom: 6px; }
         
-        /* [심플] 줄바꿈 방지 및 균일한 높이 설정 */
+        /* [수정] 드롭다운 및 입력창 디자인 슬림화 */
         input, select, .file-upload-box { 
-            width: 100%; height: 45px; padding: 0 12px; border: 1px solid #ddd; 
-            border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; 
+            width: 100%; height: 42px; padding: 0 10px; border: 1px solid #ddd; 
+            border-radius: 8px; box-sizing: border-box; 
+            font-size: 0.85rem; /* 폰트 크기 하향 */
             background: #fafafa; color: #444; display: flex; align-items: center;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+
+        /* [핵심] 드롭다운 목록 글씨 크기 제어 (일부 브라우저 적용) */
+        select option {
+            font-size: 0.85rem;
+            padding: 10px;
         }
         
-        /* 내용 입력창은 특성상 높이만 다르게, 나머지는 동일하게 */
         textarea { 
-            width: 100%; height: 100px; padding: 12px; border: 1px solid #ddd; 
-            border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; 
+            width: 100%; height: 90px; padding: 12px; border: 1px solid #ddd; 
+            border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; 
             background: #fafafa; resize: none; font-family: inherit;
         }
 
-        /* [심플] 파일 첨부 박스 */
-        .file-upload-box { border: 1px dashed #ccc; background: #fff; justify-content: center; cursor: pointer; color: #888; }
-        .file-upload-box:active { background: #f0f7ff; }
+        .file-upload-box { border: 1px dashed #ccc; background: #fff; justify-content: center; cursor: pointer; color: #888; font-size: 0.8rem; }
 
-        /* [디자인] 하단 게시 버튼 */
         .btn-submit { 
-            width: 100%; height: 50px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; 
-            cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,114,188,0.2);
+            width: 100%; height: 48px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px;
         }
-        .btn-submit:active { transform: scale(0.98); }
 
         .sub-setting { background: #fdfdfd; border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-top: 8px; display: none; }
     </style>
@@ -73,8 +73,8 @@
             <div class="input-group">
                 <label>교육 대분류</label>
                 <select id="eduCategory" onchange="updateSubCategory()">
-                    <option value="게시교육">게시교육 (지시사항/사고사례 등)</option>
-                    <option value="대면교육">대면교육 (집합교육/현장실습 등)</option>
+                    <option value="게시교육">게시교육 (지시사항/사고사례)</option>
+                    <option value="대면교육">대면교육 (집합/현장실습)</option>
                 </select>
             </div>
 
@@ -86,7 +86,7 @@
 
             <div id="specialSetting" class="sub-setting">
                 <label id="specialLabel" style="font-size: 0.75rem; color:var(--dtro-blue);">설정</label>
-                <input type="number" id="targetCount" placeholder="목표 횟수 입력" inputmode="numeric">
+                <input type="number" id="targetCount" placeholder="횟수 입력" inputmode="numeric">
             </div>
 
             <div class="input-group">
@@ -96,7 +96,7 @@
 
             <div class="input-group">
                 <label>상세 지시내용</label>
-                <textarea id="eduContent" placeholder="기관사님들께 전달할 상세 내용을 입력하세요."></textarea>
+                <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
             </div>
 
             <div class="input-group">
@@ -119,10 +119,10 @@
             const typeSelect = document.getElementById('eduType');
             typeSelect.innerHTML = "";
             const options = [
-                {val: "지시사항", text: "일반 지시사항 (게시)"},
-                {val: "사고사례", text: "사고사례 교육 (게시)"},
-                {val: "시뮬레이션", text: "시뮬레이션 교육 (훈련)"},
-                {val: "육성방송", text: "육성방송 훈련 (훈련)"},
+                {val: "지시사항", text: "일반 지시사항"},
+                {val: "사고사례", text: "사고사례 교육"},
+                {val: "시뮬레이션", text: "시뮬레이션 교육"},
+                {val: "육성방송", text: "육성방송 훈련"},
                 {val: "기타", text: "기타 교육"}
             ];
             options.forEach(opt => {
@@ -139,7 +139,7 @@
             const label = document.getElementById('specialLabel');
             if (type === "육성방송" || type === "시뮬레이션") {
                 specialDiv.style.display = "block";
-                label.innerText = type === "육성방송" ? "반기 목표 횟수 설정" : "이수 목표 횟수 설정";
+                label.innerText = type === "육성방송" ? "반기 목표 횟수" : "이수 목표 횟수";
             } else { specialDiv.style.display = "none"; }
         }
 
