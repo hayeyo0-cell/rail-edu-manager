@@ -3,66 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 스마트 교육</title>
+    <title>DTRO 데이터 초기화</title>
     <style>
-        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .header { width: 100%; background: white; padding: 25px 0; text-align: center; border-bottom: 3px solid var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--dtro-blue); letter-spacing: -1px; }
-        .container { width: 90%; max-width: 400px; margin-top: 35px; }
-        .login-card { background: white; padding: 35px 25px; border-radius: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.08); text-align: center; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px; color: #333; }
-        input { width: 100%; padding: 16px; border: 2px solid #edf2f7; border-radius: 15px; font-size: 1rem; box-sizing: border-box; background: #fcfdfe; }
-        .btn-start { width: 100%; padding: 20px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.3); }
-        .admin-link { margin-top: 30px; display: block; color: #bbb; font-size: 0.85rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f9ff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 350px; }
+        h2 { color: #e74c3c; margin-bottom: 20px; }
+        p { color: #666; font-size: 0.9rem; line-height: 1.6; margin-bottom: 30px; }
+        .btn-reset { width: 100%; padding: 20px; background: #e74c3c; color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3); }
     </style>
 </head>
 <body>
-    <div class="header"><div class="logo-text">DTRO SMART LEARNING</div></div>
-    <div class="container">
-        <div class="login-card">
-            <h2 style="margin-bottom:30px; color:#222;">기관사 로그인</h2>
-            <div class="input-group"><label>사번</label><input type="number" id="userId" placeholder="사번을 입력하세요"></div>
-            <div class="input-group"><label>비밀번호</label><input type="password" id="userPw" placeholder="비밀번호를 입력하세요"></div>
-            <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
-            <button class="admin-link" onclick="checkAdmin()">관리자 로그인</button>
-        </div>
+    <div class="card">
+        <h2>⚠️ 담당자 설정 초기화</h2>
+        <p>담당자 사번을 잘못 입력하여 로그인이 안 되시나요?<br>아래 버튼을 누르면 다시 <b>마스터 비밀번호(1234)</b>만으로 접속 가능한 상태가 됩니다.</p>
+        
+        <button class="btn-reset" onclick="resetData()">잘못된 정보 삭제하기</button>
     </div>
+
     <script>
-        function startEdu() {
-            const id = document.getElementById('userId').value;
-            const pw = document.getElementById('userPw').value;
-            if(id === "20050552" && pw === "1234") {
-                localStorage.setItem("loginUser", JSON.stringify({id: id, name: "테스트 기관사"}));
-                window.location.replace("user_timer.html"); 
-            } else { alert("정보가 일치하지 않습니다."); }
-        }
-
-        function checkAdmin() {
-            // 1단계: 마스터 비밀번호 확인 (언제나 1234)
-            const masterPw = prompt("관리자 마스터 비밀번호를 입력하세요.");
-            if (masterPw !== "1234") {
-                if(masterPw !== null) alert("마스터 비밀번호가 틀렸습니다.");
-                return;
-            }
-
-            // 저장된 담당자 정보 확인
-            const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
-
-            if (!savedAdmin) {
-                // [지정 전] 담당자가 없으면 마스터 비번만으로 즉시 입장
-                alert("등록된 담당자가 없습니다. 마스터 권한으로 입장하여 담당자를 지정해 주세요.");
-                window.location.replace("admin_main.html");
-            } else {
-                // [지정 후] 등록된 담당자가 있으면 사번을 물어봄
-                const inputCode = prompt("담당자 사번을 입력하세요.");
-                if (inputCode === savedAdmin.id) {
-                    window.location.replace("admin_main.html");
-                } else if (inputCode !== null) {
-                    alert("지정된 담당자 사번과 일치하지 않습니다.");
-                }
-            }
+        function resetData() {
+            // 잘못 저장된 관리자 정보를 브라우저에서 강제로 지웁니다.
+            localStorage.removeItem("assignedAdmin");
+            alert("초기화 완료! 이제 다시 로그인 화면으로 이동합니다.");
+            
+            // 다시 원래의 로그인 로직이 있는 페이지로 돌아가게 합니다.
+            // (이 코드를 적용한 후에 다시 정상 index.html로 덮어쓰기 해주셔야 합니다.)
+            location.reload();
         }
     </script>
 </body>
