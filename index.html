@@ -5,78 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 스마트 교육 플랫폼</title>
     <style>
-        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .main-header { width: 100%; background: white; padding: 18px 0; text-align: center; border-bottom: 2px solid var(--dtro-blue); }
-        .main-logo { height: 38px; vertical-align: middle; }
-        .container { width: 85%; max-width: 340px; margin-top: 25px; }
-        .login-card { background: white; padding: 25px 20px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); text-align: center; }
-        .main-title { font-size: 1.25rem; margin-bottom: 20px; color: #111; font-weight: 700; }
-        .input-group { margin-bottom: 12px; text-align: left; }
-        label { font-size: 0.8rem; font-weight: bold; display: block; margin-bottom: 5px; color: #666; }
-        input, select { width: 100%; padding: 11px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; background: #fafafa; }
-        .btn-start { width: 100%; padding: 14px; background: var(--dtro-blue); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 8px; }
-        .admin-link { margin-top: 18px; display: block; color: #aaa; font-size: 0.75rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
-        .base-btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9; font-weight: bold; cursor: pointer; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+
+        /* [핵심 수정] 로그인 페이지 로고 영역 */
+        .logo-container { 
+            width: 100%; 
+            background: white; 
+            padding: 50px 0 40px 0; /* 상하 여백을 줘서 로고를 주인공으로 만듦 */
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border-bottom: 1px solid #eee;
+            margin-bottom: 40px;
+        }
+        .main-logo { 
+            height: 45px; /* 로고를 훨씬 크게 키움 */
+            display: block; 
+        }
+
+        .login-card { 
+            width: 90%; 
+            max-width: 400px; 
+            background: white; 
+            border-radius: 20px; 
+            padding: 30px 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center;
+        }
+        
+        .welcome-text { font-size: 1.3rem; font-weight: bold; margin-bottom: 25px; color: #333; }
+        
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 8px; padding-left: 5px; }
+        
+        input, select { 
+            width: 100%; height: 50px; padding: 0 15px; border: 1px solid #ddd; border-radius: 12px; 
+            box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 8px rgba(0,114,188,0.1); }
+
+        .btn-start { 
+            width: 100%; height: 55px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,114,188,0.3);
+        }
+        .btn-start:active { transform: scale(0.98); }
+
+        .admin-link { margin-top: 25px; display: inline-block; font-size: 0.85rem; color: #999; text-decoration: none; border-bottom: 1px solid #ddd; padding-bottom: 2px; }
     </style>
 </head>
 <body>
-    <div class="main-header"><img src="logo.png" class="main-logo"></div>
-    <div class="container">
-        <div class="login-card">
-            <h2 class="main-title">스마트 교육 플랫폼</h2>
-            <div class="input-group">
-                <label>소속 선택</label>
-                <select id="userTeam">
-                    <option value="">소속을 선택하세요</option>
-                    <option value="경산">경산 (2호선)</option>
-                    <option value="문양">문양 (2호선)</option>
-                    <option value="월배">월배 (1호선)</option>
-                    <option value="안심">안심 (1호선)</option>
-                </select>
-            </div>
-            <div class="input-group"><label>사번 (8자리)</label><input type="number" id="userId" placeholder="사번 입력" inputmode="numeric"></div>
-            <div class="input-group"><label>팀 공용 비밀번호</label><input type="password" id="userPw" placeholder="비밀번호 입력" inputmode="numeric"></div>
-            <button class="btn-start" onclick="startEdu()">교육 시작하기 →</button>
-            <button class="admin-link" onclick="openAdminModal()">관리자 로그인</button>
-        </div>
+
+    <div class="logo-container">
+        <img src="logo.png" class="main-logo" alt="대구교통공사 DTRO">
     </div>
-    <div id="adminModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:20px;">관리 소속 선택</h3>
-            <button class="base-btn" onclick="checkAdminWithTeam('경산')">경산 (2호선)</button>
-            <button class="base-btn" onclick="checkAdminWithTeam('문양')">문양 (2호선)</button>
-            <button class="base-btn" onclick="checkAdminWithTeam('월배')">월배 (1호선)</button>
-            <button class="base-btn" onclick="checkAdminWithTeam('안심')">안심 (1호선)</button>
-            <button onclick="closeAdminModal()" style="border:none; background:none; color:#999; margin-top:10px; text-decoration:underline;">닫기</button>
+
+    <div class="login-card">
+        <div class="welcome-text">스마트 교육 플랫폼</div>
+        
+        <div class="input-group">
+            <label>소속 선택</label>
+            <select id="userDept">
+                <option value="">소속을 선택하세요</option>
+                <option value="경산승무팀">경산승무팀</option>
+                <option value="월배승무팀">월배승무팀</option>
+                <option value="안심승무팀">안심승무팀</option>
+            </select>
         </div>
+
+        <div class="input-group">
+            <label>사번 (8자리)</label>
+            <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric">
+        </div>
+
+        <div class="input-group">
+            <label>팀 공용 비밀번호</label>
+            <input type="password" id="userPw" placeholder="비밀번호 입력">
+        </div>
+
+        <button class="btn-start" onclick="location.href='user_main.html'">
+            교육 시작하기 →
+        </button>
+
+        <a href="admin_login.html" class="admin-link">관리자 로그인</a>
     </div>
-    <script>
-        if(!localStorage.getItem("teamPassword")) localStorage.setItem("teamPassword", "1234");
-        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
-        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
-        function startEdu() {
-            const team = document.getElementById('userTeam').value;
-            const id = document.getElementById('userId').value;
-            const pw = document.getElementById('userPw').value;
-            if(!team) { alert("소속을 선택하세요."); return; }
-            if(id.length === 8 && pw === localStorage.getItem("teamPassword")) {
-                localStorage.setItem("loginUser", JSON.stringify({team: team, id: id}));
-                location.replace("user_timer.html");
-            } else { alert("정보가 일치하지 않습니다."); }
-        }
-        function checkAdminWithTeam(selectedTeam) {
-            closeAdminModal();
-            const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
-            if (!savedAdmin) {
-                if (prompt("마스터 비번(1234) 입력") === "1234") location.href = "admin_register.html";
-            } else if (selectedTeam === savedAdmin.team) {
-                if (prompt("관리자 사번") === savedAdmin.id && prompt("관리자 비번") === savedAdmin.pw) location.href = "admin_main.html";
-                else alert("불일치");
-            } else alert("해당 소속 관리자가 아닙니다.");
-        }
-    </script>
+
 </body>
 </html>
