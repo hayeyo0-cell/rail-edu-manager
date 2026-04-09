@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 스마트 교육 플랫폼</title>
     <style>
-        /* 대구교통공사 브랜드 색상 적용 */
         :root {
-            --dtro-blue: #0072bc; /* 로고의 주색상 */
-            --dtro-sky: #f4f9ff; /* 배경용 연한 파란색 */
+            --dtro-blue: #0072bc;
+            --dtro-sky: #f4f9ff;
             --text-dark: #222;
         }
 
@@ -22,34 +21,42 @@
             min-height: 100vh;
         }
 
-        /* 회사 로고 헤더 부분 */
+        /* 뒤로가기 방지용 가짜 히스토리 주입 */
+        <script>
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, null, window.location.href);
+                alert("앱을 종료하려면 홈 버튼을 이용해 주세요.");
+            };
+        </script>
+
         .header {
             width: 100%;
-            background-color: #white;
-            padding: 25px 0;
+            background-color: white;
+            padding: 15px 0;
             text-align: center;
             border-bottom: 3px solid var(--dtro-blue);
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--dtro-blue);
-            letter-spacing: -1px;
+        /* 로고 이미지 스타일 */
+        .logo-img {
+            height: 40px; /* 로고 높이 조절 */
+            vertical-align: middle;
+            margin-bottom: 5px;
         }
 
-        .logo-text span {
-            color: var(--text-dark);
-            font-weight: 400;
-            font-size: 1.1rem;
-            margin-left: 5px;
+        .logo-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--dtro-blue);
+            display: block;
         }
 
         .container {
             width: 90%;
             max-width: 400px;
-            margin-top: 35px;
+            margin-top: 30px;
         }
 
         .login-card {
@@ -81,13 +88,6 @@
             font-size: 1rem;
             box-sizing: border-box;
             background-color: #fcfdfe;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--dtro-blue);
-            outline: none;
-            background-color: white;
         }
 
         .btn-start {
@@ -101,12 +101,6 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(0,114,188,0.3);
-            transition: 0.3s;
-        }
-
-        .btn-start:active {
-            transform: translateY(2px);
-            box-shadow: 0 4px 10px rgba(0,114,188,0.2);
         }
 
         .admin-link {
@@ -124,18 +118,17 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo-text">
-            대구교통공사 <span>DTRO</span>
-        </div>
+        <img src="logo.png" alt="DTRO 로고" class="logo-img" onerror="this.style.display='none'">
+        <div class="logo-text">대구교통공사 DTRO</div>
     </div>
 
     <div class="container">
         <div class="login-card">
-            <h2 style="margin-bottom:30px; color:var(--text-dark);">기관사 스마트 교육</h2>
+            <h2 style="margin-bottom:30px; color:var(--text-dark);">스마트 교육 플랫폼</h2>
             
             <div class="input-group">
-                <label>사번 (7자리)</label>
-                <input type="number" id="userId" placeholder="사번을 입력하세요 (예: 2005055)">
+                <label>사번 (8자리)</label>
+                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요">
             </div>
             
             <div class="input-group">
@@ -145,37 +138,48 @@
 
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
             
-            <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
+            <button class="admin-link" onclick="checkAdmin()">관리자 로그인</button>
         </div>
     </div>
 
     <script>
-        // 로그인 및 2단계 보안 로직은 기관사님이 사용하시던 그대로 유지했습니다.
+        // 뒤로가기 방지 로직 재주입
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+            alert("앱을 종료하려면 홈 버튼을 이용해 주세요.");
+        };
+
         function startEdu() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
             
-            // 실제 데이터 처리는 아직 안 하므로, 임시로 사번 7자리 입력 시 통과
-            if(id.length === 7 && pw !== "") {
-                localStorage.setItem("loginUser", JSON.stringify({id: id, name: "일반 기관사"}));
-                location.href = "user_timer.html"; // 타이머 페이지로 이동
+            // 사번 8자리 체크로 수정
+            if(id.length === 8 && pw !== "") {
+                localStorage.setItem("loginUser", JSON.stringify({id: id, name: "기관사"}));
+                window.onpopstate = null;
+                window.location.replace("user_timer.html");
             } else {
-                alert("사번 7자리와 비밀번호를 모두 입력해 주세요.");
+                alert("사번 8자리와 비밀번호를 정확히 입력해 주세요.");
             }
         }
 
         function checkAdmin() {
-            const masterPw = prompt("관리자 시스템 비밀번호를 입력하세요.");
+            const masterPw = prompt("마스터 비밀번호(1234)");
             if (masterPw === "1234") {
-                const step2 = prompt("2단계: 관리자 전용 확인 코드를 입력하세요.");
-                if (step2 === "20050552") {
-                    location.href = "admin_main.html"; // 관리자 페이지로 이동
+                const saved = JSON.parse(localStorage.getItem("assignedAdmin"));
+                if (!saved) {
+                    alert("미지정 상태입니다. 마스터 권한으로 입장합니다.");
+                    window.onpopstate = null;
+                    window.location.replace("admin_main.html");
                 } else {
-                    alert("2단계 확인 코드가 틀렸습니다.");
+                    const adminCode = prompt("담당자 사번을 입력하세요.");
+                    if (adminCode === saved.id) {
+                        window.onpopstate = null;
+                        window.location.replace("admin_main.html");
+                    } else if(adminCode !== null) { alert("사번이 일치하지 않습니다."); }
                 }
-            } else if (masterPw !== null) {
-                alert("관리자 비밀번호가 틀렸습니다.");
-            }
+            } else if(masterPw) { alert("비밀번호가 틀렸습니다."); }
         }
     </script>
 </body>
