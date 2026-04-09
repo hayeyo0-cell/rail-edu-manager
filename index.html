@@ -20,59 +20,94 @@
 </head>
 <body>
     <div class="header">
-        <img src="logo.png" alt="DTRO 로고" class="logo-img">
+        <img src="logo.png" alt="대구교통공사 DTRO" class="logo-img">
     </div>
+
     <div class="container">
         <div class="login-card">
             <h2 style="margin-bottom:30px; color:#111;">스마트 교육 플랫폼</h2>
+            
             <div class="input-group">
                 <label>사번 (8자리)</label>
                 <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" inputmode="numeric">
             </div>
+            
             <div class="input-group">
                 <label>팀 공용 비밀번호</label>
                 <input type="password" id="userPw" placeholder="비밀번호를 입력하세요" inputmode="numeric">
             </div>
+
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
             <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
+            
+            <button onclick="clearAllData()" style="margin-top:20px; color:red; font-size:0.7rem; border:none; background:none; text-decoration:underline;">기록 강제 초기화</button>
         </div>
     </div>
 
     <script>
-        // [긴급 초기화] 마스터 비번 창이 안 뜨면 아래 줄의 주석(//)을 지우고 딱 한 번만 실행하세요.
-        // localStorage.clear(); 
+        // [중요] 접속하자마자 예전 관리자 기록을 강제로 삭제합니다.
+        // 마스터 로그인 화면이 뜨는 걸 확인하신 후에는 아래 줄을 지우거나 주석처리(//) 하세요.
+        localStorage.removeItem("assignedAdmin"); 
+
+        if(!localStorage.getItem("teamPassword")) {
+            localStorage.setItem("teamPassword", "1234");
+        }
 
         function startEdu() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
-            const teamPw = localStorage.getItem("teamPassword") || "1111"; // 기본 팀비번 1111
+            const teamPw = localStorage.getItem("teamPassword");
 
             if(id.length === 8 && pw === teamPw) {
                 localStorage.setItem("loginUser", JSON.stringify({id: id, name: "기관사"}));
                 location.replace("user_timer.html");
-            } else { alert("정보가 일치하지 않습니다."); }
+            } else {
+                alert("정보가 일치하지 않습니다.");
+            }
         }
 
         function checkAdmin() {
             const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
 
             if (!savedAdmin) {
-                // 마스터 인증 단계
-                const master = prompt("담당자가 없습니다. 마스터 비밀번호(1234)를 입력하세요.");
-                if (master === "1234") {
-                    location.href = "admin_register.html";
-                } else if (master) { alert("마스터 암호가 틀렸습니다."); }
+                const masterPw = prompt("담당자가 지정되지 않았습니다.\n마스터 비밀번호를 입력하세요.");
+                if (masterPw === "1234") {
+                    alert("마스터 인증 성공! 담당자 등록 페이지로 이동합니다.");
+                    window.onpopstate = null;
+                    location.href = "admin_register.html"; 
+                } else if (masterPw) {
+                    alert("비밀번호가 틀렸습니다.");
+                }
             } else {
-                // 관리자 개인 로그인 단계
                 const adminId = prompt("관리자 사번을 입력하세요.");
                 if (adminId === savedAdmin.id) {
                     const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
                     if (adminPw === savedAdmin.pw) {
+                        window.onpopstate = null;
                         location.href = "admin_main.html";
-                    } else if (adminPw) { alert("비밀번호가 틀렸습니다."); }
-                } else if (adminId) { alert("등록된 관리자 사번이 아닙니다."); }
+                    } else if (adminPw) {
+                        alert("비밀번호가 일치하지 않습니다.");
+                    }
+                } else if (adminId) {
+                    alert("등록된 관리자 사번이 아닙니다.");
+                }
             }
         }
+
+        // 수동 초기화 버튼 함수
+        function clearAllData() {
+            if(confirm("모든 설정(관리자 정보 포함)을 초기화할까요?")) {
+                localStorage.clear();
+                alert("초기화 완료! 다시 시도해 주세요.");
+                location.reload();
+            }
+        }
+
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+            alert("앱 종료는 홈 버튼을 이용해 주세요.");
+        };
     </script>
 </body>
 </html>
