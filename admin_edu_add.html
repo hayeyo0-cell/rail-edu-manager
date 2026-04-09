@@ -27,15 +27,13 @@
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 5px; }
         
-        /* [입력창] 줄바꿈 방지 및 작은 글씨 적용 */
         input, select, .file-upload-box { 
             width: 100%; height: 40px; padding: 0 10px; border: 1px solid #ddd; 
             border-radius: 8px; box-sizing: border-box; 
-            font-size: 0.75rem; /* 글씨 크기 추가 축소 */
+            font-size: 0.75rem;
             background: #fafafa; color: #444;
         }
 
-        /* [드롭다운] 목록 글씨 크기 최소화 */
         select option { font-size: 0.75rem; }
         
         textarea { 
@@ -82,7 +80,7 @@
             </div>
 
             <div id="specialSetting" class="sub-setting">
-                <label id="specialLabel" style="font-size: 0.7rem; color:var(--dtro-blue);">목표 횟수</label>
+                <label id="specialLabel" style="font-size: 0.7rem; color:var(--dtro-blue);">목표 설정</label>
                 <input type="number" id="targetCount" placeholder="횟수 입력" inputmode="numeric">
             </div>
 
@@ -119,7 +117,7 @@
             let options = [];
             
             if(category === "게시교육") {
-                options = ["일반 지시사항", "사고사례 교육", "기타 게시물"];
+                options = ["일반 지시사항", "사고사례 교육", "기타 교육"];
             } else if(category === "대면교육") {
                 options = ["시뮬레이션 교육", "육성방송 훈련", "현장 실습"];
             } else if(category === "면담교육") {
@@ -138,10 +136,14 @@
             const type = document.getElementById('eduType').value;
             const specialDiv = document.getElementById('specialSetting');
             const label = document.getElementById('specialLabel');
-            if (type === "육성방송 훈련" || type === "시뮬레이션 교육") {
+            
+            // 시뮬레이션 교육과 육성방송 훈련일 때만 횟수 입력칸 노출
+            if (type === "시뮬레이션 교육" || type === "육성방송 훈련") {
                 specialDiv.style.display = "block";
-                label.innerText = type.includes("육성방송") ? "반기 목표 횟수" : "이수 목표 횟수";
-            } else { specialDiv.style.display = "none"; }
+                label.innerText = type === "육성방송 훈련" ? "반기 목표 횟수" : "이수 목표 횟수";
+            } else {
+                specialDiv.style.display = "none";
+            }
         }
 
         function handleFile(input) {
