@@ -1,23 +1,140 @@
-// [스크립트 추가/수정]
-// 교육 등록 시 데이터 저장 로직에 '바로가기 URL' 필드를 추가합니다.
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>교육 등록 - DTRO</title>
+    <style>
+        :root { --dtro-blue: #0072bc; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
+        .header { width: 100%; background: white; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .header-left { width: 90px; padding-left: 12px; } 
+        .slim-logo { height: 28px; }
+        .header-right { width: 90px; }
+        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 4px 8px; border-radius: 5px; font-size: 0.7rem; color: #666; cursor: pointer; }
+        .container { width: 92%; max-width: 480px; margin: 12px auto; padding-bottom: 30px; }
+        .card { background: white; border-radius: 15px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .page-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 18px; display: flex; align-items: center; }
+        .page-title::before { content: '✍️'; margin-right: 6px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 5px; }
+        input, select, textarea, .file-upload-box { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 0.75rem; background: #fafafa; color: #444; }
+        input, select { height: 40px; }
+        textarea { height: 85px; resize: none; font-family: inherit; }
+        .file-upload-box { border: 1px dashed #ccc; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; }
+        .btn-submit { width: 100%; height: 45px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .sub-setting { background: #fdfdfd; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-top: 8px; display: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left"><button class="txt-btn" onclick="location.href='admin_main.html'">이전으로</button></div>
+        <img src="logo.png" class="slim-logo">
+        <div class="header-right"></div>
+    </div>
 
-function submitEdu() {
-    const category = document.getElementById('eduCategory').value;
-    const type = document.getElementById('eduType').value;
-    const title = document.getElementById('eduTitle').value;
-    const link = document.getElementById('quickLink').value; // 새로 추가할 URL 입력창
+    <div class="container">
+        <div class="card">
+            <div class="page-title">새 교육 및 훈련 등록</div>
 
-    if(!title) { alert("제목을 입력해주세요."); return; }
+            <div class="input-group">
+                <label>교육 대분류</label>
+                <select id="eduCategory" onchange="updateSubCategory()">
+                    <option value="게시교육">게시교육</option>
+                    <option value="대면교육">대면교육</option>
+                    <option value="면담교육">면담교육</option>
+                </select>
+            </div>
 
-    // 데이터 저장 예시:
-    const eduData = {
-        category, type, title, link,
-        isImmediate: (type === "시뮬레이션 교육" || type === "육성방송 훈련")
-    };
-    
-    // localStorage에 저장하거나 DB로 전송
-    localStorage.setItem("latestEdu", JSON.stringify(eduData));
-    
-    alert("게시되었습니다. 해당 훈련은 기관사 화면에서 즉시 실행됩니다!");
-    location.href = 'admin_main.html';
-}
+            <div class="input-group">
+                <label>세부 유형 선택</label>
+                <select id="eduType" onchange="checkSpecialType()">
+                    </select>
+            </div>
+
+            <div id="specialSetting" class="sub-setting">
+                <label id="specialLabel" style="font-size: 0.7rem; color:var(--dtro-blue);">목표 설정</label>
+                <input type="number" id="targetCount" placeholder="횟수 입력" inputmode="numeric">
+            </div>
+
+            <div class="input-group">
+                <label>교육 제목</label>
+                <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
+            </div>
+
+            <div class="input-group">
+                <label>상세 지시내용 (훈련 시 실행 가이드)</label>
+                <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>참조 파일 (사진/공문)</label>
+                <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">
+                    <span id="fileNameDisplay">📁 파일 선택 또는 촬영</span>
+                    <input type="file" id="fileInput" style="display:none;" onchange="handleFile(this)">
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="submitEdu()">교육 게시하기</button>
+        </div>
+    </div>
+
+    <script>
+        window.onload = updateSubCategory;
+
+        function updateSubCategory() {
+            const category = document.getElementById('eduCategory').value;
+            const typeSelect = document.getElementById('eduType');
+            typeSelect.innerHTML = "";
+            let options = [];
+            if(category === "게시교육") options = ["일반 지시사항", "사고사례 교육", "기타 교육"];
+            else if(category === "대면교육") options = ["육성방송 훈련", "시뮬레이션 교육", "현장 실습"];
+            else if(category === "면담교육") options = ["팀장 면담", "소장 면담", "수시 면담"];
+
+            options.forEach(opt => {
+                const el = document.createElement("option");
+                el.value = opt; el.innerText = opt;
+                typeSelect.appendChild(el);
+            });
+            checkSpecialType();
+        }
+
+        function checkSpecialType() {
+            const type = document.getElementById('eduType').value;
+            const specialDiv = document.getElementById('specialSetting');
+            const label = document.getElementById('specialLabel');
+            if (type === "육성방송 훈련" || type === "시뮬레이션 교육") {
+                specialDiv.style.display = "block";
+                label.innerText = type.includes("육성방송") ? "반기 목표 횟수" : "이수 목표 횟수";
+            } else { specialDiv.style.display = "none"; }
+        }
+
+        function handleFile(input) {
+            const fileName = input.files[0] ? input.files[0].name : "📁 파일 선택 또는 촬영";
+            document.getElementById('fileNameDisplay').innerText = fileName;
+        }
+
+        function submitEdu() {
+            const category = document.getElementById('eduCategory').value;
+            const type = document.getElementById('eduType').value;
+            const title = document.getElementById('eduTitle').value;
+            
+            if(!title) { alert("제목을 입력해주세요."); return; }
+
+            // [데이터 구성] 훈련 타입이면 즉시 실행 플래그(isImmediate) 추가
+            const eduData = {
+                category: category,
+                type: type,
+                title: title,
+                isImmediate: (type === "시뮬레이션 교육" || type === "육성방송 훈련")
+            };
+
+            // 브라우저 저장소에 저장 (실제 게시 기능 구현용)
+            localStorage.setItem("latestEdu", JSON.stringify(eduData));
+            
+            alert("정상적으로 게시되었습니다!\n" + (eduData.isImmediate ? "훈련 실행형으로 등록되었습니다." : "일반 게시물로 등록되었습니다."));
+            location.href = 'admin_main.html';
+        }
+    </script>
+</body>
+</html>
