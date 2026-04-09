@@ -6,22 +6,25 @@
     <title>DTRO 스마트 교육 플랫폼</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; position: relative; }
 
-        /* [핵심 수정] 빈 공간은 줄이고 로고만 선명하게 */
-        .logo-container { 
-            width: 100%; 
-            background: white; 
-            padding: 15px 0; /* 여백을 50px -> 15px로 대폭 축소 */
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border-bottom: 1px solid #eee;
-            margin-bottom: 20px; /* 카드와의 간격도 최적화 */
+        /* [핵심 수정] 우측 상단 은은한 로고 배치 */
+        .top-logo { 
+            position: absolute; 
+            top: 20px; /* 상단 여백 */
+            right: 20px; /* 우측 여백 */
+            height: 22px; /* 세련된 작은 크기 */
+            opacity: 0.8; /* 은은하게 노출 */
         }
-        .main-logo { 
-            height: 42px; /* 글씨는 여전히 크고 선명하게 */
-            display: block; 
+
+        /* [핵심 수정] 메인 제목 중앙 배치 */
+        .main-title { 
+            font-size: 1.6rem; /* 큼직하게 강조 */
+            font-weight: bold; 
+            color: #333; 
+            margin: 60px 0 35px 0; /* 상단 여백을 충분히 주어 제목 공간 확보 */
+            letter-spacing: -1px; 
+            text-align: center;
         }
 
         .login-card { 
@@ -29,39 +32,41 @@
             max-width: 400px; 
             background: white; 
             border-radius: 20px; 
-            padding: 25px 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            padding: 30px 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); /* 조금 더 고급스러운 그림자 */
             text-align: center;
         }
         
-        .welcome-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; color: #333; }
+        .card-welcome-text { font-size: 1.1rem; font-weight: bold; margin-bottom: 25px; color: var(--dtro-blue); /* 소속 선택 유도 */ }
         
-        .input-group { text-align: left; margin-bottom: 18px; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; padding-left: 5px; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 7px; padding-left: 5px; }
         
         input, select { 
-            width: 100%; height: 48px; padding: 0 15px; border: 1px solid #ddd; border-radius: 12px; 
-            box-sizing: border-box; font-size: 0.95rem; background: #fafafa; outline: none;
+            width: 100%; height: 50px; padding: 0 15px; border: 1px solid #ddd; border-radius: 13px; 
+            box-sizing: border-box; font-size: 0.95rem; background: #fafafa; outline: none; transition: 0.2s;
         }
-        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; }
+        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 10px rgba(0,114,188,0.1); }
 
         .btn-start { 
-            width: 100%; height: 52px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 15px; font-size: 1.05rem; font-weight: bold; 
-            cursor: pointer; margin-top: 5px; box-shadow: 0 5px 15px rgba(0,114,188,0.25);
+            width: 100%; height: 55px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,114,188,0.25);
+            transition: 0.2s;
         }
+        .btn-start:active { transform: scale(0.98); }
 
-        .admin-link { margin-top: 20px; display: inline-block; font-size: 0.8rem; color: #bbb; text-decoration: none; border-bottom: 1px solid #eee; }
+        .admin-link { margin-top: 25px; display: inline-block; font-size: 0.85rem; color: #bbb; text-decoration: none; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
-    <div class="logo-container">
-        <img src="logo.png" class="main-logo" alt="대구교통공사 DTRO">
-    </div>
+    <img src="logo.png" class="top-logo" alt="DTRO">
+
+    <div class="main-title">스마트 교육 플랫폼</div>
 
     <div class="login-card">
-        <div class="welcome-text">스마트 교육 플랫폼</div>
+        <div class="card-welcome-text">경산승무팀 교육 시작하기</div>
         
         <div class="input-group">
             <label>소속 선택</label>
