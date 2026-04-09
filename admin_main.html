@@ -6,46 +6,46 @@
     <title>관리자 홈 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 30px; }
 
-        /* 상단 헤더 - 설정 및 로그아웃 포함 */
+        /* 상단 헤더 */
         .header { 
             width: 100%; background: white; padding: 12px 0; 
             display: flex; align-items: center; justify-content: space-between; 
             border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; 
         }
-        .header-left { width: 80px; } /* 밸런스용 */
+        .header-left { width: 80px; }
         .slim-logo { height: 32px; vertical-align: middle; }
-        .header-right { width: 80px; display: flex; gap: 10px; justify-content: flex-end; padding-right: 15px; }
-        
-        .icon-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #555; }
+        .header-right { width: 80px; display: flex; gap: 15px; justify-content: flex-end; padding-right: 15px; }
+        .icon-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; }
 
-        .container { width: 92%; max-width: 500px; margin: 20px auto; }
+        .container { width: 92%; max-width: 500px; margin: 15px auto; }
         
-        /* 상단 소속 정보 표시 */
-        .admin-tag { text-align: center; margin-bottom: 20px; }
-        .admin-tag span { background: var(--dtro-blue); color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+        /* 소속 태그 */
+        .admin-tag { text-align: center; margin-bottom: 15px; }
+        .admin-tag span { background: var(--dtro-blue); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
 
-        /* 본문 메뉴 카드 */
+        /* 섹션 타이틀 */
+        .section-label { font-size: 0.9rem; font-weight: bold; color: #555; margin: 20px 0 10px 5px; display: flex; align-items: center; }
+        .section-label::before { content: ''; width: 3px; height: 13px; background: var(--dtro-blue); margin-right: 8px; }
+
+        /* 메인 메뉴 카드 */
         .menu-card { 
-            background: white; border-radius: 20px; padding: 25px 20px; 
-            margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            display: flex; align-items: center; cursor: pointer; transition: 0.2s;
+            background: white; border-radius: 18px; padding: 20px; 
+            margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
+            display: flex; align-items: center; cursor: pointer; border: 1px solid transparent;
         }
-        .menu-card:active { transform: scale(0.97); background: #fafafa; }
-        .menu-icon { font-size: 2rem; margin-right: 20px; }
-        .menu-text { text-align: left; }
-        .menu-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 4px; }
-        .menu-desc { font-size: 0.8rem; color: #888; }
+        .menu-card:active { background: #fafafa; transform: scale(0.98); border-color: #eee; }
+        .menu-icon { font-size: 1.8rem; margin-right: 15px; }
+        .menu-title { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 3px; }
+        .menu-desc { font-size: 0.75rem; color: #888; line-height: 1.3; }
 
-        /* 설정 모달 스타일 */
+        /* 모달 스타일 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; }
         .modal-title { font-weight: bold; margin-bottom: 20px; font-size: 1.1rem; color: #333; text-align: center; }
-        .input-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .btn-blue { width: 100%; padding: 12px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; margin-bottom: 10px; }
-        .btn-reset { width: 100%; background: none; border: none; color: #dc3545; text-decoration: underline; font-size: 0.8rem; cursor: pointer; margin-top: 10px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; }
+        .btn-blue { width: 100%; padding: 12px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -63,19 +63,39 @@
             <span id="adminTeamDisplay">소속: 확인 중...</span>
         </div>
 
+        <div class="section-label">교육 관리</div>
+        
         <div class="menu-card" onclick="location.href='admin_edu_add.html'">
-            <div class="menu-icon">📝</div>
+            <div class="menu-icon">✍️</div>
             <div class="menu-text">
                 <div class="menu-title">새 교육 등록하기</div>
-                <div class="menu-desc">지시사항 및 교육 내용을 게시합니다.</div>
+                <div class="menu-desc">오늘의 교육 내용 및 지시사항을 게시합니다.</div>
             </div>
         </div>
+
+        <div class="menu-card" onclick="location.href='admin_edu_list.html'">
+            <div class="menu-icon">📂</div>
+            <div class="menu-text">
+                <div class="menu-title">등록된 교육 내역</div>
+                <div class="menu-desc">게시 중인 교육을 수정하거나 삭제합니다.</div>
+            </div>
+        </div>
+
+        <div class="section-label">이수 현황 및 소통</div>
 
         <div class="menu-card" onclick="location.href='admin_status.html'">
             <div class="menu-icon">📊</div>
             <div class="menu-text">
-                <div class="menu-title">오늘의 교육 이수 현황</div>
-                <div class="menu-desc">현재까지 12명 완료 / 45명 미이수</div>
+                <div class="menu-title">실시간 이수 현황</div>
+                <div class="menu-desc">현재 12명 완료 / 45명 미이수 (상세보기)</div>
+            </div>
+        </div>
+
+        <div class="menu-card" onclick="location.href='admin_notice.html'">
+            <div class="menu-icon">📢</div>
+            <div class="menu-text">
+                <div class="menu-title">공지사항 관리</div>
+                <div class="menu-desc">기지 내 긴급 공지 및 전달사항을 올립니다.</div>
             </div>
         </div>
     </div>
@@ -83,17 +103,12 @@
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-title">관리자 설정</div>
+            <label style="font-size:0.75rem; color:#666; margin-left:5px;">팀 공용 비밀번호 변경</label>
+            <input type="number" id="newTeamPw" placeholder="새 비번 입력" inputmode="numeric">
+            <button class="btn-blue" onclick="updatePw()">저장하기</button>
             
-            <div class="input-group">
-                <label style="font-size:0.8rem; color:#666;">팀 공용 비밀번호 변경</label>
-                <input type="number" id="newTeamPw" placeholder="새 비번 입력" inputmode="numeric">
-            </div>
-            <button class="btn-blue" onclick="updatePw()">비밀번호 즉시 변경</button>
-            
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-            
-            <button class="btn-reset" onclick="resetAdmin()">담당자 변경 (권한 초기화)</button>
-            <button onclick="closeSettings()" style="width:100%; border:none; background:none; color:#999; margin-top:20px;">닫기</button>
+            <button onclick="resetAdmin()" style="width:100%; background:none; border:none; color:#dc3545; text-decoration:underline; font-size:0.8rem; margin-top:20px; cursor:pointer;">담당자 변경 (권한 초기화)</button>
+            <button onclick="closeSettings()" style="width:100%; border:none; background:none; color:#999; margin-top:15px;">닫기</button>
         </div>
     </div>
 
