@@ -6,28 +6,50 @@
     <title>관리자 등록 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .card { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        .register-card { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        label { font-size: 0.9rem; font-weight: bold; display: block; text-align: left; margin-top: 15px; color: #333; }
+        input, select { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        .btn-reg { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2 style="color:var(--dtro-blue);">관리자 사번/비번 지정</h2>
-        <input type="number" id="regId" placeholder="관리자 사번 (8자리)" inputmode="numeric">
-        <input type="password" id="regPw" placeholder="관리자 개인 비밀번호" inputmode="numeric">
-        <button class="btn" onclick="save()">등록 완료</button>
+    <div class="register-card">
+        <h2 style="color:var(--dtro-blue);">신규 담당자 지정</h2>
+        <p style="font-size:0.85rem; color:#666;">관리자로 사용할 정보를 입력하세요.</p>
+        
+        <label>관리 소속 기지</label>
+        <select id="regTeam">
+            <option value="">기지를 선택하세요</option>
+            <option value="경산">경산 (2호선)</option>
+            <option value="문양">문양 (2호선)</option>
+            <option value="월배">월배 (1호선)</option>
+            <option value="안심">안심 (1호선)</option>
+        </select>
+
+        <label>관리자 사번 (8자리)</label>
+        <input type="number" id="regId" placeholder="사번 입력" inputmode="numeric">
+        
+        <label>관리자 개인 비밀번호</label>
+        <input type="password" id="regPw" placeholder="비밀번호 설정" inputmode="numeric">
+        
+        <button class="btn-reg" onclick="saveAdmin()">관리자 등록 완료</button>
     </div>
+
     <script>
-        function save() {
+        function saveAdmin() {
+            const team = document.getElementById('regTeam').value;
             const id = document.getElementById('regId').value;
             const pw = document.getElementById('regPw').value;
-            if(id.length === 8 && pw !== "") {
-                localStorage.setItem("assignedAdmin", JSON.stringify({id: id, pw: pw}));
-                alert("관리자 등록 완료! 이제 개인 사번으로 로그인하세요.");
-                location.href = "index.html";
-            } else { alert("정보를 정확히 입력하세요."); }
+            
+            if(team && id.length === 8 && pw !== "") {
+                const adminData = { team: team, id: id, pw: pw };
+                localStorage.setItem("assignedAdmin", JSON.stringify(adminData));
+                alert("[" + team + "] 기지 관리자로 등록되었습니다!\n이제 설정하신 사번으로 로그인하세요.");
+                location.replace("index.html");
+            } else {
+                alert("모든 항목을 정확히 입력/선택해 주세요.");
+            }
         }
     </script>
 </body>
