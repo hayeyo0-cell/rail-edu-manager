@@ -7,7 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background: #f4f9ff; text-align: center; }
-        .header { background: #0072bc; color: white; padding: 20px; font-weight: bold; font-size: 1.1rem; }
+        .header { background: #0072bc; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .btn-logout { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); color: white; padding: 5px 12px; border-radius: 5px; font-size: 0.8rem; cursor: pointer; }
         .content-area { padding: 30px 20px; min-height: 250px; background: white; margin: 15px; border-radius: 20px; border: 2px dashed #0072bc; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         #timer { font-size: 3.5rem; font-weight: bold; color: #e74c3c; margin: 20px 0; }
         #sign-area { display: none; padding: 20px; background: white; margin: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
@@ -16,13 +17,15 @@
     </style>
 </head>
 <body>
-    <div class="header" id="eduTitle">교육 로딩 중...</div>
+    <div class="header">
+        <span id="eduTitle">학습 진행 중</span>
+        <button class="btn-logout" onclick="confirmLogout()">로그아웃</button>
+    </div>
     <div class="content-area">
         <p style="font-size: 1.2rem; margin: 0;">🚂 <b>전동차 시뮬레이션 학습 중</b></p>
         <p style="font-size:0.9rem; color:#666; margin-top:10px;">교안의 내용을 충분히 숙지하시기 바랍니다.</p>
         <div id="timer">10:00</div>
     </div>
-
     <div id="sign-area">
         <h3 style="color:#0072bc; margin-bottom:15px;">자필 서명</h3>
         <canvas id="signature-pad"></canvas>
@@ -30,9 +33,16 @@
     </div>
 
     <script>
-        let timeLeft = 600; // 10분 설정
+        // 뒤로가기 완벽 차단 로직
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() {
+            history.pushState(null, null, location.href);
+            alert("학습 중에는 뒤로가기를 할 수 없습니다. 로그아웃 버튼을 이용해 주세요.");
+        };
+
+        let timeLeft = 600; 
         const user = JSON.parse(localStorage.getItem("loginUser"));
-        document.getElementById('eduTitle').innerText = user.name + " 기관사님 학습 진행";
+        if(user) document.getElementById('eduTitle').innerText = user.name + "님";
 
         const timerInterval = setInterval(() => {
             timeLeft--;
@@ -49,28 +59,27 @@
         const canvas = document.getElementById('signature-pad');
         const signaturePad = new SignaturePad(canvas);
 
+        function confirmLogout() {
+            if(confirm("학습을 중단하고 로그아웃하시겠습니까?")) {
+                window.onpopstate = null; // 뒤로가기 방지 해제
+                localStorage.removeItem("loginUser");
+                location.replace("index.html"); // 기록 삭제하며 이동
+            }
+        }
+
         function submitData() {
             if (signaturePad.isEmpty()) { alert("서명을 해주세요."); return; }
             const signData = signaturePad.toDataURL();
-            
-            // 어제 주신 주소를 여기에 입혔습니다!
             const url = "https://script.google.com/macros/s/AKfycbyq6y8W3K_fXy7vI-VInH4vWfT7Qo8Z8J0vJ8Z8J0v/exec";
-            
             fetch(url, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    id: user.id,
-                    name: user.name,
-                    time: 10,
-                    sign: signData
-                })
+                body: JSON.stringify({id: user.id, name: user.name, time: 10, sign: signData})
             }).then(() => {
-                alert("이수 처리가 완료되었습니다! 현황판에서 확인하세요.");
-                location.href = "index.html";
-            }).catch(err => {
-                alert("전송 중 오류가 발생했습니다. 다시 시도해 주세요.");
+                alert("이수 완료!");
+                window.onpopstate = null;
+                location.replace("index.html");
             });
         }
     </script>
