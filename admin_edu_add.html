@@ -1,30 +1,45 @@
-<style>
-    .slim-header {
-        width: 100%;
-        background: white;
-        padding: 10px 0; /* 높이를 확 줄임 */
-        text-align: center;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-    .slim-logo {
-        height: 25px; /* 로고 크기를 아담하게 조절 */
-        object-fit: contain;
-    }
-    .back-btn {
-        position: absolute;
-        left: 15px;
-        font-size: 1.2rem;
-        background: none;
-        border: none;
-        color: #333;
-    }
-</style>
-
-<div class="slim-header">
-    <button class="back-btn" onclick="history.back()">←</button>
-    <img src="logo.png" alt="DTRO" class="slim-logo">
-</div>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>교육 등록 - DTRO</title>
+    <style>
+        :root { --dtro-blue: #0072bc; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; }
+        .slim-header { width: 100%; background: white; padding: 10px 0; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .slim-logo { height: 22px; }
+        .logout-btn { position: absolute; right: 12px; background: #f8f9fa; border: 1px solid #ddd; padding: 4px 10px; border-radius: 5px; font-size: 0.7rem; color: #666; }
+        .container { width: 92%; max-width: 500px; margin: 20px auto; }
+        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .section-title { font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; }
+        .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; }
+        .nav-item { flex: 1; padding: 15px 0; text-align: center; font-size: 0.85rem; color: #999; text-decoration: none; }
+        .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="slim-header">
+        <img src="logo.png" class="slim-logo">
+        <button class="logout-btn" onclick="location.href='index.html'">로그아웃</button>
+    </div>
+    <div class="container">
+        <div class="card">
+            <div class="section-title">✨ 새 교육 등록</div>
+            <label style="font-size:0.8rem; color:#666;">교육 제목</label>
+            <input type="text" placeholder="예: 4월 사고사례 예방교육">
+            <label style="font-size:0.8rem; color:#666;">이수 기한</label>
+            <input type="date">
+            <button class="btn-submit" onclick="alert('교육이 게시되었습니다.')">교육 게시하기</button>
+        </div>
+    </div>
+    <div class="nav-bottom">
+        <a href="admin_main.html" class="nav-item">홈/설정</a>
+        <a href="admin_edu_add.html" class="nav-item active">교육 등록</a>
+        <a href="admin_status.html" class="nav-item">이수 현황</a>
+    </div>
+</body>
+</html>
