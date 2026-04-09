@@ -3,85 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 모드 - 스마트 교육관리</title>
+    <title>DTRO 관리자 대시보드</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .admin-title { font-size: 1.1rem; font-weight: bold; color: #333; }
-        
-        /* 요약 카드 디자인 */
-        .summary-card { background: #333; color: white; padding: 20px; border-radius: 15px; margin-bottom: 25px; display: flex; justify-content: space-around; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .summary-item { cursor: pointer; transition: transform 0.1s; padding: 10px; border-radius: 12px; flex: 1; }
-        .summary-item:active { transform: scale(0.95); background: rgba(255,255,255,0.1); }
-        .summary-item div { font-size: 0.85rem; opacity: 0.8; margin-bottom: 8px; }
-        .summary-item span { font-size: 1.4rem; font-weight: bold; color: #2ecc71; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f4f7f9; }
+        body { margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; height: 100vh; background: var(--bg-gray); }
 
-        /* 메뉴 그리드 */
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .menu-card { background: white; padding: 25px 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; cursor: pointer; border: none; transition: transform 0.2s; }
-        .menu-card:active { transform: scale(0.95); background: #f0f0f0; }
-        .menu-card .icon { font-size: 2rem; margin-bottom: 10px; display: block; }
-        .menu-card span { font-weight: bold; font-size: 0.95rem; color: #333; display: block; }
+        /* 상단 바 (PC/모바일 공통) */
+        .top-nav { background: var(--dtro-blue); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .top-nav h1 { font-size: 1.1rem; margin: 0; }
+        .btn-logout { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
+
+        /* 메인 콘텐츠 영역 */
+        .content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        .footer-info { text-align: center; margin-top: 40px; font-size: 0.8rem; color: #bbb; }
+        /* 요약 카드 (모바일에서 유용) */
+        .summary-bar { display: flex; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #ddd; }
+        .summary-card { flex: 1; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
+        .summary-card div:first-child { font-size: 0.7rem; color: #666; }
+        .summary-card div:last-child { font-size: 1.1rem; font-weight: bold; color: var(--dtro-blue); }
+
+        /* 구글 시트 프레임 */
+        .sheet-frame { flex: 1; position: relative; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* PC용 사이드바 조절 (화면이 넓을 때만 적용) */
+        @media (min-width: 768px) {
+            .content-area { flex-direction: row; }
+            .sheet-frame { flex: 4; }
+            .side-menu { width: 200px; background: white; border-right: 1px solid #ddd; display: block !important; }
+        }
+
+        /* 모바일에서는 사이드 메뉴 숨기기 */
+        @media (max-width: 767px) {
+            .side-menu { display: none; }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="admin-title" id="admin-info">관리자 모드</div>
-        <button onclick="location.href='index.html'" style="background:none; border:none; color:#666; font-weight:bold; cursor:pointer;">로그아웃</button>
+
+    <div class="top-nav">
+        <h1>DTRO 관리자 모드</h1>
+        <button class="btn-logout" onclick="location.href='index.html'">로그아웃</button>
     </div>
 
-    <div class="summary-card">
-        <div class="summary-item" onclick="location.href='admin_edu_add.html'">
-            <div>진행 중 교육</div>
-            <span id="count-edu">0건</span>
-        </div>
-        <div class="summary-item" onclick="location.href='admin_pending_list.html'">
-            <div>미이수 인원</div>
-            <span id="count-pending">0명</span>
-        </div>
+    <div class="summary-bar">
+        <div class="summary-card"><div>전체 인원</div><div>58명</div></div>
+        <div class="summary-card"><div>이수 인원</div><div id="doneCount">--</div></div>
+        <div class="summary-card"><div>미이수</div><div id="remainCount" style="color: #e74c3c;">--</div></div>
     </div>
 
-    <div class="menu-grid">
-        <div class="menu-card" onclick="location.href='admin_edu_add.html'">
-            <span class="icon">📝</span>
-            <span>교육 등록/게시</span>
+    <div class="content-area">
+        <div class="side-menu">
+            <div style="padding: 20px; font-size: 0.9rem; color: #333; line-height: 2;">
+                <b>[메뉴]</b><br>
+                • 실시간 현황<br>
+                • 서명부 다운로드<br>
+                • 교육 공지 전송
+            </div>
         </div>
-        <div class="menu-card" onclick="location.href='admin_edu_status.html'">
-            <span class="icon">📊</span>
-            <span>교육 이수 현황</span>
-        </div>
-        <div class="menu-card" onclick="location.href='admin_pending_list.html'">
-            <span class="icon">👥</span>
-            <span>미이수자 관리</span>
-        </div>
-        <div class="menu-card" onclick="location.href='admin_setting.html'">
-            <span class="icon">⚙️</span>
-            <span>시스템 설정</span>
+        
+        <div class="sheet-frame">
+            <iframe src="https://docs.google.com/spreadsheets/d/시트아이디/edit?usp=sharing"></iframe>
         </div>
     </div>
 
-    <div class="footer-info">Smart Education Management v1.0</div>
-
-    <script>
-        const adminTeam = localStorage.getItem("loginAdmin");
-        if(!adminTeam) { location.href = "index.html"; }
-        document.getElementById("admin-info").innerText = `${adminTeam} 사업소 관리자`;
-
-        function loadSummary() {
-            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
-            const totalStaff = 58; 
-
-            document.getElementById('count-edu').innerText = `${eduList.length}건`;
-            
-            const totalRequired = eduList.length * totalStaff;
-            const currentSigns = completeData.length;
-            const pending = Math.max(0, totalRequired - currentSigns);
-            document.getElementById('count-pending').innerText = `${pending}명`;
-        }
-        loadSummary();
-    </script>
 </body>
 </html>
