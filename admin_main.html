@@ -7,25 +7,52 @@
     <style>
         body { margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f4f7f9; }
         .top-nav { background: #0072bc; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .top-nav strong { font-size: 1.1rem; }
+        .btn-logout { background: #fff; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; color: #0072bc; transition: 0.3s; }
+        .btn-logout:active { background: #ebebeb; }
+        
         .summary-bar { display: flex; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #ddd; }
         .summary-card { flex: 1; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
+        .summary-card div:first-child { font-size: 0.75rem; color: #666; }
         .summary-card div:last-child { font-size: 1.2rem; font-weight: bold; color: #0072bc; margin-top: 5px; }
-        .content-area { flex: 1; background: white; }
+        
+        .content-area { flex: 1; background: white; position: relative; }
         iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
     <div class="top-nav">
         <strong>DTRO 교육 관리자 모드</strong>
-        <button onclick="location.href='index.html'" style="background:#fff; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold; color:#0072bc;">로그아웃</button>
+        <button class="btn-logout" onclick="confirmLogout()">로그아웃</button>
     </div>
+
     <div class="summary-bar">
         <div class="summary-card"><div>전체 인원</div><div>58명</div></div>
         <div class="summary-card"><div>이수 인원</div><div id="done">실시간 집계</div></div>
         <div class="summary-card"><div>미이수</div><div style="color:#e74c3c;">빨간색 확인</div></div>
     </div>
+
     <div class="content-area">
         <iframe src="https://docs.google.com/spreadsheets/d/1xARA_iuT6bGnxD91X2V-ODFlcfw6oaiwYZNwltyEqk8/edit?usp=sharing"></iframe>
     </div>
+
+    <script>
+        // [보안] 뒤로가기 강력 차단 로직
+        window.onload = function() {
+            history.pushState(null, null, location.href);
+            window.onpopstate = function() {
+                history.pushState(null, null, location.href);
+                alert("관리자 모드에서는 뒤로가기를 할 수 없습니다. 로그아웃 버튼을 이용해 주세요.");
+            };
+        };
+
+        // 로그아웃 시에만 이탈 허용
+        function confirmLogout() {
+            if(confirm("관리자 모드를 종료하고 로그아웃하시겠습니까?")) {
+                window.onpopstate = null; // 차단 해제
+                location.replace("index.html"); // 기록 삭제하며 메인으로 이동
+            }
+        }
+    </script>
 </body>
 </html>
