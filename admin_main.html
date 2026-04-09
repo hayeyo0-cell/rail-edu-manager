@@ -3,69 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DTRO 관리자 대시보드</title>
+    <title>DTRO 관리자 모드</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f7f9; }
-        body { margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; height: 100vh; background: var(--bg-gray); }
-
-        /* 상단 바 (PC/모바일 공통) */
-        .top-nav { background: var(--dtro-blue); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .top-nav h1 { font-size: 1.1rem; margin: 0; }
-        .btn-logout { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
-
-        /* 메인 콘텐츠 영역 */
-        .content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* 요약 카드 (모바일에서 유용) */
+        body { margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f4f7f9; }
+        .top-nav { background: #0072bc; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .summary-bar { display: flex; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #ddd; }
         .summary-card { flex: 1; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 8px; border: 1px solid #eee; }
-        .summary-card div:first-child { font-size: 0.7rem; color: #666; }
-        .summary-card div:last-child { font-size: 1.1rem; font-weight: bold; color: var(--dtro-blue); }
-
-        /* 구글 시트 프레임 */
-        .sheet-frame { flex: 1; position: relative; }
+        .summary-card div:last-child { font-size: 1.2rem; font-weight: bold; color: #0072bc; }
+        .content-area { flex: 1; background: white; }
         iframe { width: 100%; height: 100%; border: none; }
-
-        /* PC용 사이드바 조절 (화면이 넓을 때만 적용) */
-        @media (min-width: 768px) {
-            .content-area { flex-direction: row; }
-            .sheet-frame { flex: 4; }
-            .side-menu { width: 200px; background: white; border-right: 1px solid #ddd; display: block !important; }
-        }
-
-        /* 모바일에서는 사이드 메뉴 숨기기 */
-        @media (max-width: 767px) {
-            .side-menu { display: none; }
-        }
     </style>
 </head>
 <body>
-
     <div class="top-nav">
-        <h1>DTRO 관리자 모드</h1>
-        <button class="btn-logout" onclick="location.href='index.html'">로그아웃</button>
+        <strong>DTRO 교육 관리자 대시보드</strong>
+        <button onclick="location.href='index.html'" style="background:#fff; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">로그아웃</button>
     </div>
-
     <div class="summary-bar">
-        <div class="summary-card"><div>전체 인원</div><div>58명</div></div>
-        <div class="summary-card"><div>이수 인원</div><div id="doneCount">--</div></div>
-        <div class="summary-card"><div>미이수</div><div id="remainCount" style="color: #e74c3c;">--</div></div>
+        <div class="summary-card"><div>전체</div><div>58명</div></div>
+        <div class="summary-card"><div>이수</div><div id="done">실시간</div></div>
+        <div class="summary-card"><div>미이수</div><div style="color:red;">확인요망</div></div>
     </div>
-
     <div class="content-area">
-        <div class="side-menu">
-            <div style="padding: 20px; font-size: 0.9rem; color: #333; line-height: 2;">
-                <b>[메뉴]</b><br>
-                • 실시간 현황<br>
-                • 서명부 다운로드<br>
-                • 교육 공지 전송
-            </div>
-        </div>
-        
-        <div class="sheet-frame">
-            <iframe src="https://docs.google.com/spreadsheets/d/시트아이디/edit?usp=sharing"></iframe>
-        </div>
+        <iframe src="https://docs.google.com/spreadsheets/d/시트아이디/edit?usp=sharing"></iframe>
     </div>
-
 </body>
 </html>
