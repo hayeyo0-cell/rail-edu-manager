@@ -34,18 +34,20 @@
                 <input type="password" id="userPw" placeholder="비밀번호를 입력하세요">
             </div>
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
-            <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
+            <button class="admin-link" onclick="checkAdmin()">관리자 로그인</button>
         </div>
     </div>
     <script>
+        // 로그인 화면 뒤로가기 방지
+        history.pushState(null, null, location.href);
+        window.onpopstate = function() { history.pushState(null, null, location.href); };
+
         function startEdu() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
-            
-            // 테스트용: 사번 20050552 & 비번 1234
             if(id === "20050552" && pw === "1234") {
                 localStorage.setItem("loginUser", JSON.stringify({id: id, name: "테스트 기관사"}));
-                location.href = "user_timer.html";
+                location.replace("user_timer.html"); // 뒤로가기 기록 삭제하며 이동
             } else {
                 alert("사번 또는 비밀번호가 틀렸습니다.");
             }
@@ -53,12 +55,8 @@
 
         function checkAdmin() {
             const pw = prompt("관리자 비밀번호를 입력하세요.");
-            // 테스트용: 비번 1234
-            if(pw === "1234") {
-                location.href = "admin_main.html"; 
-            } else if(pw) {
-                alert("비밀번호가 틀렸습니다.");
-            }
+            if(pw === "1234") location.replace("admin_main.html");
+            else if(pw) alert("비밀번호가 틀렸습니다.");
         }
     </script>
 </body>
