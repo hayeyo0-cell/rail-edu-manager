@@ -1,22 +1,123 @@
-/* 제목 스타일 부분 수정 */
-.main-title { 
-    font-size: 1.6rem; 
-    font-weight: bold; 
-    color: #222; 
-    margin: 0; 
-    letter-spacing: -1px;
-    position: relative;
-    display: inline-block; /* 밑줄 길이를 글자 길이에 맞춤 */
-}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DTRO 스마트 교육 플랫폼</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        
+        /* 스크롤 방지 및 전체 중앙 정렬 */
+        html, body { height: 100%; overflow: hidden; }
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: var(--bg-gray); 
+            margin: 0; padding: 0; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+        }
 
-/* [핵심] 제목 아래 파란색 포인트 밑줄 */
-.main-title::after {
-    content: "";
-    position: absolute;
-    bottom: -5px; /* 글자와의 간격 */
-    left: 0;
-    width: 100%; /* 글자 전체 길이에 밑줄 */
-    height: 6px; /* 밑줄 두께 (살짝 두꺼워야 강조됨) */
-    background-color: rgba(0, 114, 188, 0.3); /* DTRO 블루 (연하게 해서 글씨 침범 방지) */
-    border-radius: 3px;
-}
+        /* 로고와 제목 영역 */
+        .brand-area { 
+            text-align: center; 
+            margin-bottom: 35px; 
+        }
+
+        .brand-logo { 
+            height: 20px; 
+            margin-bottom: 10px; 
+            opacity: 0.8;
+        }
+
+        /* [핵심 수정] 제목 및 파란색 강조 밑줄 */
+        .main-title { 
+            font-size: 1.6rem; 
+            font-weight: bold; 
+            color: #222; 
+            margin: 0; 
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block; /* 글자 길이에 밑줄을 맞춤 */
+        }
+
+        .main-title::after {
+            content: "";
+            position: absolute;
+            bottom: 2px; /* 글자 하단에 살짝 겹치게 배치 */
+            left: 0;
+            width: 100%;
+            height: 8px; /* 밑줄 두께 */
+            background-color: rgba(0, 114, 188, 0.25); /* DTRO 블루를 연하게 강조 */
+            border-radius: 4px;
+            z-index: -1; /* 글씨 뒤로 가게 설정 */
+        }
+
+        /* 로그인 카드 디자인 */
+        .login-card { 
+            width: 88%; 
+            max-width: 380px; 
+            background: white; 
+            border-radius: 24px; 
+            padding: 35px 24px 20px 24px; 
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
+            text-align: center;
+        }
+        
+        .input-group { text-align: left; margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 7px; padding-left: 5px; }
+        
+        input, select { 
+            width: 100%; height: 52px; padding: 0 15px; 
+            border: 1px solid #e1e1e1; border-radius: 14px; 
+            font-size: 1rem; background: #fafafa; outline: none;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; }
+
+        .btn-start { 
+            width: 100%; height: 58px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 16px; font-size: 1.15rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(0,114,188,0.25);
+        }
+        .btn-start:active { transform: scale(0.98); }
+
+        .admin-link { margin-top: 22px; display: inline-block; font-size: 0.75rem; color: #ccc; text-decoration: none; border-bottom: 1px solid #eee; }
+    </style>
+</head>
+<body>
+
+    <div class="brand-area">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <h1 class="main-title">스마트 교육 플랫폼</h1>
+    </div>
+
+    <div class="login-card">
+        <div class="input-group">
+            <label>소속 선택</label>
+            <select id="userDept">
+                <option value="">소속을 선택하세요</option>
+                <option value="경산승무팀">경산승무팀</option>
+                <option value="월배승무팀">월배승무팀</option>
+                <option value="안심승무팀">안심승무팀</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>사번 (8자리)</label>
+            <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric">
+        </div>
+
+        <div class="input-group" style="margin-bottom: 30px;">
+            <label>팀 공용 비밀번호</label>
+            <input type="password" id="userPw" placeholder="비밀번호 입력">
+        </div>
+
+        <button class="btn-start" onclick="location.href='user_main.html'">
+            교육 시작하기 →
+        </button>
+
+        <a href="admin_login.html" class="admin-link">관리자 로그인</a>
+    </div>
+
+</body>
+</html>
