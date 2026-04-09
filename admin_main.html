@@ -3,133 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>관리자 홈 - DTRO</title>
+    <title>DTRO 관리자 메인</title>
     <style>
-        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
 
-        /* 상단 헤더 - 텍스트 버튼으로 변경 */
+        /* [핵심 수정] 헤더 밸런스 조정 */
         .header { 
-            width: 100%; background: white; padding: 12px 0; 
-            display: flex; align-items: center; justify-content: space-between; 
-            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; 
-        }
-        .header-left { width: 90px; padding-left: 15px; } 
-        .slim-logo { height: 32px; vertical-align: middle; }
-        .header-right { width: 90px; display: flex; gap: 8px; justify-content: flex-end; padding-right: 15px; }
-        
-        /* 한글 텍스트 버튼 스타일 */
-        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 5px 8px; border-radius: 6px; font-size: 0.7rem; color: #555; cursor: pointer; white-space: nowrap; }
-
-        .container { width: 92%; max-width: 500px; margin: 15px auto; }
-        
-        .admin-tag { text-align: center; margin-bottom: 20px; }
-        .admin-tag span { 
-            background: var(--dtro-blue); color: white; 
-            padding: 6px 20px; border-radius: 20px; 
-            font-size: 0.95rem; font-weight: bold; 
+            width: 100%; 
+            background: white; 
+            padding: 18px 0; /* 세로 폭을 넓혀 로고 공간 확보 */
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .section-label { font-size: 0.85rem; font-weight: bold; color: var(--dtro-blue); margin: 20px 0 10px 5px; display: flex; align-items: center; }
-        .section-label::before { content: ''; width: 3px; height: 13px; background: var(--dtro-blue); margin-right: 8px; border-radius: 2px; }
+        /* 로고: 주인공답게 크게 */
+        .header-logo { 
+            height: 38px; /* 기존보다 훨씬 키움 */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%); /* 정확히 중앙 배치 */
+        }
 
-        /* [변경] 메뉴 카드 크기 통일 및 줄바꿈 방지 */
+        /* 버튼들: 작고 슬림하게 부조연 역할 */
+        .header-btn { 
+            background: #f8f9fa; 
+            border: 1px solid #e0e0e0; 
+            padding: 5px 10px; 
+            border-radius: 6px; 
+            font-size: 0.7rem; /* 글자 크기 축소 */
+            color: #777; 
+            cursor: pointer;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .container { padding: 20px; max-width: 500px; margin: 0 auto; }
+        
+        /* 소속 표시 버튼 */
+        .dept-tag { 
+            background: var(--dtro-blue); 
+            color: white; 
+            padding: 8px 20px; 
+            border-radius: 20px; 
+            display: inline-block; 
+            font-weight: bold; 
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,114,188,0.2);
+        }
+
+        .section-title { font-size: 1rem; font-weight: bold; color: var(--dtro-blue); margin: 20px 0 10px 5px; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
+
+        /* 카드 디자인 보강 */
         .menu-card { 
-            background: white; border-radius: 18px; height: 95px; /* 높이 고정 */
-            margin-bottom: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            display: flex; align-items: center; padding: 0 18px; cursor: pointer; overflow: hidden;
+            background: white; 
+            border-radius: 18px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .menu-icon { font-size: 1.8rem; margin-right: 15px; flex-shrink: 0; }
-        .menu-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } /* 글씨 한 줄 고정 */
-        .menu-title { font-size: 1.05rem; font-weight: bold; color: #333; margin-bottom: 4px; }
-        .menu-desc { font-size: 0.8rem; color: #888; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* 모달 스타일 */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
+        .menu-card:active { transform: scale(0.98); background: #fafafa; }
+        .menu-icon { font-size: 2.2rem; margin-right: 18px; }
+        .menu-info { text-align: left; }
+        .menu-name { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 4px; }
+        .menu-desc { font-size: 0.75rem; color: #888; line-height: 1.3; }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <div class="header-left">
-             <button class="txt-btn" onclick="openSettings()">관리자 설정</button>
-        </div>
-        <img src="logo.png" class="slim-logo">
-        <div class="header-right">
-            <button class="txt-btn" onclick="if(confirm('로그아웃 하시겠습니까?')) location.href='index.html'">로그아웃</button>
-        </div>
+        <button class="header-btn">관리자 설정</button>
+        <img src="logo.png" class="header-logo" alt="DTRO">
+        <button class="header-btn">로그아웃</button>
     </div>
 
-    <div class="container">
-        <div class="admin-tag">
-            <span id="adminTeamDisplay">확인 중...</span>
-        </div>
+    <div class="container" style="text-align: center;">
+        <div class="dept-tag">경산승무팀</div>
 
-        <div class="section-label">교육 관리</div>
-        
+        <div class="section-title">교육 관리</div>
         <div class="menu-card" onclick="location.href='admin_edu_add.html'">
             <div class="menu-icon">✍️</div>
-            <div class="menu-text">
-                <div class="menu-title">새 교육 등록하기</div>
+            <div class="menu-info">
+                <div class="menu-name">새 교육 등록하기</div>
                 <div class="menu-desc">오늘의 교육 내용 및 지시사항을 게시합니다.</div>
             </div>
         </div>
 
-        <div class="menu-card" onclick="alert('준비 중입니다.')">
+        <div class="menu-card">
             <div class="menu-icon">📂</div>
-            <div class="menu-text">
-                <div class="menu-title">등록된 교육 내역</div>
+            <div class="menu-info">
+                <div class="menu-name">등록된 교육 내역</div>
                 <div class="menu-desc">게시 중인 교육을 수정하거나 삭제 관리합니다.</div>
             </div>
         </div>
 
-        <div class="section-label">이수 현황 및 소통</div>
-
-        <div class="menu-card" onclick="location.href='admin_status.html'">
+        <div class="section-title">이수 현황 및 소통</div>
+        <div class="menu-card">
             <div class="menu-icon">📊</div>
-            <div class="menu-text">
-                <div class="menu-title">실시간 이수 현황</div>
+            <div class="menu-info">
+                <div class="menu-name">실시간 이수 현황</div>
                 <div class="menu-desc">현재 12명 완료 / 45명 미이수 상세 보기</div>
             </div>
         </div>
 
-        <div class="menu-card" onclick="alert('준비 중입니다.')">
+        <div class="menu-card">
             <div class="menu-icon">📢</div>
-            <div class="menu-text">
-                <div class="menu-title">공지사항 관리</div>
+            <div class="menu-info">
+                <div class="menu-name">공지사항 관리</div>
                 <div class="menu-desc">팀 내 긴급 공지 및 주요 전달사항을 게시합니다.</div>
             </div>
         </div>
     </div>
 
-    <div id="settingsModal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:20px; font-size:1.1rem;">⚙️ 관리자 설정</h3>
-            <div style="text-align:left; margin-bottom:15px;">
-                <label style="font-size:0.8rem; color:#666;">팀 공용 비밀번호 변경</label>
-                <input type="number" id="newTeamPw" placeholder="새 비번 입력" inputmode="numeric" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:10px; box-sizing:border-box; margin-top:5px;">
-            </div>
-            <button onclick="updatePw()" style="width:100%; padding:12px; background:var(--dtro-blue); color:white; border:none; border-radius:10px; font-weight:bold;">비밀번호 즉시 변경</button>
-            <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
-            <button onclick="resetAdmin()" style="color:#dc3545; background:none; border:none; text-decoration:underline; font-size:0.85rem;">담당자 변경 (권한 초기화)</button>
-            <button onclick="closeSettings()" style="width:100%; border:none; background:none; color:#999; margin-top:20px; text-decoration:underline;">닫기</button>
-        </div>
-    </div>
-
-    <script>
-        const admin = JSON.parse(localStorage.getItem("assignedAdmin"));
-        if(!admin) { location.replace("index.html"); } 
-        else { document.getElementById('adminTeamDisplay').innerText = admin.team + "승무팀"; }
-
-        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
-        function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
-        function updatePw() {
-            const pw = document.getElementById('newTeamPw').value;
-            if(pw) { localStorage.setItem("teamPassword", pw); alert("변경되었습니다."); closeSettings(); }
-        }
-        function resetAdmin() {
-            if(confirm("권한을 초기화할까요?")) { localStorage.removeItem("assignedAdmin"); location.href="index.html"; }
-        }
-    </script>
 </body>
 </html>
