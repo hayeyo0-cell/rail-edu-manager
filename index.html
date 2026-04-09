@@ -21,10 +21,10 @@
         label { font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 6px; color: #555; }
         input, select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95rem; box-sizing: border-box; background: #fafafa; }
 
-        .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,114,188,0.15); }
+        .btn-start { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,114,188,0.15); }
         .admin-link { margin-top: 20px; display: block; color: #999; font-size: 0.8rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
 
-        /* [추가] 관리자 기지 선택 모달 스타일 */
+        /* 관리자 소속 선택 모달 스타일 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
         .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
         .modal-title { font-weight: bold; margin-bottom: 20px; font-size: 1.1rem; color: #333; }
@@ -43,7 +43,7 @@
             <h2 class="main-title">스마트 교육 플랫폼</h2>
             
             <div class="input-group">
-                <label>소속 기지/관리소</label>
+                <label>소속 선택</label>
                 <select id="userTeam">
                     <option value="">소속을 선택하세요</option>
                     <option value="경산">경산 (2호선)</option>
@@ -70,7 +70,7 @@
 
     <div id="adminModal" class="modal">
         <div class="modal-content">
-            <div class="modal-title">관리 소속 기지를 선택하세요</div>
+            <div class="modal-title">관리 소속을 선택하세요</div>
             <button class="base-btn" onclick="checkAdminWithTeam('경산')">경산 (2호선)</button>
             <button class="base-btn" onclick="checkAdminWithTeam('문양')">문양 (2호선)</button>
             <button class="base-btn" onclick="checkAdminWithTeam('월배')">월배 (1호선)</button>
@@ -89,7 +89,7 @@
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
             const teamPw = localStorage.getItem("teamPassword");
-            if(!team) { alert("소속 기지를 선택해 주세요."); return; }
+            if(!team) { alert("소속을 선택해 주세요."); return; }
             if(id.length === 8 && pw === teamPw) {
                 localStorage.setItem("loginUser", JSON.stringify({team: team, id: id, name: "기관사"}));
                 window.onpopstate = null;
@@ -97,11 +97,9 @@
             } else { alert("정보가 일치하지 않습니다."); }
         }
 
-        // 모달 제어 함수
         function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
         function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
 
-        // 관리자 로그인 로직 (선택된 기지 기반)
         function checkAdminWithTeam(selectedTeam) {
             closeAdminModal();
             const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
@@ -114,7 +112,6 @@
                     location.href = "admin_register.html"; 
                 } else if (masterPw) { alert("비밀번호가 틀렸습니다."); }
             } else {
-                // 선택한 기지와 저장된 기지 대조
                 if (selectedTeam === savedAdmin.team) {
                     const adminId = prompt("관리자 사번을 입력하세요.");
                     if (adminId === savedAdmin.id) {
@@ -125,7 +122,7 @@
                         } else if (adminPw) { alert("비밀번호가 일치하지 않습니다."); }
                     } else if (adminId) { alert("등록된 관리자 사번이 아닙니다."); }
                 } else {
-                    alert(selectedTeam + " 기지의 관리자가 아닙니다.\n소속 기지를 다시 확인하세요.");
+                    alert(selectedTeam + " 소속의 관리자가 아닙니다.");
                 }
             }
         }
