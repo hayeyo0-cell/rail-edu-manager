@@ -28,9 +28,9 @@
         }
         input:focus, select:focus { border-color: var(--dtro-blue); outline: none; background: #fff; }
         input { height: 45px; }
-        textarea { height: 90px; resize: none; }
+        textarea { height: 80px; resize: none; }
 
-        /* 훈련 목표 설정 영역 */
+        /* 기한 및 훈련 설정 영역 */
         .sub-setting { background: #eef7ff; border: 1px solid #b3d7ff; padding: 15px; border-radius: 12px; margin-top: 5px; display: none; }
         .flex-row { display: flex; gap: 6px; margin-top: 5px; }
         .flex-row div { flex: 1; }
@@ -60,6 +60,11 @@
                     <option value="시뮬레이션">시뮬레이션</option>
                     <option value="육성방송 훈련">육성방송 훈련</option>
                 </select>
+            </div>
+
+            <div class="input-group">
+                <label>교육 이수 기한</label>
+                <input type="date" id="eduDeadline">
             </div>
 
             <div id="trainingSetting" class="sub-setting">
@@ -94,7 +99,7 @@
             if (category === "육성방송 훈련") {
                 settingDiv.style.display = "block";
                 content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.7rem;">🎯 육성방송 훈련 목표 (실적 자동 집계)</label>
+                    <label style="color:var(--dtro-blue); font-size:0.7rem;">🎯 육성방송 목표 설정</label>
                     <div class="flex-row">
                         <div>
                             <label>목표 횟수</label>
@@ -109,7 +114,7 @@
             } else if (category === "시뮬레이션") {
                 settingDiv.style.display = "block";
                 content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.7rem;">📋 시뮬레이션 이수 목표 (3회/1.5H/60점 기준)</label>
+                    <label style="color:var(--dtro-blue); font-size:0.7rem;">📋 시뮬레이션 목표 (3회/1.5H/60점)</label>
                     <div class="flex-row">
                         <div>
                             <label>목표 횟수</label>
@@ -133,13 +138,20 @@
 
         function submitTraining() {
             const title = document.getElementById('eduTitle').value;
-            const category = document.getElementById('eduCategory').value;
+            const deadline = document.getElementById('eduDeadline').value;
             if(!title) { alert("제목을 입력해주세요."); return; }
-            alert("[" + category + "] 교육이 성공적으로 등록되었습니다.");
+            if(!deadline) { alert("교육 기한을 선택해주세요."); return; }
+            
+            alert("정상 등록되었습니다. 기한: " + deadline);
             location.href = 'admin_main.html';
         }
 
-        window.onload = toggleTrainingMode;
+        // 오늘 날짜를 기한 기본값으로 세팅
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eduDeadline').value = today;
+            toggleTrainingMode();
+        };
     </script>
 </body>
 </html>
