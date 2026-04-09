@@ -8,36 +8,38 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f0f2f5; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; color: #333; }
         
-        .header { width: 100%; background: white; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .header-left { width: 90px; padding-left: 12px; } 
-        .slim-logo { height: 26px; }
-        .header-right { width: 90px; }
-        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 4px 8px; border-radius: 5px; font-size: 0.7rem; color: #666; cursor: pointer; }
+        /* [핵심 수정] 하단 소속 정보 크기로 상단 로고 키우기 */
+        .header { width: 100%; background: white; padding: 15px 0; /* 세로 여백 늘림 */ display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .header-left { width: 100px; padding-left: 15px; } 
+        /* 로고 크기 및 비율 조정 (밑에 소속 정보 볼륨감) */
+        .slim-logo { height: 35px; /* 기존 26px에서 대폭 키움 */ display: block; margin: 0 auto; }
+        .header-right { width: 100px; padding-right: 15px; text-align: right; }
+        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; color: #666; cursor: pointer; }
         
-        .container { width: 92%; max-width: 480px; margin: 15px auto; padding-bottom: 40px; }
-        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
-        .page-title { font-size: 1rem; font-weight: bold; margin-bottom: 20px; color: var(--dtro-blue); display: flex; align-items: center; }
+        .container { width: 92%; max-width: 480px; margin: 18px auto; padding-bottom: 40px; }
+        .card { background: white; border-radius: 18px; padding: 22px; box-shadow: 0 5px 18px rgba(0,0,0,0.08); }
+        .page-title { font-size: 1.05rem; font-weight: bold; margin-bottom: 22px; color: var(--dtro-blue); display: flex; align-items: center; justify-content: center; /* 중앙 정렬 */ }
         .page-title::before { content: '✍️'; margin-right: 8px; }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 6px; }
+        .input-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 7px; }
         
         input, select, textarea { 
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; 
+            width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 11px; 
             box-sizing: border-box; font-size: 0.85rem; background: #fafafa;
         }
         input:focus, select:focus { border-color: var(--dtro-blue); outline: none; background: #fff; }
-        input { height: 45px; }
-        textarea { height: 80px; resize: none; }
+        input { height: 48px; }
+        textarea { height: 85px; resize: none; }
 
         /* 기한 및 훈련 설정 영역 */
-        .sub-setting { background: #eef7ff; border: 1px solid #b3d7ff; padding: 15px; border-radius: 12px; margin-top: 5px; display: none; }
-        .flex-row { display: flex; gap: 6px; margin-top: 5px; }
+        .sub-setting { background: #eef7ff; border: 1px solid #b3d7ff; padding: 16px; border-radius: 14px; margin-top: 6px; display: none; }
+        .flex-row { display: flex; gap: 7px; margin-top: 6px; }
         .flex-row div { flex: 1; }
-        .flex-row label { font-size: 0.6rem; color: #0056b3; margin-bottom: 3px; }
-        .flex-row input { background: white !important; height: 38px; text-align: center; }
+        .flex-row label { font-size: 0.65rem; color: #0056b3; margin-bottom: 4px; }
+        .flex-row input { background: white !important; height: 40px; text-align: center; }
 
-        .btn-submit { width: 100%; height: 50px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn-submit { width: 100%; height: 52px; background: var(--dtro-blue); color: white; border: none; border-radius: 14px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 22px; box-shadow: 0 4px 10px rgba(0,114,188,0.2); }
     </style>
 </head>
 <body>
@@ -91,6 +93,7 @@
     </div>
 
     <script>
+        // 분류 선택 시 훈련 목표창 제어
         function toggleTrainingMode() {
             const category = document.getElementById('eduCategory').value;
             const settingDiv = document.getElementById('trainingSetting');
@@ -99,7 +102,7 @@
             if (category === "육성방송 훈련") {
                 settingDiv.style.display = "block";
                 content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.7rem;">🎯 육성방송 목표 설정</label>
+                    <label style="color:var(--dtro-blue); font-size:0.75rem;">🎯 육성방송 목표 설정</label>
                     <div class="flex-row">
                         <div>
                             <label>목표 횟수</label>
@@ -114,7 +117,7 @@
             } else if (category === "시뮬레이션") {
                 settingDiv.style.display = "block";
                 content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.7rem;">📋 시뮬레이션 목표 (3회/1.5H/60점)</label>
+                    <label style="color:var(--dtro-blue); font-size:0.75rem;">📋 시뮬레이션 목표 (3회/1.5H/60점)</label>
                     <div class="flex-row">
                         <div>
                             <label>목표 횟수</label>
