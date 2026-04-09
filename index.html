@@ -39,15 +39,11 @@
 
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
             <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
-            
-            <button onclick="clearAllData()" style="margin-top:20px; color:red; font-size:0.7rem; border:none; background:none; text-decoration:underline;">기록 강제 초기화</button>
         </div>
     </div>
 
     <script>
-        // [중요] 접속하자마자 예전 관리자 기록을 강제로 삭제합니다.
-        // 마스터 로그인 화면이 뜨는 걸 확인하신 후에는 아래 줄을 지우거나 주석처리(//) 하세요.
-        localStorage.removeItem("assignedAdmin"); 
+        // [수정 완료] 이제 자동 삭제 코드를 뺐습니다! 한 번 등록하면 유지됩니다.
 
         if(!localStorage.getItem("teamPassword")) {
             localStorage.setItem("teamPassword", "1234");
@@ -70,15 +66,17 @@
             const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
 
             if (!savedAdmin) {
+                // 관리자가 없는 최초 상태
                 const masterPw = prompt("담당자가 지정되지 않았습니다.\n마스터 비밀번호를 입력하세요.");
                 if (masterPw === "1234") {
-                    alert("마스터 인증 성공! 담당자 등록 페이지로 이동합니다.");
+                    alert("인증 성공! 담당자 등록 페이지로 이동합니다.");
                     window.onpopstate = null;
                     location.href = "admin_register.html"; 
                 } else if (masterPw) {
                     alert("비밀번호가 틀렸습니다.");
                 }
             } else {
+                // 관리자가 이미 지정된 정상 상태
                 const adminId = prompt("관리자 사번을 입력하세요.");
                 if (adminId === savedAdmin.id) {
                     const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
@@ -91,15 +89,6 @@
                 } else if (adminId) {
                     alert("등록된 관리자 사번이 아닙니다.");
                 }
-            }
-        }
-
-        // 수동 초기화 버튼 함수
-        function clearAllData() {
-            if(confirm("모든 설정(관리자 정보 포함)을 초기화할까요?")) {
-                localStorage.clear();
-                alert("초기화 완료! 다시 시도해 주세요.");
-                location.reload();
             }
         }
 
