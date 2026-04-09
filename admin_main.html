@@ -6,47 +6,68 @@
     <title>DTRO 관리자 모드</title>
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; --dtro-dark: #1a1a1a; --danger: #dc3545; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 50px; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; } /* 탭 높이만큼 하단 여백 추가 */
         
-        /* 상단 헤더 */
-        .header { background: var(--dtro-blue); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header h1 { margin: 0; font-size: 1.2rem; }
-        .admin-info { font-size: 0.85rem; margin-top: 5px; opacity: 0.9; }
+        .header { background: var(--dtro-blue); color: white; padding: 25px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 1.3rem; font-weight: 700; }
+        .admin-info { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
 
         .container { width: 92%; max-width: 500px; margin: 20px auto; }
 
-        /* 대시보드 카드 */
+        /* 카드 디자인 */
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card-title { font-weight: bold; font-size: 1rem; color: var(--dtro-dark); margin-bottom: 15px; display: flex; align-items: center; }
-        .card-title::before { content: '•'; color: var(--dtro-blue); margin-right: 8px; font-size: 1.5rem; }
+        .card-title { font-weight: bold; font-size: 1.05rem; color: var(--dtro-dark); margin-bottom: 15px; display: flex; align-items: center; }
+        .card-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; border-radius: 2px; }
 
         /* 통계 섹션 */
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-item { background: var(--dtro-sky); padding: 15px; border-radius: 10px; text-align: center; }
-        .stat-label { font-size: 0.8rem; color: #666; }
-        .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); margin-top: 5px; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-item { background: var(--dtro-sky); padding: 18px 10px; border-radius: 12px; text-align: center; }
+        .stat-label { font-size: 0.8rem; color: #666; margin-bottom: 5px; }
+        .stat-value { font-size: 1.3rem; font-weight: 800; color: var(--dtro-blue); }
 
         /* 설정 폼 */
-        .input-group { margin-bottom: 15px; }
-        label { font-size: 0.85rem; color: #555; display: block; margin-bottom: 8px; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
+        .input-group { margin-top: 10px; }
+        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; background: #fafafa; }
         
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-blue { background: var(--dtro-blue); color: white; }
-        .btn-outline { background: white; color: var(--danger); border: 1px solid var(--danger); margin-top: 10px; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 12px; }
+        .btn-blue { background: var(--dtro-blue); color: white; box-shadow: 0 4px 6px rgba(0,114,188,0.2); }
+        .btn-outline { background: white; color: var(--danger); border: 1px solid var(--danger); margin-top: 20px; }
+        .btn:active { transform: scale(0.98); }
 
-        /* 하단 메뉴 */
-        .nav-bottom { position: fixed; bottom: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; }
-        .nav-item { flex: 1; padding: 15px; text-align: center; font-size: 0.8rem; color: #888; text-decoration: none; }
+        /* [핵심] 하단 네비게이션 고정 스타일 */
+        .nav-bottom { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0;
+            width: 100%; 
+            background: white; 
+            display: flex; 
+            border-top: 1px solid #eee; 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+            padding-bottom: env(safe-area-inset-bottom); /* 아이폰 등 하단 바 대응 */
+        }
+        .nav-item { 
+            flex: 1; 
+            padding: 15px 0; 
+            text-align: center; 
+            font-size: 0.85rem; 
+            color: #999; 
+            text-decoration: none; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
         .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
+        .nav-item i { font-size: 1.2rem; } /* 나중에 아이콘 넣을 자리 */
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 id="headerTitle">관리 소속: 확인 중...</h1>
-        <div class="admin-info" id="adminWelcome">환영합니다, 관리자님</div>
+        <h1 id="headerTitle">소속: 확인 중...</h1>
+        <div class="admin-info" id="adminWelcome">담당자 정보를 불러오는 중입니다</div>
     </div>
 
     <div class="container">
@@ -62,65 +83,63 @@
                     <div class="stat-value">45명</div>
                 </div>
             </div>
-            <button class="btn-blue" style="margin-top:15px; padding:10px; font-size:0.9rem;" onclick="location.href='admin_edu_status.html'">상세 명단 확인하기</button>
+            <button class="btn btn-blue" style="background:#444; font-size:0.9rem;" onclick="alert('명단 화면 준비 중입니다.')">상세 명단 확인하기</button>
         </div>
 
         <div class="card">
             <div class="card-title">팀 공용 비밀번호 관리</div>
+            <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">
+                현재 비밀번호: <span id="currentTeamPw" style="font-weight:bold; color:var(--dtro-blue);">1234</span>
+            </p>
             <div class="input-group">
-                <label>현재 비밀번호: <span id="currentTeamPw" style="font-weight:bold; color:var(--dtro-blue);">1234</span></label>
-                <input type="number" id="newTeamPw" placeholder="새 비밀번호 입력" inputmode="numeric">
+                <input type="number" id="newTeamPw" placeholder="변경할 새 비밀번호 입력" inputmode="numeric">
             </div>
-            <button class="btn-blue" onclick="updateTeamPw()">비밀번호 즉시 변경</button>
+            <button class="btn btn-blue" onclick="updateTeamPw()">비밀번호 즉시 변경</button>
         </div>
 
-        <div class="card">
-            <div class="card-title">시스템 보안 설정</div>
-            <p style="font-size:0.8rem; color:#888; line-height:1.5;">
-                담당자 변경을 누르면 현재 관리자 권한이 즉시 삭제됩니다. 인수인계 시에만 사용해 주세요.
-            </p>
-            <button class="btn-outline" onclick="resetAdminAuth()">⚠️ 담당자 변경 (권한 파기)</button>
+        <div class="card" style="border: 1px dashed #ddd; background: #fafafa;">
+            <div class="card-title">시스템 설정</div>
+            <button class="btn btn-outline" onclick="resetAdminAuth()">담당자 변경 (권한 파기)</button>
         </div>
     </div>
 
     <div class="nav-bottom">
-        <a href="admin_main.html" class="nav-item active">홈/설정</a>
-        <a href="admin_edu_add.html" class="nav-item">교육 등록</a>
-        <a href="index.html" class="nav-item">로그아웃</a>
+        <a href="admin_main.html" class="nav-item active">
+            <span>홈/설정</span>
+        </a>
+        <a href="admin_edu_add.html" class="nav-item">
+            <span>교육 등록</span>
+        </a>
+        <a href="index.html" class="nav-item" onclick="return confirm('로그아웃 하시겠습니까?')">
+            <span>로그아웃</span>
+        </a>
     </div>
 
     <script>
-        // 1. 관리자 정보 불러오기
+        // 관리자 정보 및 비번 로직 (기존과 동일)
         const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
         if (!savedAdmin) {
-            alert("잘못된 접근입니다.");
             location.replace("index.html");
         } else {
             document.getElementById('headerTitle').innerText = "소속: " + savedAdmin.team;
             document.getElementById('adminWelcome').innerText = "담당자 사번: " + savedAdmin.id;
         }
 
-        // 2. 현재 공용 비번 표시
         document.getElementById('currentTeamPw').innerText = localStorage.getItem("teamPassword") || "1234";
 
-        // 3. 공용 비번 업데이트 함수
         function updateTeamPw() {
             const newPw = document.getElementById('newTeamPw').value;
             if (newPw.length > 0) {
                 localStorage.setItem("teamPassword", newPw);
                 document.getElementById('currentTeamPw').innerText = newPw;
                 document.getElementById('newTeamPw').value = "";
-                alert("팀 공용 비밀번호가 [" + newPw + "](으)로 변경되었습니다.");
-            } else {
-                alert("새 비밀번호를 입력해 주세요.");
+                alert("비밀번호가 성공적으로 변경되었습니다.");
             }
         }
 
-        // 4. 담당자 권한 파기 함수
         function resetAdminAuth() {
-            if (confirm("정말로 관리자 권한을 파기하시겠습니까?\n이후에는 다시 마스터 비번으로 접속해야 합니다.")) {
+            if (confirm("담당자 권한을 파기하시겠습니까? 초기화 후에는 다시 마스터 인증이 필요합니다.")) {
                 localStorage.removeItem("assignedAdmin");
-                alert("권한이 파기되었습니다. 메인 화면으로 이동합니다.");
                 location.replace("index.html");
             }
         }
