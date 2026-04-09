@@ -8,88 +8,82 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
 
-        /* [핵심 수정] 헤더 디자인: 로고는 크게, 버튼은 아주 작게 */
+        /* [핵심 수정] 버튼 클릭 간격을 확보한 헤더 구조 */
         .header { 
             width: 100%; 
             background: white; 
-            padding: 20px 0; /* 세로 폭을 넓혀 로고의 위엄을 살림 */
+            padding: 15px 0; 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
             border-bottom: 1px solid #eee;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 1000;
         }
 
-        /* 로고: 중앙에 크고 선명하게 */
-        .header-logo { 
-            height: 42px; /* 존재감 있게 키움 */
+        /* 로고: 중앙 배치하되 버튼 클릭을 방해하지 않도록 설정 */
+        .header-logo-wrap {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+            pointer-events: none; /* [중요] 로고 박스가 버튼 터치를 방해하지 않음 */
+        }
+        .header-logo { 
+            height: 36px; 
+            pointer-events: auto; /* 로고 자체는 클릭 가능(필요시) */
         }
 
-        /* 양옆 버튼: 작고 슬림하게 (보조 역할) */
+        /* 양옆 버튼: 클릭 영역 확실히 확보 */
         .header-btn { 
             background: #fdfdfd; 
             border: 1px solid #eaeaea; 
-            padding: 4px 8px; 
-            border-radius: 4px; 
-            font-size: 0.65rem; /* 글자 크기를 최소화하여 로고 방해 금지 */
-            color: #999; 
+            padding: 5px 10px; 
+            border-radius: 6px; 
+            font-size: 0.68rem; 
+            color: #888; 
             cursor: pointer;
-            margin: 0 15px;
-            white-space: nowrap;
-            letter-spacing: -0.5px;
+            margin: 0 12px;
+            z-index: 1001; /* 버튼을 로고보다 위로 올림 */
+            position: relative;
         }
+        .header-btn:active { background: #eee; }
 
         .container { padding: 20px; max-width: 500px; margin: 0 auto; text-align: center; }
         
-        /* 소속 태그: 로고와 밸런스를 맞춰 볼륨감 있게 */
         .dept-tag { 
-            background: var(--dtro-blue); 
-            color: white; 
-            padding: 10px 25px; 
-            border-radius: 25px; 
-            display: inline-block; 
-            font-weight: bold; 
-            font-size: 0.95rem;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0,114,188,0.25);
+            background: var(--dtro-blue); color: white; 
+            padding: 9px 22px; border-radius: 25px; 
+            display: inline-block; font-weight: bold; font-size: 0.9rem;
+            margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,114,188,0.2);
         }
 
         .section-title { 
-            font-size: 1rem; font-weight: bold; color: var(--dtro-blue); 
-            margin: 25px 0 12px 5px; border-left: 4px solid var(--dtro-blue); 
+            font-size: 0.95rem; font-weight: bold; color: var(--dtro-blue); 
+            margin: 20px 0 12px 5px; border-left: 4px solid var(--dtro-blue); 
             padding-left: 10px; text-align: left;
         }
 
-        /* 카드 디자인: 시인성 강화 */
         .menu-card { 
-            background: white; 
-            border-radius: 20px; 
-            padding: 22px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
-            cursor: pointer;
-            transition: 0.2s ease;
+            background: white; border-radius: 20px; padding: 22px; margin-bottom: 15px; 
+            display: flex; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+            cursor: pointer; transition: 0.2s;
         }
         .menu-card:active { transform: scale(0.97); background: #fafafa; }
-        .menu-icon { font-size: 2.3rem; margin-right: 20px; }
+        .menu-icon { font-size: 2.2rem; margin-right: 18px; }
         .menu-info { text-align: left; }
-        .menu-name { font-size: 1.05rem; font-weight: bold; color: #333; margin-bottom: 5px; }
-        .menu-desc { font-size: 0.8rem; color: #888; line-height: 1.4; }
+        .menu-name { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 4px; }
+        .menu-desc { font-size: 0.78rem; color: #888; line-height: 1.4; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <button class="header-btn">관리자 설정</button>
-        <img src="logo.png" class="header-logo" alt="DTRO">
-        <button class="header-btn">로그아웃</button>
+        <button class="header-btn" onclick="location.href='admin_settings.html'">관리자 설정</button>
+        
+        <div class="header-logo-wrap">
+            <img src="logo.png" class="header-logo" alt="DTRO">
+        </div>
+        
+        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
     </div>
 
     <div class="container">
@@ -104,7 +98,7 @@
             </div>
         </div>
 
-        <div class="menu-card">
+        <div class="menu-card" onclick="location.href='admin_edu_list.html'">
             <div class="menu-icon">📂</div>
             <div class="menu-info">
                 <div class="menu-name">등록된 교육 내역</div>
@@ -113,7 +107,7 @@
         </div>
 
         <div class="section-title">이수 현황 및 소통</div>
-        <div class="menu-card">
+        <div class="menu-card" onclick="location.href='admin_status.html'">
             <div class="menu-icon">📊</div>
             <div class="menu-info">
                 <div class="menu-name">실시간 이수 현황</div>
@@ -121,7 +115,7 @@
             </div>
         </div>
 
-        <div class="menu-card">
+        <div class="menu-card" onclick="location.href='admin_notice.html'">
             <div class="menu-icon">📢</div>
             <div class="menu-info">
                 <div class="menu-name">공지사항 관리</div>
