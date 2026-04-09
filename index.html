@@ -30,6 +30,15 @@
         </div>
     </div>
     <script>
+        // 뒤로가기 가두기: 페이지 진입 시 실행
+        function preventBack() {
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, null, window.location.href);
+            };
+        }
+        preventBack();
+
         function startEdu() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
@@ -40,29 +49,19 @@
         }
 
         function checkAdmin() {
-            // 1단계: 마스터 비밀번호 확인 (언제나 1234)
-            const masterPw = prompt("관리자 마스터 비밀번호를 입력하세요.");
-            if (masterPw !== "1234") {
-                if(masterPw !== null) alert("마스터 비밀번호가 틀렸습니다.");
-                return;
-            }
-
-            // 저장된 담당자 정보 확인
-            const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
-
-            if (!savedAdmin) {
-                // [지정 전] 담당자가 없으면 마스터 비번만으로 즉시 입장
-                alert("등록된 담당자가 없습니다. 마스터 권한으로 입장하여 담당자를 지정해 주세요.");
-                window.location.replace("admin_main.html");
-            } else {
-                // [지정 후] 등록된 담당자가 있으면 사번을 물어봄
-                const inputCode = prompt("담당자 사번을 입력하세요.");
-                if (inputCode === savedAdmin.id) {
+            const masterPw = prompt("1단계: 마스터 비밀번호(1234)");
+            if (masterPw === "1234") {
+                const saved = JSON.parse(localStorage.getItem("assignedAdmin"));
+                if (!saved) {
+                    alert("지정된 담당자가 없습니다. 마스터 권한으로 입장합니다.");
                     window.location.replace("admin_main.html");
-                } else if (inputCode !== null) {
-                    alert("지정된 담당자 사번과 일치하지 않습니다.");
+                } else {
+                    const adminCode = prompt("2단계: 지정된 담당자 사번을 입력하세요.");
+                    if (adminCode === saved.id) {
+                        window.location.replace("admin_main.html");
+                    } else if(adminCode !== null) { alert("사번이 일치하지 않습니다."); }
                 }
-            }
+            } else if(masterPw) { alert("비밀번호가 틀렸습니다."); }
         }
     </script>
 </body>
