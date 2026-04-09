@@ -1,14 +1,40 @@
-<script>
-    function registerAdmin() {
-        const id = document.getElementById('regId').value;
-        const pw = document.getElementById('regPw').value;
-        if(id.length === 8 && pw.length > 0) {
-            const adminData = { id: id, pw: pw };
-            localStorage.setItem("assignedAdmin", JSON.stringify(adminData));
-            alert("관리자 등록 완료! 이제 관리자 사번으로 로그인하세요.");
-            location.href = "index.html";
-        } else {
-            alert("사번 8자리와 비밀번호를 입력하세요.");
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>관리자 등록 - DTRO</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        .register-card { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
+        .btn-reg { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <h2 style="color:var(--dtro-blue);">신규 관리자 지정</h2>
+        <p style="font-size:0.9rem; color:#666;">관리자로 사용할 사번과 비번을 설정하세요.</p>
+        <input type="number" id="regId" placeholder="관리자 사번 (8자리)" inputmode="numeric">
+        <input type="password" id="regPw" placeholder="관리자 개인 비밀번호" inputmode="numeric">
+        <button class="btn-reg" onclick="saveAdmin()">관리자 등록 완료</button>
+    </div>
+
+    <script>
+        function saveAdmin() {
+            const id = document.getElementById('regId').value;
+            const pw = document.getElementById('regPw').value;
+            
+            if(id.length === 8 && pw !== "") {
+                const adminData = { id: id, pw: pw };
+                localStorage.setItem("assignedAdmin", JSON.stringify(adminData));
+                alert("관리자 지정이 완료되었습니다!\n이제 설정하신 사번으로 로그인하세요.");
+                location.replace("index.html");
+            } else {
+                alert("사번 8자리와 비밀번호를 모두 입력해 주세요.");
+            }
         }
-    }
-</script>
+    </script>
+</body>
+</html>
