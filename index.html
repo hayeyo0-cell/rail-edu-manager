@@ -8,84 +8,29 @@
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* 상단 헤더 */
-        .header {
-            width: 100%;
-            background: white;
-            padding: 20px 0; /* 여백 약간 줄임 */
-            text-align: center;
-            border-bottom: 2px solid var(--dtro-blue);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-
-        /* 로고 크기 조절 */
+        /* 헤더 & 로고 */
+        .header { width: 100%; background: white; padding: 20px 0; text-align: center; border-bottom: 2px solid var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .logo-img { height: 45px; vertical-align: middle; object-fit: contain; }
 
+        /* 메인 카드 */
         .container { width: 90%; max-width: 380px; margin-top: 20px; }
-        
-        .login-card { 
-            background: white; 
-            padding: 30px 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
-            text-align: center; 
-        }
-
-        /* [변경] 타이틀 글씨 크기를 로고와 비슷하게 줄임 */
-        .main-title { 
-            font-size: 1.4rem; 
-            margin-bottom: 25px; 
-            color: #111; 
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+        .login-card { background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .main-title { font-size: 1.4rem; margin-bottom: 25px; color: #111; font-weight: 700; letter-spacing: -0.5px; }
 
         .input-group { margin-bottom: 15px; text-align: left; }
-        
-        label { 
-            font-size: 0.85rem; 
-            font-weight: bold; 
-            display: block; 
-            margin-bottom: 6px; 
-            color: #555; 
-        }
+        label { font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 6px; color: #555; }
+        input, select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 0.95rem; box-sizing: border-box; background: #fafafa; }
 
-        input, select { 
-            width: 100%; 
-            padding: 14px; 
-            border: 1px solid #ddd; 
-            border-radius: 10px; 
-            font-size: 0.95rem; 
-            box-sizing: border-box; 
-            background: #fafafa; 
-        }
+        .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,114,188,0.15); }
+        .admin-link { margin-top: 20px; display: block; color: #999; font-size: 0.8rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
 
-        /* [변경] 버튼 글씨 크기와 패딩 조절 */
-        .btn-start { 
-            width: 100%; 
-            padding: 16px; 
-            background: var(--dtro-blue); 
-            color: white; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 1.1rem; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 10px; 
-            box-shadow: 0 4px 6px rgba(0,114,188,0.15);
-        }
-
-        .admin-link { 
-            margin-top: 20px; 
-            display: block; 
-            color: #999; 
-            font-size: 0.8rem; 
-            text-decoration: underline; 
-            cursor: pointer; 
-            border:none; 
-            background:none; 
-            width:100%; 
-        }
+        /* [추가] 관리자 기지 선택 모달 스타일 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: center; }
+        .modal-title { font-weight: bold; margin-bottom: 20px; font-size: 1.1rem; color: #333; }
+        .base-btn { width: 100%; padding: 12px; margin-bottom: 8px; border: 1px solid #eee; border-radius: 10px; background: #f9f9f9; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        .base-btn:active { background: var(--dtro-sky); color: var(--dtro-blue); border-color: var(--dtro-blue); }
+        .close-btn { margin-top: 10px; color: #999; font-size: 0.85rem; background: none; border: none; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -119,7 +64,18 @@
             </div>
 
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
-            <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
+            <button class="admin-link" onclick="openAdminModal()">관리자(담당자) 로그인</button>
+        </div>
+    </div>
+
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">관리 소속 기지를 선택하세요</div>
+            <button class="base-btn" onclick="checkAdminWithTeam('경산')">경산 (2호선)</button>
+            <button class="base-btn" onclick="checkAdminWithTeam('문양')">문양 (2호선)</button>
+            <button class="base-btn" onclick="checkAdminWithTeam('월배')">월배 (1호선)</button>
+            <button class="base-btn" onclick="checkAdminWithTeam('안심')">안심 (1호선)</button>
+            <button class="close-btn" onclick="closeAdminModal()">닫기</button>
         </div>
     </div>
 
@@ -133,20 +89,23 @@
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
             const teamPw = localStorage.getItem("teamPassword");
-
             if(!team) { alert("소속 기지를 선택해 주세요."); return; }
-
             if(id.length === 8 && pw === teamPw) {
                 localStorage.setItem("loginUser", JSON.stringify({team: team, id: id, name: "기관사"}));
                 window.onpopstate = null;
                 location.replace("user_timer.html");
-            } else {
-                alert("정보가 일치하지 않습니다.\n사번 8자리와 팀 비밀번호를 확인하세요.");
-            }
+            } else { alert("정보가 일치하지 않습니다."); }
         }
 
-        function checkAdmin() {
+        // 모달 제어 함수
+        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+        // 관리자 로그인 로직 (선택된 기지 기반)
+        function checkAdminWithTeam(selectedTeam) {
+            closeAdminModal();
             const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
+
             if (!savedAdmin) {
                 const masterPw = prompt("담당자가 지정되지 않았습니다.\n마스터 비밀번호(1234)를 입력하세요.");
                 if (masterPw === "1234") {
@@ -155,8 +114,8 @@
                     location.href = "admin_register.html"; 
                 } else if (masterPw) { alert("비밀번호가 틀렸습니다."); }
             } else {
-                const adminTeam = prompt("관리 소속 기지를 입력하세요. (경산, 문양, 월배, 안심 중 입력)");
-                if (adminTeam === savedAdmin.team) {
+                // 선택한 기지와 저장된 기지 대조
+                if (selectedTeam === savedAdmin.team) {
                     const adminId = prompt("관리자 사번을 입력하세요.");
                     if (adminId === savedAdmin.id) {
                         const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
@@ -165,7 +124,9 @@
                             location.href = "admin_main.html";
                         } else if (adminPw) { alert("비밀번호가 일치하지 않습니다."); }
                     } else if (adminId) { alert("등록된 관리자 사번이 아닙니다."); }
-                } else if (adminTeam) { alert("해당 기지의 관리자가 아닙니다."); }
+                } else {
+                    alert(selectedTeam + " 기지의 관리자가 아닙니다.\n소속 기지를 다시 확인하세요.");
+                }
             }
         }
 
