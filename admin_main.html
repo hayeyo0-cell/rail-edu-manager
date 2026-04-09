@@ -7,77 +7,52 @@
     <style>
         body { margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f4f7f9; }
         .top-nav { background: #0072bc; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-group { display: flex; gap: 10px; }
-        .btn { border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-group { display: flex; gap: 8px; }
+        .btn { border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
         .btn-set { background: #ff9f43; color: white; }
         .btn-logout { background: #fff; color: #0072bc; }
-        
-        .summary-bar { display: flex; gap: 10px; padding: 15px; background: white; border-bottom: 1px solid #ddd; }
-        .summary-card { flex: 1; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
-        .summary-card div:last-child { font-size: 1.2rem; font-weight: bold; color: #0072bc; }
-        
         .content-area { flex: 1; background: white; }
         iframe { width: 100%; height: 100%; border: none; }
-
-        /* 설정 모달 */
-        #setupModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-        .modal-card { background:white; padding:30px; border-radius:20px; width:90%; max-width:350px; text-align:left; }
-        input { width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; }
+        #setupModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 100; }
+        .modal-card { background:white; padding:25px; border-radius:15px; width:85%; max-width:320px; }
+        .modal-card input { width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; }
     </style>
 </head>
 <body>
     <div class="top-nav">
-        <strong>DTRO 관리자 모드</strong>
+        <strong>DTRO 관리자</strong>
         <div class="btn-group">
-            <button class="btn btn-set" onclick="openSetup()">담당자 설정</button>
+            <button class="btn btn-set" onclick="openSetup()">담당자 지정</button>
             <button class="btn btn-logout" onclick="confirmLogout()">로그아웃</button>
         </div>
     </div>
-
-    <div class="summary-bar">
-        <div class="summary-card"><div>전체 인원</div><div>58명</div></div>
-        <div class="summary-card"><div>이수 완료</div><div>집계중</div></div>
-    </div>
-
     <div class="content-area">
         <iframe src="https://docs.google.com/spreadsheets/d/1xARA_iuT6bGnxD91X2V-ODFlcfw6oaiwYZNwltyEqk8/edit?usp=sharing"></iframe>
     </div>
 
     <div id="setupModal">
         <div class="modal-card">
-            <h3>교육담당자 지정</h3>
-            <label>담당자 사번</label>
-            <input type="number" id="newAdminId" placeholder="사번을 입력하세요">
-            <label>관리 비밀번호 설정</label>
-            <input type="password" id="newAdminPw" placeholder="새 비밀번호">
-            <button class="btn btn-set" style="width:100%; margin-top:10px;" onclick="saveAdmin()">저장하기</button>
-            <button class="btn" style="width:100%; margin-top:5px; background:#eee;" onclick="closeSetup()">취소</button>
+            <h3 style="margin-top:0;">교육담당자 변경</h3>
+            <p style="font-size:0.85rem; color:#666;">새로운 담당자 사번을 입력하세요.</p>
+            <input type="number" id="newAdminId" placeholder="새 담당자 사번">
+            <button class="btn btn-set" style="width:100%; margin-top:10px; padding:15px;" onclick="saveAdmin()">설정 저장</button>
+            <button class="btn" style="width:100%; margin-top:8px; background:#eee;" onclick="closeSetup()">취소</button>
         </div>
     </div>
 
     <script>
-        window.onload = function() {
-            history.pushState(null, null, location.href);
-            window.onpopstate = function() { history.pushState(null, null, location.href); };
-        };
-
         function openSetup() { document.getElementById('setupModal').style.display = 'flex'; }
         function closeSetup() { document.getElementById('setupModal').style.display = 'none'; }
-
         function saveAdmin() {
             const id = document.getElementById('newAdminId').value;
-            const pw = document.getElementById('newAdminPw').value;
-            if(!id || !pw) { alert("사번과 비밀번호를 모두 입력하세요."); return; }
-            
-            localStorage.setItem("assignedAdmin", JSON.stringify({id: id, pw: pw}));
-            alert("교육담당자가 지정되었습니다. 이제 이 정보로 로그인이 가능합니다.");
+            if(!id) { alert("사번을 입력하세요."); return; }
+            localStorage.setItem("assignedAdmin", JSON.stringify({id: id}));
+            alert("담당자가 사번 [" + id + "]님으로 변경되었습니다.");
             closeSetup();
         }
-
         function confirmLogout() {
             if(confirm("관리자 모드를 종료하시겠습니까?")) {
-                window.onpopstate = null;
-                location.replace("index.html");
+                window.location.replace("index.html");
             }
         }
     </script>
