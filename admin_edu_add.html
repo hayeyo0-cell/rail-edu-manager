@@ -10,53 +10,52 @@
 
         /* 상단 헤더 */
         .header { 
-            width: 100%; background: white; padding: 12px 0; 
+            width: 100%; background: white; padding: 10px 0; 
             display: flex; align-items: center; justify-content: space-between; 
             border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; 
         }
         .header-left { width: 90px; padding-left: 12px; } 
-        .slim-logo { height: 30px; vertical-align: middle; }
+        .slim-logo { height: 28px; vertical-align: middle; }
         .header-right { width: 90px; }
-        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; color: #666; cursor: pointer; }
+        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 4px 8px; border-radius: 5px; font-size: 0.7rem; color: #666; cursor: pointer; }
 
-        .container { width: 92%; max-width: 480px; margin: 15px auto; padding-bottom: 30px; }
-        .card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .container { width: 92%; max-width: 480px; margin: 12px auto; padding-bottom: 30px; }
+        .card { background: white; border-radius: 15px; padding: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         
-        .page-title { font-size: 1rem; font-weight: bold; margin-bottom: 22px; display: flex; align-items: center; }
-        .page-title::before { content: '✍️'; margin-right: 8px; }
+        .page-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 18px; display: flex; align-items: center; }
+        .page-title::before { content: '✍️'; margin-right: 6px; }
 
-        .input-group { margin-bottom: 18px; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: #777; margin-bottom: 6px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 5px; }
         
-        /* [수정] 드롭다운 및 입력창 디자인 슬림화 */
+        /* [핵심 수정] 입력창 및 드롭다운 폰트 사이즈 대폭 하향 */
         input, select, .file-upload-box { 
-            width: 100%; height: 42px; padding: 0 10px; border: 1px solid #ddd; 
+            width: 100%; height: 40px; padding: 0 10px; border: 1px solid #ddd; 
             border-radius: 8px; box-sizing: border-box; 
-            font-size: 0.85rem; /* 폰트 크기 하향 */
-            background: #fafafa; color: #444; display: flex; align-items: center;
+            font-size: 0.8rem; /* 0.85 -> 0.8로 더 축소 */
+            background: #fafafa; color: #444;
         }
 
-        /* [핵심] 드롭다운 목록 글씨 크기 제어 (일부 브라우저 적용) */
+        /* 드롭다운 내부 옵션 폰트 조절 */
         select option {
-            font-size: 0.85rem;
-            padding: 10px;
+            font-size: 0.75rem; /* 목록 글씨를 더 작게 */
         }
         
         textarea { 
-            width: 100%; height: 90px; padding: 12px; border: 1px solid #ddd; 
-            border-radius: 8px; box-sizing: border-box; font-size: 0.85rem; 
+            width: 100%; height: 85px; padding: 10px; border: 1px solid #ddd; 
+            border-radius: 8px; box-sizing: border-box; font-size: 0.8rem; 
             background: #fafafa; resize: none; font-family: inherit;
         }
 
-        .file-upload-box { border: 1px dashed #ccc; background: #fff; justify-content: center; cursor: pointer; color: #888; font-size: 0.8rem; }
+        .file-upload-box { border: 1px dashed #ccc; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-size: 0.75rem; }
 
         .btn-submit { 
-            width: 100%; height: 48px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold; 
+            width: 100%; height: 45px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 10px; font-size: 0.9rem; font-weight: bold; 
             cursor: pointer; margin-top: 10px;
         }
 
-        .sub-setting { background: #fdfdfd; border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-top: 8px; display: none; }
+        .sub-setting { background: #fdfdfd; border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
@@ -73,8 +72,8 @@
             <div class="input-group">
                 <label>교육 대분류</label>
                 <select id="eduCategory" onchange="updateSubCategory()">
-                    <option value="게시교육">게시교육 (지시사항/사고사례)</option>
-                    <option value="대면교육">대면교육 (집합/현장실습)</option>
+                    <option value="게시교육">게시교육 (지시/사고)</option>
+                    <option value="대면교육">대면교육 (집합/실습)</option>
                 </select>
             </div>
 
@@ -85,7 +84,7 @@
             </div>
 
             <div id="specialSetting" class="sub-setting">
-                <label id="specialLabel" style="font-size: 0.75rem; color:var(--dtro-blue);">설정</label>
+                <label id="specialLabel" style="font-size: 0.7rem; color:var(--dtro-blue);">설정</label>
                 <input type="number" id="targetCount" placeholder="횟수 입력" inputmode="numeric">
             </div>
 
