@@ -1,29 +1,56 @@
-<script>
-    function checkAdmin() {
-        const masterPw = prompt("1단계: 마스터 비밀번호(1234)");
-        if (masterPw === "1234") {
-            // 저장된 담당자 정보 불러오기
-            const assigned = JSON.parse(localStorage.getItem("assignedAdmin"));
-            
-            if (!assigned) {
-                // 담당자 지정 전이라면 마스터 권한으로 바로 입장
-                alert("지정된 담당자가 없습니다. 마스터 권한으로 입장합니다.");
-                window.onpopstate = null;
-                location.replace("admin_main.html");
-            } else {
-                // 담당자가 지정되어 있다면 사번과 비번 확인
-                const adminId = prompt("2단계: 지정된 담당자 사번을 입력하세요.");
-                const adminPw = prompt("3단계: 지정된 관리 비밀번호를 입력하세요.");
-                
-                if (adminId === assigned.id && adminPw === assigned.pw) {
-                    window.onpopstate = null;
-                    location.replace("admin_main.html");
-                } else {
-                    alert("담당자 정보가 일치하지 않습니다.");
-                }
-            }
-        } else if(masterPw) {
-            alert("마스터 비밀번호가 틀렸습니다.");
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DTRO 스마트 교육</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .header { width: 100%; background: white; padding: 25px 0; text-align: center; border-bottom: 3px solid var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--dtro-blue); letter-spacing: -1px; }
+        .container { width: 90%; max-width: 400px; margin-top: 35px; }
+        .login-card { background: white; padding: 35px 25px; border-radius: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.08); text-align: center; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px; color: #333; }
+        input { width: 100%; padding: 16px; border: 2px solid #edf2f7; border-radius: 15px; font-size: 1rem; box-sizing: border-box; background: #fcfdfe; }
+        .btn-start { width: 100%; padding: 20px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.3); }
+        .admin-link { margin-top: 30px; display: block; color: #bbb; font-size: 0.85rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
+    </style>
+</head>
+<body>
+    <div class="header"><div class="logo-text">DTRO SMART LEARNING</div></div>
+    <div class="container">
+        <div class="login-card">
+            <h2 style="margin-bottom:30px; color:#222;">기관사 로그인</h2>
+            <div class="input-group"><label>사번</label><input type="number" id="userId" placeholder="사번을 입력하세요"></div>
+            <div class="input-group"><label>비밀번호</label><input type="password" id="userPw" placeholder="비밀번호를 입력하세요"></div>
+            <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
+            <button class="admin-link" onclick="checkAdmin()">관리자 로그인</button>
+        </div>
+    </div>
+    <script>
+        function startEdu() {
+            const id = document.getElementById('userId').value;
+            const pw = document.getElementById('userPw').value;
+            if(id === "20050552" && pw === "1234") {
+                localStorage.setItem("loginUser", JSON.stringify({id: id, name: "테스트 기관사"}));
+                window.location.replace("user_timer.html"); 
+            } else { alert("정보가 일치하지 않습니다."); }
         }
-    }
-</script>
+
+        function checkAdmin() {
+            const masterPw = prompt("1단계: 마스터 비밀번호(1234)");
+            if (masterPw === "1234") {
+                const adminCode = prompt("2단계: 관리자 사번(20050552)");
+                const saved = JSON.parse(localStorage.getItem("assignedAdmin"));
+                
+                // 지정된 담당자가 없으면 테스트 사번으로 통과, 있으면 지정된 정보와 대조
+                if ((!saved && adminCode === "20050552") || (saved && adminCode === saved.id)) {
+                    window.location.replace("admin_main.html");
+                } else { alert("사번이 일치하지 않습니다."); }
+            } else if(masterPw) { alert("마스터 비밀번호가 틀렸습니다."); }
+        }
+    </script>
+</body>
+</html>
