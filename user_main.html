@@ -3,86 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 목록 - 스마트 교육관리</title>
+    <title>DTRO 스마트 교육</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .user-info { font-weight: bold; color: #333; }
+        :root { --dtro-blue: #0072bc; --dtro-sky: #e1f0ff; --text-dark: #333; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f9ff; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .edu-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-        .badge { position: absolute; top: 15px; right: 15px; padding: 5px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
-        .badge-online { background: #e1f5fe; color: #039be5; }
-        .badge-offline { background: #fff3e0; color: #ef6c00; }
-        .title { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; width: 70%; line-height: 1.3; }
-        .info { font-size: 0.85rem; color: #666; margin-bottom: 5px; }
-        .d-day { color: #e74c3c; font-weight: bold; }
+        /* 헤더 디자인 */
+        .header { width: 100%; background: white; padding: 20px 0; text-align: center; border-bottom: 3px solid var(--dtro-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .logo-text { font-size: 1.4rem; font-weight: 800; color: var(--dtro-blue); letter-spacing: -1px; }
+        .sub-text { font-size: 0.8rem; color: #666; margin-top: 5px; }
+
+        /* 컨테이너 */
+        .container { width: 90%; max-width: 400px; margin-top: 30px; }
         
-        /* 버튼 스타일 변경 */
-        .btn-sign { width: 100%; background: #3498db; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        .btn-complete { width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: default; }
+        /* 로그인 카드 */
+        .login-card { background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { font-size: 0.9rem; font-weight: bold; color: var(--text-dark); display: block; margin-bottom: 8px; margin-left: 5px; }
+        input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; transition: 0.3s; }
+        input:focus { border-color: var(--dtro-blue); outline: none; }
+
+        /* 메인 버튼 */
+        .btn-start { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,114,188,0.3); }
+        .btn-start:active { transform: scale(0.98); }
+
+        /* 안내 문구 */
+        .info-box { margin-top: 40px; background: var(--dtro-sky); padding: 15px; border-radius: 12px; color: #446a8d; font-size: 0.85rem; line-height: 1.5; }
     </style>
 </head>
 <body>
-
     <div class="header">
-        <div class="user-info" id="user-display">정보 로딩 중...</div>
-        <button onclick="location.href='index.html'" style="background:none; border:none; color:#666;">로그아웃</button>
+        <div class="logo-text">DTRO SMART LEARNING</div>
+        <div class="sub-text">대구교통공사와 함께하는 스마트한 세상</div>
     </div>
 
-    <div id="edu-list"></div>
+    <div class="container">
+        <div class="login-card">
+            <h2 style="margin-bottom: 25px; color: #222;">본인 확인</h2>
+            <div class="input-group">
+                <label>사번 입력</label>
+                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" oninput="saveInfo()">
+            </div>
+            <div class="input-group" style="margin-bottom: 25px;">
+                <label>성명 입력</label>
+                <input type="text" id="userName" placeholder="이름을 입력하세요" oninput="saveInfo()">
+            </div>
+            <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
+        </div>
+
+        <div class="info-box">
+            💡 <b>안내사항</b><br>
+            교육 완료 후 '자필 서명'을 제출해야 정상 이수 처리됩니다. 화면을 닫지 마세요.
+        </div>
+    </div>
 
     <script>
-        const user = JSON.parse(localStorage.getItem("loginUser"));
-        if(!user) { location.href = "index.html"; }
-        document.getElementById("user-display").innerText = `${user.team} ${user.name} 기관사님`;
+        // 정보 저장 및 페이지 이동 로직은 기존과 동일
+        function saveInfo() {
+            const user = {
+                id: document.getElementById('userId').value,
+                name: document.getElementById('userName').value
+            };
+            localStorage.setItem("loginUser", JSON.stringify(user));
+        }
 
-        function loadEduList() {
-            const eduList = JSON.parse(localStorage.getItem(`eduList_${user.team}`)) || [];
-            const completionData = JSON.parse(localStorage.getItem(`complete_${user.team}`)) || [];
-            const container = document.getElementById("edu-list");
-            
-            if(eduList.length === 0) {
-                container.innerHTML = "<p style='text-align:center; color:#999; margin-top:100px;'>현재 등록된 교육이 없습니다.</p>";
+        function startEdu() {
+            const user = JSON.parse(localStorage.getItem("loginUser"));
+            if(!user.id || !user.name) {
+                alert("사번과 성명을 모두 입력해주세요.");
                 return;
             }
-
-            container.innerHTML = eduList.map(edu => {
-                const dDay = calculateDDay(edu.date);
-                const isOnline = edu.type === 'online';
-                // 이미 서명했는지 확인
-                const isDone = completionData.some(c => c.eduId === edu.id && c.userId === user.id);
-
-                return `
-                    <div class="edu-card">
-                        <span class="badge ${isOnline ? 'badge-online' : 'badge-offline'}">${isOnline ? '💻 게시교육' : '👥 대면교육'}</span>
-                        <div class="title">${edu.title}</div>
-                        <div class="info">기한: ~ ${edu.date} <span class="d-day">${dDay}</span></div>
-                        ${isDone 
-                            ? `<button class="btn-complete">이수 완료 ✅</button>` 
-                            : `<button class="btn-sign" onclick="goToTimer('${edu.id}', '${edu.title}')">⏱️ 교육 입장 및 시뮬레이션</button>`
-                        }
-                    </div>
-                `;
-            }).join('');
+            localStorage.setItem('currentEduTitle', "4월 전동차 시뮬레이션 및 고장처치");
+            location.href = "user_timer.html";
         }
-
-        // 🚀 타이머 화면으로 넘어가는 함수!
-        function goToTimer(id, title) {
-            localStorage.setItem('currentEduId', id);       // 어떤 교육인지 임시 저장
-            localStorage.setItem('currentEduTitle', title); // 제목 임시 저장
-            location.href = 'user_timer.html';              // 타이머 화면으로 이동!
-        }
-
-        function calculateDDay(targetDate) {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const target = new Date(targetDate);
-            const diff = target - today;
-            const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-            if (days < 0) return "기한 만료";
-            return days === 0 ? "D-Day" : `D-${days}`;
-        }
-
-        loadEduList();
     </script>
 </body>
 </html>
