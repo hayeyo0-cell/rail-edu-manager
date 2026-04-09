@@ -1,38 +1,14 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>관리자 등록</title>
-    <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h2 { margin-bottom: 20px; color: #333; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h2 id="team-name">사업소 관리자 등록</h2>
-        <input type="text" id="new-id" placeholder="사용할 관리자 사번 입력">
-        <input type="password" id="new-pw" placeholder="사용할 비밀번호 입력">
-        <button class="btn" onclick="registerAdmin()">관리자 등록 완료</button>
-    </div>
-    <script>
-        const team = localStorage.getItem("tempAdminAccess");
-        if(!team) location.href = "index.html";
-        document.getElementById("team-name").innerText = `${team} 관리자 등록`;
-
-        function registerAdmin() {
-            const id = document.getElementById("new-id").value;
-            const pw = document.getElementById("new-pw").value;
-            if(!id || !pw) { alert("정보를 모두 입력하세요."); return; }
-            localStorage.setItem(`adminConfig_${team}`, JSON.stringify({id, pw}));
-            alert("등록 성공! 이제 사번과 비번으로 로그인하세요.");
-            localStorage.removeItem("tempAdminAccess");
+<script>
+    function registerAdmin() {
+        const id = document.getElementById('regId').value;
+        const pw = document.getElementById('regPw').value;
+        if(id.length === 8 && pw.length > 0) {
+            const adminData = { id: id, pw: pw };
+            localStorage.setItem("assignedAdmin", JSON.stringify(adminData));
+            alert("관리자 등록 완료! 이제 관리자 사번으로 로그인하세요.");
             location.href = "index.html";
+        } else {
+            alert("사번 8자리와 비밀번호를 입력하세요.");
         }
-    </script>
-</body>
-</html>
+    }
+</script>
