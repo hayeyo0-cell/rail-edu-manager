@@ -3,116 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 등록 및 관리 - DTRO</title>
+    <title>교육 등록 - DTRO 관리자</title>
     <style>
-        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; --dtro-dark: #1a1a1a; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; } /* 탭 공간 확보 */
+        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; --danger: #dc3545; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; }
         
-        /* 상단 헤더 */
-        .header { background: white; padding: 20px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .btn-back { background: none; border: none; font-size: 1.5rem; cursor: pointer; margin-right: 15px; color: #333; }
+        /* 상단 헤더: 타이틀과 로그아웃 버튼 */
+        .header { background: white; padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
         .header h1 { margin: 0; font-size: 1.1rem; font-weight: bold; }
+        .logout-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: #666; cursor: pointer; }
+        .logout-btn:hover { background: #eee; }
 
         .container { width: 92%; max-width: 500px; margin: 20px auto; }
-
-        /* 카드 스타일 */
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; color: var(--dtro-dark); }
+        .section-title { font-weight: bold; font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; color: #333; }
         .section-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; border-radius: 2px; }
 
-        /* 입력 폼 */
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-size: 0.85rem; font-weight: bold; color: #555; display: block; margin-bottom: 8px; }
-        input, select, textarea { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 0.95rem; background: #fafafa; }
-        
-        .btn-submit { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,114,188,0.2); }
+        input, select { width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 0.95rem; background: #fafafa; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* 하단 고정 네비게이션 (모든 페이지 공통) */
-        .nav-bottom { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0;
-            width: 100%; 
-            background: white; 
-            display: flex; 
-            border-top: 1px solid #eee; 
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 1000;
-        }
-        .nav-item { 
-            flex: 1; 
-            padding: 15px 0; 
-            text-align: center; 
-            font-size: 0.85rem; 
-            color: #999; 
-            text-decoration: none; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+        /* 하단 고정 탭 */
+        .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-item { flex: 1; padding: 15px 0; text-align: center; font-size: 0.85rem; color: #999; text-decoration: none; }
         .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <button class="btn-back" onclick="location.href='admin_main.html'">←</button>
-        <h1>📝 교육 등록 및 관리</h1>
+        <h1>교육 등록 및 관리</h1>
+        <button class="logout-btn" onclick="if(confirm('로그아웃 하시겠습니까?')) location.href='index.html'">로그아웃</button>
     </div>
 
     <div class="container">
         <div class="card">
-            <div class="section-title">📢 현재 게시 중인 교육</div>
-            <p style="text-align: center; color: #999; font-size: 0.9rem; padding: 20px 0;">게시된 교육이 없습니다.</p>
-        </div>
-
-        <div class="card">
             <div class="section-title">✨ 새 교육 등록하기</div>
-            
-            <div class="input-group">
-                <label>교육 제목</label>
-                <input type="text" id="eduTitle" placeholder="예: 4월 사고사례 교육">
+            <div style="margin-bottom:15px;">
+                <label style="font-size:0.8rem; font-weight:bold; color:#555;">교육 제목</label>
+                <input type="text" placeholder="예: 4월 사고사례 교육">
             </div>
-
-            <div class="input-group">
-                <label>교육 구분</label>
-                <select id="eduType">
-                    <option value="online">💻 게시 교육 (온라인)</option>
-                    <option value="offline">🤝 집합 교육 (오프라인)</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>이수 기한</label>
-                <input type="date" id="eduDeadline">
-            </div>
-
-            <button class="btn-submit" onclick="publishEdu()">교육 게시하기</button>
+            <button class="btn-submit">교육 게시하기</button>
         </div>
     </div>
 
     <div class="nav-bottom">
-        <a href="admin_main.html" class="nav-item">
-            <span>홈/설정</span>
-        </a>
-        <a href="admin_edu_add.html" class="nav-item active">
-            <span>교육 등록</span>
-        </a>
-        <a href="index.html" class="nav-item" onclick="return confirm('로그아웃 하시겠습니까?')">
-            <span>로그아웃</span>
-        </a>
+        <a href="admin_main.html" class="nav-item">홈/설정</a>
+        <a href="admin_edu_add.html" class="nav-item active">교육 등록</a>
+        <a href="admin_status.html" class="nav-item">이수 현황</a>
     </div>
 
-    <script>
-        function publishEdu() {
-            const title = document.getElementById('eduTitle').value;
-            if(title) {
-                alert("[" + title + "] 교육이 게시되었습니다!");
-                location.href = 'admin_main.html';
-            } else {
-                alert("교육 제목을 입력해 주세요.");
-            }
-        }
-    </script>
 </body>
 </html>
