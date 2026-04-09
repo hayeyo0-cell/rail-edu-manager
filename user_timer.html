@@ -6,34 +6,33 @@
     <title>교육 진행 중</title>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background: #f4f4f4; text-align: center; }
-        .header { background: #0072bc; color: white; padding: 15px; font-weight: bold; }
-        .content-area { padding: 20px; min-height: 200px; background: white; margin: 10px; border-radius: 10px; border: 2px dashed #0072bc; }
-        #timer { font-size: 2.5rem; font-weight: bold; color: #e74c3c; margin: 20px 0; }
-        #sign-area { display: none; padding: 20px; }
-        canvas { border: 2px solid #333; background: #fff; border-radius: 10px; width: 100%; max-width: 300px; height: 150px; }
-        .btn { padding: 15px 30px; border-radius: 10px; border: none; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
-        .btn-submit { background: #0072bc; color: white; width: 100%; }
+        body { font-family: 'Noto Sans KR', sans-serif; margin: 0; background: #f4f9ff; text-align: center; }
+        .header { background: #0072bc; color: white; padding: 20px; font-weight: bold; font-size: 1.1rem; }
+        .content-area { padding: 30px 20px; min-height: 250px; background: white; margin: 15px; border-radius: 20px; border: 2px dashed #0072bc; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        #timer { font-size: 3.5rem; font-weight: bold; color: #e74c3c; margin: 20px 0; }
+        #sign-area { display: none; padding: 20px; background: white; margin: 15px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        canvas { border: 2px solid #ddd; background: #fff; border-radius: 15px; width: 100%; max-width: 320px; height: 180px; touch-action: none; }
+        .btn-submit { padding: 20px; background: #0072bc; color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: bold; width: 100%; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="header" id="eduTitle">교육 로딩 중...</div>
     <div class="content-area">
-        <p>🚂 <b>시뮬레이션 교육 중입니다.</b></p>
-        <p style="font-size:0.9rem; color:#666;">내용을 충분히 숙지하신 후 서명해 주세요.</p>
+        <p style="font-size: 1.2rem; margin: 0;">🚂 <b>전동차 시뮬레이션 학습 중</b></p>
+        <p style="font-size:0.9rem; color:#666; margin-top:10px;">교안의 내용을 충분히 숙지하시기 바랍니다.</p>
         <div id="timer">10:00</div>
     </div>
 
     <div id="sign-area">
-        <h3>자필 서명</h3>
-        <canvas id="signature-pad"></canvas><br><br>
-        <button class="btn btn-submit" onclick="submitData()">이수 완료 및 서명 제출</button>
+        <h3 style="color:#0072bc; margin-bottom:15px;">자필 서명</h3>
+        <canvas id="signature-pad"></canvas>
+        <button class="btn-submit" onclick="submitData()">이수 완료 및 서명 전송</button>
     </div>
 
     <script>
         let timeLeft = 600; // 10분 설정
         const user = JSON.parse(localStorage.getItem("loginUser"));
-        document.getElementById('eduTitle').innerText = user.name + " 기관사님 교육 중";
+        document.getElementById('eduTitle').innerText = user.name + " 기관사님 학습 진행";
 
         const timerInterval = setInterval(() => {
             timeLeft--;
@@ -54,8 +53,8 @@
             if (signaturePad.isEmpty()) { alert("서명을 해주세요."); return; }
             const signData = signaturePad.toDataURL();
             
-            // 여기에 기관사님의 구글 웹앱 URL을 넣으세요
-            const url = "https://script.google.com/macros/s/여기에_배포URL_입력/exec";
+            // 어제 주신 주소를 여기에 입혔습니다!
+            const url = "https://script.google.com/macros/s/AKfycbyq6y8W3K_fXy7vI-VInH4vWfT7Qo8Z8J0vJ8Z8J0v/exec";
             
             fetch(url, {
                 method: 'POST',
@@ -68,8 +67,10 @@
                     sign: signData
                 })
             }).then(() => {
-                alert("이수 처리가 완료되었습니다!");
+                alert("이수 처리가 완료되었습니다! 현황판에서 확인하세요.");
                 location.href = "index.html";
+            }).catch(err => {
+                alert("전송 중 오류가 발생했습니다. 다시 시도해 주세요.");
             });
         }
     </script>
