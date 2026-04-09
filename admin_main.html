@@ -32,15 +32,24 @@
 
     <div id="setupModal">
         <div class="modal-card">
-            <h3 style="margin-top:0;">교육담당자 변경</h3>
-            <p style="font-size:0.85rem; color:#666;">새로운 담당자 사번을 입력하세요.</p>
+            <h3>교육담당자 변경</h3>
             <input type="number" id="newAdminId" placeholder="새 담당자 사번">
-            <button class="btn btn-set" style="width:100%; margin-top:10px; padding:15px;" onclick="saveAdmin()">설정 저장</button>
+            <button class="btn btn-set" style="width:100%; margin-top:10px;" onclick="saveAdmin()">설정 저장</button>
             <button class="btn" style="width:100%; margin-top:8px; background:#eee;" onclick="closeSetup()">취소</button>
         </div>
     </div>
 
     <script>
+        // 관리자 화면 뒤로가기 가두기
+        function preventBack() {
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, null, window.location.href);
+                alert("로그아웃 버튼을 이용해 주세요.");
+            };
+        }
+        preventBack();
+
         function openSetup() { document.getElementById('setupModal').style.display = 'flex'; }
         function closeSetup() { document.getElementById('setupModal').style.display = 'none'; }
         function saveAdmin() {
@@ -52,6 +61,8 @@
         }
         function confirmLogout() {
             if(confirm("관리자 모드를 종료하시겠습니까?")) {
+                // 로그아웃 시에만 감시 해제 후 이동
+                window.onpopstate = null;
                 window.location.replace("index.html");
             }
         }
