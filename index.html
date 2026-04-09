@@ -12,37 +12,37 @@
         .container { width: 90%; max-width: 400px; margin-top: 35px; }
         .login-card { background: white; padding: 35px 25px; border-radius: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.08); text-align: center; }
         .input-group { margin-bottom: 20px; text-align: left; }
-        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px; }
-        input { width: 100%; padding: 16px; border: 2px solid #edf2f7; border-radius: 15px; font-size: 1rem; box-sizing: border-box; }
+        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px; color: #333; }
+        input { width: 100%; padding: 16px; border: 2px solid #edf2f7; border-radius: 15px; font-size: 1rem; box-sizing: border-box; background: #fcfdfe; }
         .btn-start { width: 100%; padding: 20px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.3); }
-        .admin-link { margin-top: 25px; display: block; color: #bbb; font-size: 0.8rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
+        .admin-link { margin-top: 30px; display: block; color: #bbb; font-size: 0.85rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="logo-text">DTRO SMART LEARNING</div>
-        <div style="font-size: 0.8rem; color: #666;">대구교통공사 스마트 교육 시스템</div>
+        <div style="font-size: 0.8rem; color: #666; margin-top:5px;">대구교통공사와 함께하는 스마트한 세상</div>
     </div>
     <div class="container">
         <div class="login-card">
-            <h2 style="margin-bottom:30px;">본인 확인</h2>
-            <div class="input-group"><label>사번</label><input type="number" id="userId" placeholder="사번을 입력하세요"></div>
-            <div class="input-group"><label>성명</label><input type="text" id="userName" placeholder="이름을 입력하세요"></div>
+            <h2 style="margin-bottom:30px; color:#222;">본인 확인</h2>
+            <div class="input-group"><label>사번 입력</label><input type="number" id="userId" placeholder="사번 8자리를 입력하세요"></div>
+            <div class="input-group"><label>성명 입력</label><input type="text" id="userName" placeholder="이름을 입력하세요"></div>
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
-            <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
+            <button class="admin-link" onclick="checkAdmin()">관리자 로그인</button>
         </div>
     </div>
     <script>
         function startEdu() {
             const id = document.getElementById('userId').value;
             const name = document.getElementById('userName').value;
-            if(!id || !name) { alert("정보를 모두 입력해주세요."); return; }
+            if(!id || !name) { alert("사번과 성명을 모두 입력해주세요."); return; }
             localStorage.setItem("loginUser", JSON.stringify({id, name}));
             location.href = "user_timer.html";
         }
         function checkAdmin() {
             const pw = prompt("관리자 비밀번호를 입력하세요.");
-            if(pw === "1234") location.href = "admin_main.html";
+            if(pw === "1234") location.href = "admin_main.html"; 
             else if(pw) alert("비밀번호가 틀렸습니다.");
         }
     </script>
