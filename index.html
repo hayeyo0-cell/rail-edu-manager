@@ -1,30 +1,78 @@
-<script>
-    // 페이지 진입 시 히스토리 스택 초기화
-    window.onload = function() {
-        history.pushState(null, null, location.href);
-        window.onpopstate = function() { history.pushState(null, null, location.href); };
-    };
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DTRO 스마트 교육</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .header { width: 100%; background: white; padding: 25px 0; text-align: center; border-bottom: 3px solid var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .logo-text { font-size: 1.5rem; font-weight: 800; color: var(--dtro-blue); letter-spacing: -1px; }
+        .container { width: 90%; max-width: 400px; margin-top: 35px; }
+        .login-card { background: white; padding: 35px 25px; border-radius: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.08); text-align: center; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 10px; color: #333; }
+        input { width: 100%; padding: 16px; border: 2px solid #edf2f7; border-radius: 15px; font-size: 1rem; box-sizing: border-box; background: #fcfdfe; }
+        .btn-start { width: 100%; padding: 20px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.3); }
+        .admin-link { margin-top: 30px; display: block; color: #bbb; font-size: 0.85rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-text">DTRO SMART LEARNING</div>
+    </div>
+    <div class="container">
+        <div class="login-card">
+            <h2 style="margin-bottom:30px; color:#222;">기관사 로그인</h2>
+            <div class="input-group">
+                <label>사번</label>
+                <input type="number" id="userId" placeholder="사번을 입력하세요">
+            </div>
+            <div class="input-group">
+                <label>비밀번호</label>
+                <input type="password" id="userPw" placeholder="비밀번호를 입력하세요">
+            </div>
+            <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
+            <button class="admin-link" onclick="checkAdmin()">관리자 로그인</button>
+        </div>
+    </div>
 
-    function startEdu() {
-        const id = document.getElementById('userId').value;
-        const pw = document.getElementById('userPw').value;
-        if(id === "20050552" && pw === "1234") {
-            localStorage.setItem("loginUser", JSON.stringify({id: id, name: "테스트 기관사"}));
-            window.onpopstate = null; // 뒤로가기 차단 해제
-            location.replace("user_timer.html"); // 현재 기록을 덮어씀
-        } else {
-            alert("사번 또는 비밀번호가 틀렸습니다.");
-        }
-    }
+    <script>
+        // [강력] 하얀 화면 방지 및 뒤로가기 봉쇄
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            // 사용자가 뒤로가기를 누르면 강제로 페이지를 새로고침하여 로그인 폼을 다시 띄움
+            window.location.replace(window.location.href);
+        };
 
-    function checkAdmin() {
-        const masterPw = prompt("1단계: 관리자 마스터 비밀번호를 입력하세요.");
-        if (masterPw === "1234") {
-            const adminCode = prompt("2단계: 관리자 사번(확인 코드)을 입력하세요.");
-            if (adminCode === "20050552") {
+        function startEdu() {
+            const id = document.getElementById('userId').value;
+            const pw = document.getElementById('userPw').value;
+            if(id === "20050552" && pw === "1234") {
+                localStorage.setItem("loginUser", JSON.stringify({id: id, name: "테스트 기관사"}));
+                // 뒤로가기 감시 해제 후 이동
                 window.onpopstate = null;
-                location.replace("admin_main.html"); // 현재 기록을 덮어씀
-            } else if(adminCode) { alert("사번이 일치하지 않습니다."); }
-        } else if(masterPw) { alert("비밀번호가 틀렸습니다."); }
-    }
-</script>
+                window.location.replace("user_timer.html");
+            } else {
+                alert("정보가 일치하지 않습니다.");
+            }
+        }
+
+        function checkAdmin() {
+            const masterPw = prompt("1단계: 마스터 비밀번호(1234)");
+            if (masterPw === "1234") {
+                const adminCode = prompt("2단계: 관리자 사번(20050552)");
+                if (adminCode === "20050552") {
+                    window.onpopstate = null;
+                    window.location.replace("admin_main.html");
+                } else if(adminCode) {
+                    alert("사번이 일치하지 않습니다.");
+                }
+            } else if(masterPw) {
+                alert("비밀번호가 틀렸습니다.");
+            }
+        }
+    </script>
+</body>
+</html>
