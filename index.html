@@ -8,65 +8,78 @@
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
+        /* 상단 헤더 */
         .header {
             width: 100%;
             background: white;
-            padding: 25px 0;
+            padding: 20px 0; /* 여백 약간 줄임 */
             text-align: center;
-            border-bottom: 3px solid var(--dtro-blue);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-bottom: 2px solid var(--dtro-blue);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        .logo-img { height: 60px; vertical-align: middle; object-fit: contain; }
+        /* 로고 크기 조절 */
+        .logo-img { height: 45px; vertical-align: middle; object-fit: contain; }
 
-        .container { width: 90%; max-width: 400px; margin-top: 20px; }
+        .container { width: 90%; max-width: 380px; margin-top: 20px; }
         
         .login-card { 
             background: white; 
-            padding: 35px 25px; 
+            padding: 30px 25px; 
             border-radius: 20px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             text-align: center; 
         }
 
+        /* [변경] 타이틀 글씨 크기를 로고와 비슷하게 줄임 */
+        .main-title { 
+            font-size: 1.4rem; 
+            margin-bottom: 25px; 
+            color: #111; 
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
         .input-group { margin-bottom: 15px; text-align: left; }
         
         label { 
-            font-size: 0.9rem; 
+            font-size: 0.85rem; 
             font-weight: bold; 
             display: block; 
-            margin-bottom: 8px; 
-            color: #333; 
+            margin-bottom: 6px; 
+            color: #555; 
         }
 
         input, select { 
             width: 100%; 
-            padding: 15px; 
+            padding: 14px; 
             border: 1px solid #ddd; 
             border-radius: 10px; 
-            font-size: 1.1rem; 
+            font-size: 0.95rem; 
             box-sizing: border-box; 
             background: #fafafa; 
         }
 
+        /* [변경] 버튼 글씨 크기와 패딩 조절 */
         .btn-start { 
             width: 100%; 
-            padding: 18px; 
+            padding: 16px; 
             background: var(--dtro-blue); 
             color: white; 
             border: none; 
             border-radius: 10px; 
-            font-size: 1.2rem; 
+            font-size: 1.1rem; 
             font-weight: bold; 
             cursor: pointer; 
             margin-top: 10px; 
+            box-shadow: 0 4px 6px rgba(0,114,188,0.15);
         }
 
         .admin-link { 
-            margin-top: 25px; 
+            margin-top: 20px; 
             display: block; 
-            color: #888; 
-            font-size: 0.85rem; 
+            color: #999; 
+            font-size: 0.8rem; 
             text-decoration: underline; 
             cursor: pointer; 
             border:none; 
@@ -82,7 +95,7 @@
 
     <div class="container">
         <div class="login-card">
-            <h2 style="margin-bottom:25px; color:#111;">스마트 교육 플랫폼</h2>
+            <h2 class="main-title">스마트 교육 플랫폼</h2>
             
             <div class="input-group">
                 <label>소속 기지/관리소</label>
@@ -97,12 +110,12 @@
 
             <div class="input-group">
                 <label>사번 (8자리)</label>
-                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" inputmode="numeric" pattern="[0-9]*">
+                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" inputmode="numeric">
             </div>
             
             <div class="input-group">
                 <label>팀 공용 비밀번호</label>
-                <input type="password" id="userPw" placeholder="비밀번호를 입력하세요" inputmode="numeric" pattern="[0-9]*">
+                <input type="password" id="userPw" placeholder="비밀번호를 입력하세요" inputmode="numeric">
             </div>
 
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
@@ -111,12 +124,10 @@
     </div>
 
     <script>
-        // 초기 팀 비번 설정
         if(!localStorage.getItem("teamPassword")) {
             localStorage.setItem("teamPassword", "1234");
         }
 
-        // 기관사 로그인
         function startEdu() {
             const team = document.getElementById('userTeam').value;
             const id = document.getElementById('userId').value;
@@ -134,7 +145,6 @@
             }
         }
 
-        // 관리자 로그인
         function checkAdmin() {
             const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
             if (!savedAdmin) {
@@ -145,18 +155,20 @@
                     location.href = "admin_register.html"; 
                 } else if (masterPw) { alert("비밀번호가 틀렸습니다."); }
             } else {
-                const adminId = prompt("관리자 사번을 입력하세요.");
-                if (adminId === savedAdmin.id) {
-                    const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
-                    if (adminPw === savedAdmin.pw) {
-                        window.onpopstate = null;
-                        location.href = "admin_main.html";
-                    } else if (adminPw) { alert("비밀번호가 일치하지 않습니다."); }
-                } else if (adminId) { alert("등록된 관리자 사번이 아닙니다."); }
+                const adminTeam = prompt("관리 소속 기지를 입력하세요. (경산, 문양, 월배, 안심 중 입력)");
+                if (adminTeam === savedAdmin.team) {
+                    const adminId = prompt("관리자 사번을 입력하세요.");
+                    if (adminId === savedAdmin.id) {
+                        const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
+                        if (adminPw === savedAdmin.pw) {
+                            window.onpopstate = null;
+                            location.href = "admin_main.html";
+                        } else if (adminPw) { alert("비밀번호가 일치하지 않습니다."); }
+                    } else if (adminId) { alert("등록된 관리자 사번이 아닙니다."); }
+                } else if (adminTeam) { alert("해당 기지의 관리자가 아닙니다."); }
             }
         }
 
-        // 이탈 방지
         window.history.pushState(null, null, window.location.href);
         window.onpopstate = function() {
             window.history.pushState(null, null, window.location.href);
