@@ -6,61 +6,56 @@
     <title>DTRO 관리자 모드</title>
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; --dtro-dark: #1a1a1a; --danger: #dc3545; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; } /* 탭 높이만큼 하단 여백 추가 */
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; }
         
-        .header { background: var(--dtro-blue); color: white; padding: 25px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        /* 상단 헤더: 로그아웃 버튼 우측 상단 배치 */
+        .header { 
+            background: var(--dtro-blue); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+            position: relative; /* 로그아웃 버튼 배치를 위해 */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
         .header h1 { margin: 0; font-size: 1.3rem; font-weight: 700; }
         .admin-info { font-size: 0.85rem; margin-top: 8px; opacity: 0.9; }
 
-        .container { width: 92%; max-width: 500px; margin: 20px auto; }
+        /* 상단 로그아웃 버튼 스타일 */
+        .top-logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2); /* 반투명 흰색 */
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .top-logout-btn:active { background: rgba(255, 255, 255, 0.4); }
 
-        /* 카드 디자인 */
+        .container { width: 92%; max-width: 500px; margin: 20px auto; }
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .card-title { font-weight: bold; font-size: 1.05rem; color: var(--dtro-dark); margin-bottom: 15px; display: flex; align-items: center; }
         .card-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; border-radius: 2px; }
 
-        /* 통계 섹션 */
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-item { background: var(--dtro-sky); padding: 18px 10px; border-radius: 12px; text-align: center; }
-        .stat-label { font-size: 0.8rem; color: #666; margin-bottom: 5px; }
         .stat-value { font-size: 1.3rem; font-weight: 800; color: var(--dtro-blue); }
 
-        /* 설정 폼 */
-        .input-group { margin-top: 10px; }
-        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; background: #fafafa; }
-        
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 1rem; margin-top: 12px; }
-        .btn-blue { background: var(--dtro-blue); color: white; box-shadow: 0 4px 6px rgba(0,114,188,0.2); }
-        .btn-outline { background: white; color: var(--danger); border: 1px solid var(--danger); margin-top: 20px; }
-        .btn:active { transform: scale(0.98); }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; margin-top: 12px; }
+        .btn-blue { background: var(--dtro-blue); color: white; }
+        .btn-outline { background: white; color: var(--danger); border: 1px solid var(--danger); }
 
-        /* [핵심] 하단 네비게이션 고정 스타일 */
+        /* 하단 고정 네비게이션 (로그아웃 제외) */
         .nav-bottom { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0;
-            width: 100%; 
-            background: white; 
-            display: flex; 
-            border-top: 1px solid #eee; 
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 1000;
-            padding-bottom: env(safe-area-inset-bottom); /* 아이폰 등 하단 바 대응 */
+            position: fixed; bottom: 0; left: 0; width: 100%; 
+            background: white; display: flex; border-top: 1px solid #eee; 
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000;
         }
-        .nav-item { 
-            flex: 1; 
-            padding: 15px 0; 
-            text-align: center; 
-            font-size: 0.85rem; 
-            color: #999; 
-            text-decoration: none; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
+        .nav-item { flex: 1; padding: 15px 0; text-align: center; font-size: 0.85rem; color: #999; text-decoration: none; }
         .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
-        .nav-item i { font-size: 1.2rem; } /* 나중에 아이콘 넣을 자리 */
     </style>
 </head>
 <body>
@@ -68,6 +63,7 @@
     <div class="header">
         <h1 id="headerTitle">소속: 확인 중...</h1>
         <div class="admin-info" id="adminWelcome">담당자 정보를 불러오는 중입니다</div>
+        <button class="top-logout-btn" onclick="if(confirm('로그아웃 하시겠습니까?')) location.href='index.html'">로그아웃</button>
     </div>
 
     <div class="container">
@@ -75,11 +71,11 @@
             <div class="card-title">오늘의 교육 이수 현황</div>
             <div class="stat-grid">
                 <div class="stat-item">
-                    <div class="stat-label">이수 완료</div>
+                    <div style="font-size:0.8rem; color:#666;">이수 완료</div>
                     <div class="stat-value">12명</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">미이수</div>
+                    <div style="font-size:0.8rem; color:#666;">미이수</div>
                     <div class="stat-value">45명</div>
                 </div>
             </div>
@@ -91,36 +87,26 @@
             <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">
                 현재 비밀번호: <span id="currentTeamPw" style="font-weight:bold; color:var(--dtro-blue);">1234</span>
             </p>
-            <div class="input-group">
-                <input type="number" id="newTeamPw" placeholder="변경할 새 비밀번호 입력" inputmode="numeric">
-            </div>
+            <input type="number" id="newTeamPw" placeholder="변경할 새 비밀번호 입력" inputmode="numeric" style="width:100%; padding:15px; border:1px solid #ddd; border-radius:10px; box-sizing:border-box;">
             <button class="btn btn-blue" onclick="updateTeamPw()">비밀번호 즉시 변경</button>
         </div>
 
-        <div class="card" style="border: 1px dashed #ddd; background: #fafafa;">
+        <div class="card">
             <div class="card-title">시스템 설정</div>
             <button class="btn btn-outline" onclick="resetAdminAuth()">담당자 변경 (권한 파기)</button>
         </div>
     </div>
 
     <div class="nav-bottom">
-        <a href="admin_main.html" class="nav-item active">
-            <span>홈/설정</span>
-        </a>
-        <a href="admin_edu_add.html" class="nav-item">
-            <span>교육 등록</span>
-        </a>
-        <a href="index.html" class="nav-item" onclick="return confirm('로그아웃 하시겠습니까?')">
-            <span>로그아웃</span>
-        </a>
+        <a href="admin_main.html" class="nav-item active">홈/설정</a>
+        <a href="admin_edu_add.html" class="nav-item">교육 등록</a>
+        <a href="admin_status.html" class="nav-item">이수 현황</a>
     </div>
 
     <script>
-        // 관리자 정보 및 비번 로직 (기존과 동일)
         const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
-        if (!savedAdmin) {
-            location.replace("index.html");
-        } else {
+        if (!savedAdmin) { location.replace("index.html"); }
+        else {
             document.getElementById('headerTitle').innerText = "소속: " + savedAdmin.team;
             document.getElementById('adminWelcome').innerText = "담당자 사번: " + savedAdmin.id;
         }
@@ -133,12 +119,12 @@
                 localStorage.setItem("teamPassword", newPw);
                 document.getElementById('currentTeamPw').innerText = newPw;
                 document.getElementById('newTeamPw').value = "";
-                alert("비밀번호가 성공적으로 변경되었습니다.");
+                alert("비밀번호가 변경되었습니다.");
             }
         }
 
         function resetAdminAuth() {
-            if (confirm("담당자 권한을 파기하시겠습니까? 초기화 후에는 다시 마스터 인증이 필요합니다.")) {
+            if (confirm("담당자 권한을 파기하시겠습니까?")) {
                 localStorage.removeItem("assignedAdmin");
                 location.replace("index.html");
             }
