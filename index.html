@@ -8,19 +8,19 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
-        /* [핵심 수정] 로그인 페이지 로고 영역 */
+        /* [핵심 수정] 빈 공간은 줄이고 로고만 선명하게 */
         .logo-container { 
             width: 100%; 
             background: white; 
-            padding: 50px 0 40px 0; /* 상하 여백을 줘서 로고를 주인공으로 만듦 */
+            padding: 15px 0; /* 여백을 50px -> 15px로 대폭 축소 */
             display: flex; 
             justify-content: center; 
             align-items: center; 
             border-bottom: 1px solid #eee;
-            margin-bottom: 40px;
+            margin-bottom: 20px; /* 카드와의 간격도 최적화 */
         }
         .main-logo { 
-            height: 45px; /* 로고를 훨씬 크게 키움 */
+            height: 42px; /* 글씨는 여전히 크고 선명하게 */
             display: block; 
         }
 
@@ -29,31 +29,29 @@
             max-width: 400px; 
             background: white; 
             border-radius: 20px; 
-            padding: 30px 20px; 
+            padding: 25px 20px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             text-align: center;
         }
         
-        .welcome-text { font-size: 1.3rem; font-weight: bold; margin-bottom: 25px; color: #333; }
+        .welcome-text { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; color: #333; }
         
-        .input-group { text-align: left; margin-bottom: 20px; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 8px; padding-left: 5px; }
+        .input-group { text-align: left; margin-bottom: 18px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; padding-left: 5px; }
         
         input, select { 
-            width: 100%; height: 50px; padding: 0 15px; border: 1px solid #ddd; border-radius: 12px; 
-            box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s;
+            width: 100%; height: 48px; padding: 0 15px; border: 1px solid #ddd; border-radius: 12px; 
+            box-sizing: border-box; font-size: 0.95rem; background: #fafafa; outline: none;
         }
-        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 8px rgba(0,114,188,0.1); }
+        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; }
 
         .btn-start { 
-            width: 100%; height: 55px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
-            cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,114,188,0.3);
+            width: 100%; height: 52px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.05rem; font-weight: bold; 
+            cursor: pointer; margin-top: 5px; box-shadow: 0 5px 15px rgba(0,114,188,0.25);
         }
-        .btn-start:active { transform: scale(0.98); }
 
-        .admin-link { margin-top: 25px; display: inline-block; font-size: 0.85rem; color: #999; text-decoration: none; border-bottom: 1px solid #ddd; padding-bottom: 2px; }
+        .admin-link { margin-top: 20px; display: inline-block; font-size: 0.8rem; color: #bbb; text-decoration: none; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -89,7 +87,7 @@
             교육 시작하기 →
         </button>
 
-        <a href="admin_login.html" class="admin-link">관리자 로그인</a>
+        <a href="admin_login.html" class="admin-link" style="font-size: 0.7rem;">관리자 페이지 이동</a>
     </div>
 
 </body>
