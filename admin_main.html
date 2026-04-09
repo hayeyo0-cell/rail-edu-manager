@@ -7,14 +7,27 @@
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; }
-        .slim-header { width: 100%; background: white; padding: 10px 0; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .slim-logo { height: 22px; }
-        .logout-btn { position: absolute; right: 12px; background: #f8f9fa; border: 1px solid #ddd; padding: 4px 10px; border-radius: 5px; font-size: 0.7rem; color: #666; }
+
+        /* [수정] 슬림 헤더 - 로고를 시원하게 키움 */
+        .slim-header { 
+            width: 100%; background: white; padding: 12px 0; 
+            display: flex; align-items: center; justify-content: center; 
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; 
+        }
+        .slim-logo { height: 32px; vertical-align: middle; } /* 22px -> 32px로 업그레이드 */
+        
+        .logout-btn { 
+            position: absolute; right: 12px; background: #f8f9fa; border: 1px solid #ddd; 
+            padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; color: #666; cursor: pointer;
+        }
+
         .container { width: 92%; max-width: 500px; margin: 20px auto; }
         .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card-title { font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; }
-        .card-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; }
-        .btn-blue { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; }
+        .card-title { font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; color: #333; }
+        .card-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; border-radius: 2px; }
+
+        .btn-blue { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        
         .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
         .nav-item { flex: 1; padding: 15px 0; text-align: center; font-size: 0.85rem; color: #999; text-decoration: none; }
         .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
@@ -23,38 +36,53 @@
 <body>
     <div class="slim-header">
         <img src="logo.png" class="slim-logo">
-        <button class="logout-btn" onclick="location.href='index.html'">로그아웃</button>
+        <button class="logout-btn" onclick="if(confirm('로그아웃 하시겠습니까?')) location.href='index.html'">로그아웃</button>
     </div>
+
     <div class="container">
         <div class="card">
             <div class="card-title" id="adminInfo">소속: 확인 중...</div>
             <div style="display:flex; justify-content:space-around; text-align:center;">
-                <div><div style="font-size:0.8rem; color:#666;">이수</div><div style="font-size:1.2rem; font-weight:bold; color:var(--dtro-blue);">12명</div></div>
-                <div><div style="font-size:0.8rem; color:#666;">미이수</div><div style="font-size:1.2rem; font-weight:bold; color:#666;">45명</div></div>
+                <div><div style="font-size:0.8rem; color:#666;">이수 완료</div><div style="font-size:1.3rem; font-weight:800; color:var(--dtro-blue);">12명</div></div>
+                <div><div style="font-size:0.8rem; color:#666;">미이수</div><div style="font-size:1.3rem; font-weight:800; color:#999;">45명</div></div>
             </div>
         </div>
+
         <div class="card">
             <div class="card-title">공용 비밀번호 설정</div>
-            <input type="number" id="newTeamPw" placeholder="새 비번 입력" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px;">
+            <input type="number" id="newTeamPw" placeholder="새 비번 입력" inputmode="numeric" style="width:100%; padding:14px; border:1px solid #ddd; border-radius:10px; margin-bottom:12px; box-sizing:border-box;">
             <button class="btn-blue" onclick="updatePw()">비밀번호 즉시 변경</button>
         </div>
-        <button onclick="resetAdmin()" style="width:100%; color:red; background:none; border:none; text-decoration:underline; font-size:0.8rem;">담당자 변경 (권한 초기화)</button>
+
+        <div style="text-align:center; margin-top:25px;">
+            <button onclick="resetAdmin()" style="color:#dc3545; background:none; border:none; text-decoration:underline; font-size:0.85rem; cursor:pointer;">담당자 변경 (권한 초기화)</button>
+        </div>
     </div>
+
     <div class="nav-bottom">
         <a href="admin_main.html" class="nav-item active">홈/설정</a>
         <a href="admin_edu_add.html" class="nav-item">교육 등록</a>
         <a href="admin_status.html" class="nav-item">이수 현황</a>
     </div>
+
     <script>
         const admin = JSON.parse(localStorage.getItem("assignedAdmin"));
         if(!admin) location.replace("index.html");
         else document.getElementById('adminInfo').innerText = "소속: " + admin.team + " (사번: " + admin.id + ")";
+        
         function updatePw() {
             const pw = document.getElementById('newTeamPw').value;
-            if(pw) { localStorage.setItem("teamPassword", pw); alert("변경완료"); }
+            if(pw) { 
+                localStorage.setItem("teamPassword", pw); 
+                alert("팀 비밀번호가 " + pw + "(으)로 변경되었습니다."); 
+                document.getElementById('newTeamPw').value = "";
+            }
         }
         function resetAdmin() {
-            if(confirm("권한을 초기화할까요?")) { localStorage.removeItem("assignedAdmin"); location.href="index.html"; }
+            if(confirm("권한을 초기화할까요? 초기화 후에는 다시 마스터 인증이 필요합니다.")) { 
+                localStorage.removeItem("assignedAdmin"); 
+                location.href="index.html"; 
+            }
         }
     </script>
 </body>
