@@ -8,7 +8,6 @@
         :root { --dtro-blue: #0072bc; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
 
-        /* 상단 헤더 */
         .header { 
             width: 100%; background: white; padding: 10px 0; 
             display: flex; align-items: center; justify-content: space-between; 
@@ -28,26 +27,24 @@
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 5px; }
         
-        /* [핵심 수정] 입력창 및 드롭다운 폰트 사이즈 대폭 하향 */
+        /* [입력창] 줄바꿈 방지 및 작은 글씨 적용 */
         input, select, .file-upload-box { 
             width: 100%; height: 40px; padding: 0 10px; border: 1px solid #ddd; 
             border-radius: 8px; box-sizing: border-box; 
-            font-size: 0.8rem; /* 0.85 -> 0.8로 더 축소 */
+            font-size: 0.75rem; /* 글씨 크기 추가 축소 */
             background: #fafafa; color: #444;
         }
 
-        /* 드롭다운 내부 옵션 폰트 조절 */
-        select option {
-            font-size: 0.75rem; /* 목록 글씨를 더 작게 */
-        }
+        /* [드롭다운] 목록 글씨 크기 최소화 */
+        select option { font-size: 0.75rem; }
         
         textarea { 
             width: 100%; height: 85px; padding: 10px; border: 1px solid #ddd; 
-            border-radius: 8px; box-sizing: border-box; font-size: 0.8rem; 
+            border-radius: 8px; box-sizing: border-box; font-size: 0.75rem; 
             background: #fafafa; resize: none; font-family: inherit;
         }
 
-        .file-upload-box { border: 1px dashed #ccc; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; font-size: 0.75rem; }
+        .file-upload-box { border: 1px dashed #ccc; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; }
 
         .btn-submit { 
             width: 100%; height: 45px; background: var(--dtro-blue); color: white; 
@@ -72,8 +69,9 @@
             <div class="input-group">
                 <label>교육 대분류</label>
                 <select id="eduCategory" onchange="updateSubCategory()">
-                    <option value="게시교육">게시교육 (지시/사고)</option>
-                    <option value="대면교육">대면교육 (집합/실습)</option>
+                    <option value="게시교육">게시교육</option>
+                    <option value="대면교육">대면교육</option>
+                    <option value="면담교육">면담교육</option>
                 </select>
             </div>
 
@@ -84,7 +82,7 @@
             </div>
 
             <div id="specialSetting" class="sub-setting">
-                <label id="specialLabel" style="font-size: 0.7rem; color:var(--dtro-blue);">설정</label>
+                <label id="specialLabel" style="font-size: 0.7rem; color:var(--dtro-blue);">목표 횟수</label>
                 <input type="number" id="targetCount" placeholder="횟수 입력" inputmode="numeric">
             </div>
 
@@ -117,16 +115,20 @@
             const category = document.getElementById('eduCategory').value;
             const typeSelect = document.getElementById('eduType');
             typeSelect.innerHTML = "";
-            const options = [
-                {val: "지시사항", text: "일반 지시사항"},
-                {val: "사고사례", text: "사고사례 교육"},
-                {val: "시뮬레이션", text: "시뮬레이션 교육"},
-                {val: "육성방송", text: "육성방송 훈련"},
-                {val: "기타", text: "기타 교육"}
-            ];
+            
+            let options = [];
+            
+            if(category === "게시교육") {
+                options = ["일반 지시사항", "사고사례 교육", "기타 게시물"];
+            } else if(category === "대면교육") {
+                options = ["시뮬레이션 교육", "육성방송 훈련", "현장 실습"];
+            } else if(category === "면담교육") {
+                options = ["팀장 면담", "소장 면담", "수시 면담"];
+            }
+
             options.forEach(opt => {
                 const el = document.createElement("option");
-                el.value = opt.val; el.innerText = opt.text;
+                el.value = opt; el.innerText = opt;
                 typeSelect.appendChild(el);
             });
             checkSpecialType();
@@ -136,9 +138,9 @@
             const type = document.getElementById('eduType').value;
             const specialDiv = document.getElementById('specialSetting');
             const label = document.getElementById('specialLabel');
-            if (type === "육성방송" || type === "시뮬레이션") {
+            if (type === "육성방송 훈련" || type === "시뮬레이션 교육") {
                 specialDiv.style.display = "block";
-                label.innerText = type === "육성방송" ? "반기 목표 횟수" : "이수 목표 횟수";
+                label.innerText = type.includes("육성방송") ? "반기 목표 횟수" : "이수 목표 횟수";
             } else { specialDiv.style.display = "none"; }
         }
 
