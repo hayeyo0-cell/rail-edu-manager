@@ -5,41 +5,130 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>교육 등록 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding-bottom: 80px; }
-        .slim-header { width: 100%; background: white; padding: 10px 0; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .slim-logo { height: 22px; }
-        .logout-btn { position: absolute; right: 12px; background: #f8f9fa; border: 1px solid #ddd; padding: 4px 10px; border-radius: 5px; font-size: 0.7rem; color: #666; }
-        .container { width: 92%; max-width: 500px; margin: 20px auto; }
-        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .section-title { font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; }
-        .section-title::before { content: ''; width: 4px; height: 16px; background: var(--dtro-blue); margin-right: 10px; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; }
-        .btn-submit { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; }
-        .nav-bottom { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; border-top: 1px solid #eee; }
-        .nav-item { flex: 1; padding: 15px 0; text-align: center; font-size: 0.85rem; color: #999; text-decoration: none; }
-        .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
+        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+
+        /* 상단 헤더 (메인과 통일) */
+        .header { 
+            width: 100%; background: white; padding: 12px 0; 
+            display: flex; align-items: center; justify-content: space-between; 
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; 
+        }
+        .header-left { width: 90px; padding-left: 15px; } 
+        .slim-logo { height: 32px; vertical-align: middle; }
+        .header-right { width: 90px; padding-right: 15px; text-align: right; }
+        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; color: #555; cursor: pointer; }
+
+        .container { width: 92%; max-width: 500px; margin: 15px auto; padding-bottom: 30px; }
+        
+        .card { background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .page-title { font-size: 1.15rem; font-weight: bold; color: #333; margin-bottom: 25px; display: flex; align-items: center; }
+        .page-title::before { content: '✍️'; margin-right: 10px; }
+
+        /* 입력 그룹 스타일 */
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 8px; }
+        
+        input, select, textarea { 
+            width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 10px; 
+            box-sizing: border-box; font-size: 0.95rem; background: #fafafa;
+        }
+        textarea { height: 120px; resize: none; font-family: inherit; }
+
+        /* 등록 버튼 */
+        .btn-submit { 
+            width: 100%; padding: 16px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 12px; font-size: 1.05rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,114,188,0.3);
+        }
+        .btn-submit:active { transform: scale(0.98); }
+
+        /* 안내 문구 */
+        .info-text { font-size: 0.75rem; color: #999; margin-top: 15px; text-align: center; line-height: 1.4; }
     </style>
 </head>
 <body>
-    <div class="slim-header">
+    <div class="header">
+        <div class="header-left">
+            <button class="txt-btn" onclick="location.href='admin_main.html'">이전으로</button>
+        </div>
         <img src="logo.png" class="slim-logo">
-        <button class="logout-btn" onclick="location.href='index.html'">로그아웃</button>
+        <div class="header-right"></div>
     </div>
+
     <div class="container">
         <div class="card">
-            <div class="section-title">✨ 새 교육 등록</div>
-            <label style="font-size:0.8rem; color:#666;">교육 제목</label>
-            <input type="text" placeholder="예: 4월 사고사례 예방교육">
-            <label style="font-size:0.8rem; color:#666;">이수 기한</label>
-            <input type="date">
-            <button class="btn-submit" onclick="alert('교육이 게시되었습니다.')">교육 게시하기</button>
+            <div class="page-title">새 교육 등록</div>
+
+            <div class="input-group">
+                <label>교육 대분류</label>
+                <select id="eduCategory" onchange="updateSubCategory()">
+                    <option value="게시교육">게시교육 (지시사항/사고사례 등)</option>
+                    <option value="비대면교육">비대면 교육 (훈련/실습 등)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>세부 교육 유형</label>
+                <select id="eduType">
+                    </select>
+            </div>
+
+            <div class="input-group">
+                <label>교육 제목</label>
+                <input type="text" id="eduTitle" placeholder="예: 2분기 사고사례 분석 및 예방교육">
+            </div>
+
+            <div class="input-group">
+                <label>교육 내용 및 지시사항</label>
+                <textarea id="eduContent" placeholder="기관사님들께 전달할 상세 내용을 입력하세요."></textarea>
+            </div>
+
+            <div class="input-group">
+                <label>이수 완료 기한</label>
+                <input type="date" id="eduDeadline">
+            </div>
+
+            <button class="btn-submit" onclick="submitEdu()">교육 게시하기</button>
+            <p class="info-text">게시 즉시 우리 팀 모든 기관사 화면에<br>새로운 교육 알림이 표시됩니다.</p>
         </div>
     </div>
-    <div class="nav-bottom">
-        <a href="admin_main.html" class="nav-item">홈/설정</a>
-        <a href="admin_edu_add.html" class="nav-item active">교육 등록</a>
-        <a href="admin_status.html" class="nav-item">이수 현황</a>
-    </div>
+
+    <script>
+        // 초기 실행: 세부 유형 목록 업데이트
+        window.onload = updateSubCategory;
+
+        function updateSubCategory() {
+            const category = document.getElementById('eduCategory').value;
+            const typeSelect = document.getElementById('eduType');
+            
+            typeSelect.innerHTML = ""; // 기존 옵션 초기화
+
+            if (category === "게시교육") {
+                const options = ["일반 지시사항", "사고사례 교육", "안전보건 교육", "기타 게시물"];
+                options.forEach(opt => {
+                    const el = document.createElement("option");
+                    el.value = opt; el.innerText = opt;
+                    typeSelect.appendChild(el);
+                });
+            } else {
+                const options = ["시뮬레이션 교육", "육성방송 훈련", "비대면 실습 교육", "기타 비대면"];
+                options.forEach(opt => {
+                    const el = document.createElement("option");
+                    el.value = opt; el.innerText = opt;
+                    typeSelect.appendChild(el);
+                });
+            }
+        }
+
+        function submitEdu() {
+            const title = document.getElementById('eduTitle').value;
+            if(!title) { alert("교육 제목을 입력해주세요."); return; }
+            
+            // 실제 데이터 저장 로직 (나중에 여기에 DB 연동)
+            alert("성공적으로 게시되었습니다!");
+            location.href = 'admin_main.html';
+        }
+    </script>
 </body>
 </html>
