@@ -7,7 +7,7 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         
-        /* 스크롤 방지 및 전체 중앙 정렬 */
+        /* 스크롤 방지 및 중앙 정렬 */
         html, body { height: 100%; overflow: hidden; }
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
@@ -17,19 +17,21 @@
             align-items: center; justify-content: center; 
         }
 
-        /* 로고와 제목 영역 */
+        /* [핵심 수정] 로고와 제목을 수직 중앙으로 밀착 배치 */
         .brand-area { 
             text-align: center; 
-            margin-bottom: 35px; 
+            margin-bottom: 30px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .brand-logo { 
-            height: 20px; 
-            margin-bottom: 10px; 
-            opacity: 0.8;
+            height: 22px; /* 존재감 있는 크기 */
+            margin-bottom: 6px; /* 제목과 바짝 붙임 */
+            opacity: 0.9;
         }
 
-        /* [핵심 수정] 제목 및 파란색 강조 밑줄 */
         .main-title { 
             font-size: 1.6rem; 
             font-weight: bold; 
@@ -37,19 +39,20 @@
             margin: 0; 
             letter-spacing: -1px;
             position: relative;
-            display: inline-block; /* 글자 길이에 밑줄을 맞춤 */
+            display: inline-block;
         }
 
+        /* 파란색 포인트 밑줄 */
         .main-title::after {
             content: "";
             position: absolute;
-            bottom: 2px; /* 글자 하단에 살짝 겹치게 배치 */
+            bottom: 3px;
             left: 0;
             width: 100%;
-            height: 8px; /* 밑줄 두께 */
-            background-color: rgba(0, 114, 188, 0.25); /* DTRO 블루를 연하게 강조 */
+            height: 8px;
+            background-color: rgba(0, 114, 188, 0.2);
             border-radius: 4px;
-            z-index: -1; /* 글씨 뒤로 가게 설정 */
+            z-index: -1;
         }
 
         /* 로그인 카드 디자인 */
@@ -58,28 +61,26 @@
             max-width: 380px; 
             background: white; 
             border-radius: 24px; 
-            padding: 35px 24px 20px 24px; 
+            padding: 35px 24px 25px 24px; 
             box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
             text-align: center;
         }
         
-        .input-group { text-align: left; margin-bottom: 20px; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 7px; padding-left: 5px; }
+        .input-group { text-align: left; margin-bottom: 18px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; padding-left: 5px; }
         
         input, select { 
-            width: 100%; height: 52px; padding: 0 15px; 
+            width: 100%; height: 50px; padding: 0 15px; 
             border: 1px solid #e1e1e1; border-radius: 14px; 
             font-size: 1rem; background: #fafafa; outline: none;
             box-sizing: border-box;
         }
-        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; }
 
         .btn-start { 
             width: 100%; height: 58px; background: var(--dtro-blue); color: white; 
             border: none; border-radius: 16px; font-size: 1.15rem; font-weight: bold; 
             cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(0,114,188,0.25);
         }
-        .btn-start:active { transform: scale(0.98); }
 
         .admin-link { margin-top: 22px; display: inline-block; font-size: 0.75rem; color: #ccc; text-decoration: none; border-bottom: 1px solid #eee; }
     </style>
