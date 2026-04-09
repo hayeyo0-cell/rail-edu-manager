@@ -8,32 +8,88 @@
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* 상단 로고 헤더 스타일 수정 */
+        /* 상단 로고 헤더 */
         .header {
             width: 100%;
             background: white;
-            padding: 25px 0; /* 여백을 조금 더 줘서 로고가 돋보이게 함 */
+            padding: 25px 0;
             text-align: center;
-            border-bottom: 3px solid var(--dtro-blue); /* 바닥 선을 굵게 */
+            border-bottom: 3px solid var(--dtro-blue);
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* [변경] 로고 크기를 대폭 키웠습니다 */
         .logo-img {
-            height: 60px; /* 기존 40px -> 60px로 확대 */
+            height: 60px;
             width: auto;
-            max-width: 85%; /* 화면 너비를 넘지 않도록 제한 */
+            max-width: 85%;
             vertical-align: middle;
-            object-fit: contain; /* 로고가 찌그러지지 않게 */
+            object-fit: contain;
         }
 
         .container { width: 90%; max-width: 400px; margin-top: 30px; }
-        .login-card { background: white; padding: 35px 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        
+        .login-card { 
+            background: white; 
+            padding: 35px 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center; 
+        }
+
         .input-group { margin-bottom: 20px; text-align: left; }
-        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 8px; color: #333; }
-        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fafafa; }
-        .btn-start { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 1.15rem; font-weight: bold; cursor: pointer; }
-        .admin-link { margin-top: 25px; display: block; color: #888; font-size: 0.85rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
+        
+        label { 
+            font-size: 0.95rem; 
+            font-weight: bold; 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #333; 
+        }
+
+        /* 입력창 스타일 */
+        input { 
+            width: 100%; 
+            padding: 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 10px; 
+            font-size: 1.1rem; 
+            box-sizing: border-box; 
+            background: #fafafa; 
+            transition: 0.2s;
+        }
+        
+        input:focus {
+            border-color: var(--dtro-blue);
+            background: white;
+            outline: none;
+        }
+
+        .btn-start { 
+            width: 100%; 
+            padding: 18px; 
+            background: var(--dtro-blue); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 1.2rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,114,188,0.2);
+        }
+
+        .btn-start:active { transform: scale(0.98); }
+
+        .admin-link { 
+            margin-top: 25px; 
+            display: block; 
+            color: #888; 
+            font-size: 0.85rem; 
+            text-decoration: underline; 
+            cursor: pointer; 
+            border:none; 
+            background:none; 
+            width:100%; 
+        }
     </style>
 </head>
 <body>
@@ -44,44 +100,54 @@
     <div class="container">
         <div class="login-card">
             <h2 style="margin-bottom:30px; color:#111;">스마트 교육 플랫폼</h2>
+            
             <div class="input-group">
                 <label>사번 (8자리)</label>
-                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요">
+                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" inputmode="numeric" pattern="[0-9]*">
             </div>
+            
             <div class="input-group">
                 <label>비밀번호</label>
-                <input type="password" id="userPw" placeholder="비밀번호를 입력하세요">
+                <input type="password" id="userPw" placeholder="비밀번호를 입력하세요" inputmode="numeric" pattern="[0-9]*">
             </div>
+
             <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
+            
             <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
         </div>
     </div>
 
     <script>
-        // 이탈 방지 로직 (기존과 동일)
+        // 1. [철통보안] 첫 화면 뒤로가기 절대 방지
         window.history.pushState(null, null, window.location.href);
         window.onpopstate = function() {
             window.history.pushState(null, null, window.location.href);
-            alert("앱을 종료하려면 홈 버튼을 이용해 주세요.");
+            alert("앱을 종료하려면 스마트폰의 홈 버튼을 이용해 주세요.");
         };
 
+        // 2. 기관사 로그인 로직
         function startEdu() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
+            
+            // 사번 8자리 체크
             if(id.length === 8 && pw !== "") {
                 localStorage.setItem("loginUser", JSON.stringify({id: id, name: "기관사"}));
-                window.onpopstate = null;
+                window.onpopstate = null; // 이동 시에는 뒤로가기 감시 해제
                 window.location.replace("user_timer.html");
-            } else { alert("사번 8자리와 비밀번호를 정확히 입력해 주세요."); }
+            } else { 
+                alert("사번 8자리와 비밀번호를 모두 정확히 입력해 주세요."); 
+            }
         }
 
+        // 3. 관리자 로그인 로직 (2단계 보안)
         function checkAdmin() {
             const masterPw = prompt("1단계: 마스터 비밀번호(1234)");
             if (masterPw === "1234") {
                 const saved = JSON.parse(localStorage.getItem("assignedAdmin"));
                 if (!saved) {
-                    alert("관리자 미지정 상태입니다.");
-                    const step2 = prompt("2단계: 마스터 사번(20050552)을 입력하세요.");
+                    alert("담당자 미지정 상태입니다. 마스터 사번(20050552)으로 입장합니다.");
+                    const step2 = prompt("2단계: 마스터 사번을 입력하세요.");
                     if (step2 === "20050552") { 
                         window.onpopstate = null;
                         window.location.replace("admin_main.html"); 
@@ -91,9 +157,13 @@
                     if (adminCode === saved.id) {
                         window.onpopstate = null;
                         window.location.replace("admin_main.html");
-                    } else if(adminCode !== null) { alert("사번이 일치하지 않습니다."); }
+                    } else if(adminCode !== null) { 
+                        alert("지정된 담당자 사번과 일치하지 않습니다."); 
+                    }
                 }
-            } else if (masterPw !== null) { alert("비밀번호가 틀렸습니다."); }
+            } else if (masterPw !== null) { 
+                alert("비밀번호가 틀렸습니다."); 
+            }
         }
     </script>
 </body>
