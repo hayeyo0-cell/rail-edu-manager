@@ -7,7 +7,7 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         
-        /* 스크롤 방지 및 전체 배치 */
+        /* 전체 화면 고정 및 중앙 정렬 */
         html, body { height: 100%; overflow: hidden; }
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
@@ -17,68 +17,62 @@
             align-items: center; justify-content: center; 
         }
 
-        /* [핵심 수정] 제목 영역 슬림화 & 로고 모서리 배치 */
-        .header-area { 
-            position: relative; 
-            width: 90%; 
-            max-width: 380px; 
-            margin-bottom: 15px; /* 제목과 카드 사이 간격 최소화 */
-            padding-top: 10px;
+        /* [핵심 수정] 로고와 제목을 하나의 세트로 결합 */
+        .brand-area { 
+            text-align: center; 
+            margin-bottom: 25px; /* 카드와의 간격 */
         }
 
-        .main-title { 
-            font-size: 1.5rem; 
-            font-weight: bold; 
-            color: #222; 
-            margin: 0; 
-            text-align: left; /* 좌측 정렬로 공간 확보 */
-            letter-spacing: -1px;
-        }
-
-        /* [핵심 수정] 동그라미 친 우측 모서리 로고 */
-        .corner-logo { 
-            position: absolute; 
-            top: 5px; 
-            right: 0; 
-            height: 20px; /* 슬림하고 선명하게 */
+        .brand-logo { 
+            height: 22px; /* 선명하게 잘 보이는 크기 */
+            margin-bottom: 8px; /* 제목과의 밀착 간격 */
             opacity: 0.9;
         }
 
-        /* 로그인 카드 높이 최적화 */
+        .main-title { 
+            font-size: 1.55rem; 
+            font-weight: bold; 
+            color: #222; 
+            margin: 0; 
+            letter-spacing: -1px;
+        }
+
+        /* 로그인 카드 디자인 최적화 */
         .login-card { 
             width: 88%; 
             max-width: 380px; 
             background: white; 
             border-radius: 22px; 
-            padding: 25px 22px 20px 22px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+            padding: 30px 22px 20px 22px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06); 
             text-align: center;
         }
         
-        .input-group { text-align: left; margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 5px; padding-left: 4px; }
+        .input-group { text-align: left; margin-bottom: 18px; }
+        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 6px; padding-left: 5px; }
         
         input, select { 
-            width: 100%; height: 48px; padding: 0 15px; 
+            width: 100%; height: 50px; padding: 0 15px; 
             border: 1px solid #e1e1e1; border-radius: 12px; 
-            font-size: 0.95rem; background: #fafafa; outline: none;
+            font-size: 1rem; background: #fafafa; outline: none;
             box-sizing: border-box;
         }
+        input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; }
 
         .btn-start { 
             width: 100%; height: 55px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; 
-            cursor: pointer; margin-top: 5px; box-shadow: 0 5px 15px rgba(0,114,188,0.2);
+            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,114,188,0.25);
         }
 
-        .admin-link { margin-top: 15px; display: inline-block; font-size: 0.75rem; color: #ccc; text-decoration: none; }
+        .admin-link { margin-top: 20px; display: inline-block; font-size: 0.75rem; color: #ccc; text-decoration: none; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
 
-    <div class="header-area">
+    <div class="brand-area">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
         <h1 class="main-title">스마트 교육 플랫폼</h1>
-        <img src="logo.png" class="corner-logo" alt="DTRO">
     </div>
 
     <div class="login-card">
@@ -97,7 +91,7 @@
             <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric">
         </div>
 
-        <div class="input-group" style="margin-bottom: 20px;">
+        <div class="input-group" style="margin-bottom: 25px;">
             <label>팀 공용 비밀번호</label>
             <input type="password" id="userPw" placeholder="비밀번호 입력">
         </div>
