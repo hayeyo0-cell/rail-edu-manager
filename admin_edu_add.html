@@ -23,21 +23,17 @@
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.75rem; font-weight: bold; color: #888; margin-bottom: 5px; }
         
-        /* 입력창 스타일 통일 */
         input, select, textarea, .file-upload-box { 
             width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; 
             box-sizing: border-box; font-size: 0.75rem; background: #fafafa; color: #444; 
         }
         input, select { height: 40px; }
-        textarea { height: 80px; resize: none; font-family: inherit; }
+        textarea { height: 70px; resize: none; font-family: inherit; }
 
-        /* 파일 첨부 영역 */
         .file-upload-box { border: 1px dashed #ccc; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #999; }
-        
-        /* 하단 버튼 */
         .btn-submit { width: 100%; height: 45px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* [핵심] 설정 영역 디자인 */
+        /* 설정 영역 */
         .sub-setting { background: #f4faff; border: 1px solid #cce5ff; padding: 12px; border-radius: 8px; margin-top: 8px; display: none; }
         .flex-row { display: flex; gap: 6px; margin-top: 5px; }
         .flex-row div { flex: 1; }
@@ -58,89 +54,4 @@
 
             <div class="input-group">
                 <label>교육 분류</label>
-                <select id="eduCategory" onchange="checkSpecialType()">
-                    <option value="게시교육">게시교육</option>
-                    <option value="대면교육">대면교육</option>
-                    <option value="면담교육">면담교육</option>
-                    <option value="육성방송 훈련">육성방송 훈련</option>
-                    <option value="시뮬레이션 교육">시뮬레이션 교육</option>
-                </select>
-            </div>
-
-            <div id="specialSetting" class="sub-setting"></div>
-
-            <div class="input-group">
-                <label>교육 제목</label>
-                <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
-            </div>
-
-            <div class="input-group">
-                <label>상세 지시내용</label>
-                <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
-            </div>
-
-            <div class="input-group">
-                <label>참조 파일 (사진/공문)</label>
-                <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">
-                    <span id="fileNameDisplay">📁 파일 선택 또는 촬영</span>
-                    <input type="file" id="fileInput" style="display:none;" onchange="handleFile(this)">
-                </div>
-            </div>
-
-            <button class="btn-submit" onclick="submitEdu()">교육 게시하기</button>
-        </div>
-    </div>
-
-    <script>
-        // 분류에 따라 입력창을 동적으로 변경하는 함수
-        function checkSpecialType() {
-            const category = document.getElementById('eduCategory').value;
-            const specialDiv = document.getElementById('specialSetting');
-            
-            if (category === "육성방송 훈련") {
-                specialDiv.style.display = "block";
-                specialDiv.innerHTML = `
-                    <label style="font-size: 0.75rem; color:var(--dtro-blue); font-weight: bold;">🎯 반기 목표 훈련 횟수</label>
-                    <input type="number" id="targetCount" placeholder="예: 10" inputmode="numeric" style="margin-top:5px; background:white !important;">
-                `;
-            } else if (category === "시뮬레이션 교육") {
-                specialDiv.style.display = "block";
-                specialDiv.innerHTML = `
-                    <label style="font-size: 0.75rem; color:var(--dtro-blue); font-weight: bold;">📋 시뮬레이션 이수 목표</label>
-                    <div class="flex-row">
-                        <div>
-                            <label>목표 횟수</label>
-                            <input type="number" id="simCount" placeholder="예: 3" inputmode="numeric">
-                        </div>
-                        <div>
-                            <label>시간(H)</label>
-                            <input type="number" step="0.1" id="simTime" placeholder="예: 1.5" inputmode="decimal">
-                        </div>
-                        <div>
-                            <label>평가(점)</label>
-                            <input type="number" id="simScore" placeholder="예: 60" inputmode="numeric">
-                        </div>
-                    </div>
-                `;
-            } else {
-                specialDiv.style.display = "none";
-                specialDiv.innerHTML = "";
-            }
-        }
-
-        // 파일 선택 시 이름 표시
-        function handleFile(input) {
-            const fileName = input.files[0] ? input.files[0].name : "📁 파일 선택 또는 촬영";
-            document.getElementById('fileNameDisplay').innerText = fileName;
-        }
-
-        // 등록 버튼 클릭 시
-        function submitEdu() {
-            const title = document.getElementById('eduTitle').value;
-            if(!title) { alert("제목을 입력해주세요."); return; }
-            alert("정상적으로 게시되었습니다.");
-            location.href = 'admin_main.html';
-        }
-    </script>
-</body>
-</html>
+                <select id="eduCategory" onchange
