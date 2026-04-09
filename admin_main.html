@@ -1,71 +1,36 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DTRO 관리자 모드</title>
-    <style>
-        body { margin: 0; font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; height: 100vh; background: #f4f7f9; }
-        .top-nav { background: #0072bc; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-group { display: flex; gap: 8px; }
-        .btn { border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
-        .btn-set { background: #ff9f43; color: white; }
-        .btn-logout { background: #fff; color: #0072bc; }
-        .content-area { flex: 1; background: white; }
-        iframe { width: 100%; height: 100%; border: none; }
-        #setupModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 100; }
-        .modal-card { background:white; padding:25px; border-radius:15px; width:85%; max-width:320px; }
-        .modal-card input { width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; }
-    </style>
-</head>
-<body>
-    <div class="top-nav">
-        <strong>DTRO 관리자</strong>
-        <div class="btn-group">
-            <button class="btn btn-set" onclick="openSetup()">담당자 지정</button>
-            <button class="btn btn-logout" onclick="confirmLogout()">로그아웃</button>
-        </div>
-    </div>
-    <div class="content-area">
-        <iframe src="https://docs.google.com/spreadsheets/d/1xARA_iuT6bGnxD91X2V-ODFlcfw6oaiwYZNwltyEqk8/edit?usp=sharing"></iframe>
+<div id="admin-settings" style="background:#f8f9fa; padding:20px; border-radius:15px; margin-top:20px;">
+    <h3>⚙️ 시스템 설정 (관리자 전용)</h3>
+    
+    <div style="margin-bottom:20px;">
+        <label>팀 공용 비번 변경:</label>
+        <input type="number" id="newTeamPw" placeholder="새 공용 비번" style="width:100px;">
+        <button onclick="updateTeamPw()" style="background:#0072bc; color:white; border:none; padding:5px 10px; border-radius:5px;">변경</button>
     </div>
 
-    <div id="setupModal">
-        <div class="modal-card">
-            <h3>교육담당자 변경</h3>
-            <input type="number" id="newAdminId" placeholder="새 담당자 사번">
-            <button class="btn btn-set" style="width:100%; margin-top:10px;" onclick="saveAdmin()">설정 저장</button>
-            <button class="btn" style="width:100%; margin-top:8px; background:#eee;" onclick="closeSetup()">취소</button>
-        </div>
+    <hr>
+
+    <div>
+        <p style="color:red; font-size:0.8rem;">* 담당자를 변경하면 현재 관리자 권한이 즉시 삭제됩니다.</p>
+        <button onclick="resetAdmin()" style="background:#dc3545; color:white; border:none; padding:10px; border-radius:10px; width:100%; font-weight:bold;">⚠️ 담당자 변경 (권한 초기화)</button>
     </div>
+</div>
 
-    <script>
-        // 관리자 화면 뒤로가기 가두기
-        function preventBack() {
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, null, window.location.href);
-                alert("로그아웃 버튼을 이용해 주세요.");
-            };
+<script>
+    // 공용 비번 업데이트
+    function updateTeamPw() {
+        const newPw = document.getElementById('newTeamPw').value;
+        if(newPw.length > 0) {
+            localStorage.setItem("teamPassword", newPw);
+            alert("팀 공용 비밀번호가 [" + newPw + "](으)로 변경되었습니다.");
         }
-        preventBack();
+    }
 
-        function openSetup() { document.getElementById('setupModal').style.display = 'flex'; }
-        function closeSetup() { document.getElementById('setupModal').style.display = 'none'; }
-        function saveAdmin() {
-            const id = document.getElementById('newAdminId').value;
-            if(!id) { alert("사번을 입력하세요."); return; }
-            localStorage.setItem("assignedAdmin", JSON.stringify({id: id}));
-            alert("담당자가 사번 [" + id + "]님으로 변경되었습니다.");
-            closeSetup();
+    // 담당자 권한 파기 (이전 관리자 삭제 후 마스터 모드로 복구)
+    function resetAdmin() {
+        if(confirm("정말로 관리자 권한을 파기하시겠습니까?\n이후에는 다시 마스터 비번으로 접속해야 합니다.")) {
+            localStorage.removeItem("assignedAdmin"); // 관리자 정보 삭제
+            alert("권한이 파기되었습니다. 메인 화면으로 이동합니다.");
+            location.href = "index.html";
         }
-        function confirmLogout() {
-            if(confirm("관리자 모드를 종료하시겠습니까?")) {
-                // 로그아웃 시에만 감시 해제 후 이동
-                window.onpopstate = null;
-                window.location.replace("index.html");
-            }
-        }
-    </script>
-</body>
-</html>
+    }
+</script>
