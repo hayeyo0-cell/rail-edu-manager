@@ -6,51 +6,57 @@
     <title>교육 등록 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; color: #333; }
 
-        /* 헤더 디자인 (슬림형) */
+        /* [디자인] 상단 슬림 헤더 */
         .header { 
-            width: 100%; background: white; padding: 10px 0; 
+            width: 100%; background: white; padding: 12px 0; 
             display: flex; align-items: center; justify-content: space-between; 
             border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; 
         }
-        .header-left { width: 80px; padding-left: 12px; } 
-        .slim-logo { height: 28px; vertical-align: middle; }
-        .header-right { width: 80px; }
-        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 4px 8px; border-radius: 5px; font-size: 0.7rem; color: #666; cursor: pointer; }
+        .header-left { width: 90px; padding-left: 12px; } 
+        .slim-logo { height: 30px; vertical-align: middle; }
+        .header-right { width: 90px; }
+        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; color: #666; cursor: pointer; }
 
         .container { width: 92%; max-width: 480px; margin: 15px auto; padding-bottom: 30px; }
-        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        /* [수정] 타이틀 글씨 크기 하향 */
-        .page-title { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 20px; display: flex; align-items: center; }
+        .page-title { font-size: 1.05rem; font-weight: bold; margin-bottom: 22px; display: flex; align-items: center; }
         .page-title::before { content: '✍️'; margin-right: 8px; }
 
-        .input-group { margin-bottom: 15px; }
-        
-        /* [수정] 라벨 및 입력창 글씨 크기 슬림화 */
+        /* [통일성] 모든 입력 그룹의 간격과 크기 고정 */
+        .input-group { margin-bottom: 18px; }
         label { display: block; font-size: 0.8rem; font-weight: bold; color: #777; margin-bottom: 6px; }
-        input, select, textarea { 
-            width: 100%; padding: 11px; border: 1px solid #ddd; border-radius: 8px; 
-            box-sizing: border-box; font-size: 0.85rem; background: #fafafa; color: #444;
+        
+        /* [심플] 줄바꿈 방지 및 균일한 높이 설정 */
+        input, select, .file-upload-box { 
+            width: 100%; height: 45px; padding: 0 12px; border: 1px solid #ddd; 
+            border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; 
+            background: #fafafa; color: #444; display: flex; align-items: center;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        textarea { height: 90px; resize: none; font-family: inherit; }
+        
+        /* 내용 입력창은 특성상 높이만 다르게, 나머지는 동일하게 */
+        textarea { 
+            width: 100%; height: 100px; padding: 12px; border: 1px solid #ddd; 
+            border-radius: 8px; box-sizing: border-box; font-size: 0.9rem; 
+            background: #fafafa; resize: none; font-family: inherit;
+        }
 
-        /* [추가] 파일 첨부 스타일 */
-        .file-upload-box {
-            border: 1px dashed #ccc; padding: 12px; border-radius: 8px; background: #fff;
-            text-align: center; cursor: pointer; margin-top: 5px;
-        }
+        /* [심플] 파일 첨부 박스 */
+        .file-upload-box { border: 1px dashed #ccc; background: #fff; justify-content: center; cursor: pointer; color: #888; }
         .file-upload-box:active { background: #f0f7ff; }
-        .file-info { font-size: 0.7rem; color: #999; margin-top: 5px; }
 
+        /* [디자인] 하단 게시 버튼 */
         .btn-submit { 
-            width: 100%; padding: 15px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 10px; font-size: 0.95rem; font-weight: bold; 
-            cursor: pointer; margin-top: 15px;
+            width: 100%; height: 50px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 10px; font-size: 1rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,114,188,0.2);
         }
+        .btn-submit:active { transform: scale(0.98); }
 
-        .sub-setting { background: #f9f9f9; border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-top: 8px; display: none; }
+        .sub-setting { background: #fdfdfd; border: 1px solid #eee; padding: 12px; border-radius: 8px; margin-top: 8px; display: none; }
     </style>
 </head>
 <body>
@@ -79,8 +85,8 @@
             </div>
 
             <div id="specialSetting" class="sub-setting">
-                <label id="specialLabel" style="font-size: 0.75rem; color:var(--dtro-blue);">목표 횟수</label>
-                <input type="number" id="targetCount" placeholder="예: 10" style="background:white; margin-top:5px;">
+                <label id="specialLabel" style="font-size: 0.75rem; color:var(--dtro-blue);">설정</label>
+                <input type="number" id="targetCount" placeholder="목표 횟수 입력" inputmode="numeric">
             </div>
 
             <div class="input-group">
@@ -94,12 +100,11 @@
             </div>
 
             <div class="input-group">
-                <label>참조 파일 첨부 (사진/문서)</label>
+                <label>참조 파일 (사진/공문)</label>
                 <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">
-                    <span id="fileNameDisplay" style="font-size: 0.8rem; color: #666;">📁 파일을 선택하거나 촬영하세요</span>
+                    <span id="fileNameDisplay">📁 파일 선택 또는 촬영</span>
                     <input type="file" id="fileInput" style="display:none;" onchange="handleFile(this)">
                 </div>
-                <p class="file-info">※ PDF, JPG, PNG 파일 지원 (최대 10MB)</p>
             </div>
 
             <button class="btn-submit" onclick="submitEdu()">교육 게시하기</button>
@@ -134,19 +139,19 @@
             const label = document.getElementById('specialLabel');
             if (type === "육성방송" || type === "시뮬레이션") {
                 specialDiv.style.display = "block";
-                label.innerText = type === "육성방송" ? "반기별 목표 횟수 설정" : "이수 목표 횟수 설정";
+                label.innerText = type === "육성방송" ? "반기 목표 횟수 설정" : "이수 목표 횟수 설정";
             } else { specialDiv.style.display = "none"; }
         }
 
         function handleFile(input) {
-            const fileName = input.files[0] ? input.files[0].name : "📁 파일을 선택하거나 촬영하세요";
+            const fileName = input.files[0] ? input.files[0].name : "📁 파일 선택 또는 촬영";
             document.getElementById('fileNameDisplay').innerText = fileName;
         }
 
         function submitEdu() {
             const title = document.getElementById('eduTitle').value;
             if(!title) { alert("제목을 입력해주세요."); return; }
-            alert("파일과 함께 교육이 게시되었습니다!");
+            alert("정상적으로 게시되었습니다!");
             location.href = 'admin_main.html';
         }
     </script>
