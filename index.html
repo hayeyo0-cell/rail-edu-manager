@@ -1,28 +1,105 @@
-// [index.html 내 관리자 로그인 함수]
-function checkAdmin() {
-    const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DTRO 스마트 교육 플랫폼</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .header { width: 100%; background: white; padding: 25px 0; text-align: center; border-bottom: 3px solid var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .logo-img { height: 60px; vertical-align: middle; }
+        .container { width: 90%; max-width: 400px; margin-top: 30px; }
+        .login-card { background: white; padding: 35px 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { font-size: 0.95rem; font-weight: bold; display: block; margin-bottom: 8px; color: #333; }
+        input { width: 100%; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 1.1rem; box-sizing: border-box; background: #fafafa; }
+        .btn-start { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        .admin-link { margin-top: 25px; display: block; color: #888; font-size: 0.85rem; text-decoration: underline; cursor: pointer; border:none; background:none; width:100%; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="대구교통공사 DTRO" class="logo-img">
+    </div>
 
-    if (!savedAdmin) {
-        // 1. 담당자가 지정되지 않은 최초 상태
-        const masterPw = prompt("담당자가 지정되지 않았습니다.\n마스터 비밀번호를 입력하세요.");
-        if (masterPw === "1234") {
-            alert("마스터 인증 성공! 담당자 지정 페이지로 이동합니다.");
-            location.href = "admin_register.html"; // 담당자 등록 페이지 (새로 만들 것)
-        } else if (masterPw) {
-            alert("마스터 비밀번호가 틀렸습니다.");
+    <div class="container">
+        <div class="login-card">
+            <h2 style="margin-bottom:30px; color:#111;">스마트 교육 플랫폼</h2>
+            
+            <div class="input-group">
+                <label>사번 (8자리)</label>
+                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" inputmode="numeric">
+            </div>
+            
+            <div class="input-group">
+                <label>팀 공용 비밀번호</label>
+                <input type="password" id="userPw" placeholder="비밀번호를 입력하세요" inputmode="numeric">
+            </div>
+
+            <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기 →</button>
+            <button class="admin-link" onclick="checkAdmin()">관리자(담당자) 로그인</button>
+        </div>
+    </div>
+
+    <script>
+        // 초기 팀 비번 설정 (기본값 1234)
+        if(!localStorage.getItem("teamPassword")) {
+            localStorage.setItem("teamPassword", "1234");
         }
-    } else {
-        // 2. 담당자가 이미 지정된 상태
-        const adminId = prompt("관리자 사번을 입력하세요.");
-        if (adminId === savedAdmin.id) {
-            const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
-            if (adminPw === savedAdmin.pw) {
-                location.href = "admin_main.html";
-            } else if (adminPw) {
-                alert("비밀번호가 일치하지 않습니다.");
+
+        // 기관사 로그인 로직
+        function startEdu() {
+            const id = document.getElementById('userId').value;
+            const pw = document.getElementById('userPw').value;
+            const teamPw = localStorage.getItem("teamPassword");
+
+            if(id.length === 8 && pw === teamPw) {
+                localStorage.setItem("loginUser", JSON.stringify({id: id, name: "기관사"}));
+                location.replace("user_timer.html");
+            } else {
+                alert("정보가 일치하지 않습니다.\n사번 8자리와 팀 비밀번호를 확인하세요.");
             }
-        } else if (adminId) {
-            alert("등록된 관리자 사번이 아닙니다.");
         }
-    }
-}
+
+        // [핵심] 관리자 로그인 분기 로직
+        function checkAdmin() {
+            const savedAdmin = JSON.parse(localStorage.getItem("assignedAdmin"));
+
+            if (!savedAdmin) {
+                // 1. 담당자 미지정 상태 (마스터 로그인)
+                const masterPw = prompt("담당자가 지정되지 않았습니다.\n마스터 비밀번호를 입력하세요.");
+                if (masterPw === "1234") {
+                    alert("마스터 인증 성공! 담당자 등록 페이지로 이동합니다.");
+                    // admin_register.html로 보내기 전에 이탈방지 해제
+                    window.onpopstate = null;
+                    location.href = "admin_register.html"; 
+                } else if (masterPw) {
+                    alert("비밀번호가 틀렸습니다.");
+                }
+            } else {
+                // 2. 담당자 지정 상태 (개인 사번/비번 로그인)
+                const adminId = prompt("관리자 사번을 입력하세요.");
+                if (adminId === savedAdmin.id) {
+                    const adminPw = prompt("관리자 개인 비밀번호를 입력하세요.");
+                    if (adminPw === savedAdmin.pw) {
+                        window.onpopstate = null;
+                        location.href = "admin_main.html";
+                    } else if (adminPw) {
+                        alert("비밀번호가 일치하지 않습니다.");
+                    }
+                } else if (adminId) {
+                    alert("등록된 관리자 사번이 아닙니다.");
+                }
+            }
+        }
+
+        // 이탈 방지 로직
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+            alert("앱 종료는 홈 버튼을 이용해 주세요.");
+        };
+    </script>
+</body>
+</html>
