@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 관리자 - 교육/훈련 등록</title>
+    <title>DTRO 관리자 - 교육 등록</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f0f2f5; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; color: #333; }
         
-        /* 상단 헤더 */
         .header { width: 100%; background: white; padding: 10px 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
         .header-left { width: 90px; padding-left: 12px; } 
         .slim-logo { height: 26px; }
@@ -23,7 +22,6 @@
         .input-group { margin-bottom: 15px; }
         label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 6px; }
         
-        /* 입력창 스타일 */
         input, select, textarea { 
             width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; 
             box-sizing: border-box; font-size: 0.85rem; background: #fafafa;
@@ -32,14 +30,13 @@
         input { height: 45px; }
         textarea { height: 90px; resize: none; }
 
-        /* [핵심] 훈련 목표 설정 영역 (지능형 노출) */
+        /* 훈련 목표 설정 영역 */
         .sub-setting { background: #eef7ff; border: 1px solid #b3d7ff; padding: 15px; border-radius: 12px; margin-top: 5px; display: none; }
         .flex-row { display: flex; gap: 6px; margin-top: 5px; }
         .flex-row div { flex: 1; }
         .flex-row label { font-size: 0.6rem; color: #0056b3; margin-bottom: 3px; }
         .flex-row input { background: white !important; height: 38px; text-align: center; }
 
-        /* 게시 버튼 */
         .btn-submit { width: 100%; height: 50px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
@@ -52,19 +49,16 @@
 
     <div class="container">
         <div class="card">
-            <div class="page-title">교육 및 훈련 게시</div>
+            <div class="page-title">교육 및 훈련 등록</div>
 
             <div class="input-group">
                 <label>교육 분류</label>
                 <select id="eduCategory" onchange="toggleTrainingMode()">
-                    <option value="소장 지시사항">소장 지시사항</option>
-                    <option value="팀장 지시사항">팀장 지시사항</option>
-                    <option value="공지사항">공지사항</option>
-                    <option value="면담 교육">면담 교육</option>
-                    <option value="안전 교육">안전 교육</option>
-                    <option value="기타 교육">기타 교육</option>
-                    <option value="육성방송 훈련">🎙️ 육성방송 훈련 (앱 실행)</option>
-                    <option value="시뮬레이션 교육">🚋 시뮬레이션 교육 (앱 실행)</option>
+                    <option value="게시교육">게시교육</option>
+                    <option value="대면교육">대면교육</option>
+                    <option value="면담교육">면담교육</option>
+                    <option value="시뮬레이션">시뮬레이션</option>
+                    <option value="육성방송 훈련">육성방송 훈련</option>
                 </select>
             </div>
 
@@ -92,7 +86,6 @@
     </div>
 
     <script>
-        // 분류 선택 시 훈련 목표창 제어
         function toggleTrainingMode() {
             const category = document.getElementById('eduCategory').value;
             const settingDiv = document.getElementById('trainingSetting');
@@ -101,13 +94,22 @@
             if (category === "육성방송 훈련") {
                 settingDiv.style.display = "block";
                 content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.7rem;">🎯 반기 목표 횟수</label>
-                    <input type="number" id="targetCount" value="10" inputmode="numeric" style="margin-top:5px; height:40px; background:white !important;">
+                    <label style="color:var(--dtro-blue); font-size:0.7rem;">🎯 육성방송 훈련 목표 (실적 자동 집계)</label>
+                    <div class="flex-row">
+                        <div>
+                            <label>목표 횟수</label>
+                            <input type="number" id="targetCount" value="10">
+                        </div>
+                        <div>
+                            <label>합격 점수</label>
+                            <input type="number" id="targetScore" value="80">
+                        </div>
+                    </div>
                 `;
-            } else if (category === "시뮬레이션 교육") {
+            } else if (category === "시뮬레이션") {
                 settingDiv.style.display = "block";
                 content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.7rem;">📋 시뮬레이션 이수 목표 (실적용)</label>
+                    <label style="color:var(--dtro-blue); font-size:0.7rem;">📋 시뮬레이션 이수 목표 (3회/1.5H/60점 기준)</label>
                     <div class="flex-row">
                         <div>
                             <label>목표 횟수</label>
@@ -133,11 +135,10 @@
             const title = document.getElementById('eduTitle').value;
             const category = document.getElementById('eduCategory').value;
             if(!title) { alert("제목을 입력해주세요."); return; }
-            alert(category + " 교육이 성공적으로 게시되었습니다.");
+            alert("[" + category + "] 교육이 성공적으로 등록되었습니다.");
             location.href = 'admin_main.html';
         }
 
-        // 초기 실행
         window.onload = toggleTrainingMode;
     </script>
 </body>
