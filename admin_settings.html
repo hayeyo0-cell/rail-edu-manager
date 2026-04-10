@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DTRO 관리자 설정</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        html, body { height: 100%; overflow: hidden; }
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; 
+            background-color: var(--bg-gray); margin: 0; padding: 0; 
+            display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* [표준] 슬림 헤더 */
+        .top-header-section {
+            width: 100%; background-color: var(--bg-gray);
+            padding: 12px 0 8px 0; display: flex; flex-direction: column;
+            align-items: center; border-bottom: 2px solid var(--dtro-blue);
+        }
+        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
+        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
+
+        /* [표준] 하단 여백 박멸 컨테이너 */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: flex-end; width: 100%; align-items: center;
+            padding-bottom: 80px; /* 기관사님 전용 황금 높이 */
+        }
+
+        .settings-card { 
+            width: 88%; max-width: 380px; background: white; 
+            border-radius: 24px; padding: 35px 24px 25px 24px; 
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: left;
+        }
+        
+        .setting-item { margin-bottom: 25px; }
+        .setting-label { font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 10px; display: block; }
+        
+        input { 
+            width: 100%; height: 50px; padding: 0 15px; 
+            border: 1px solid #e8e8e8; border-radius: 12px; 
+            font-size: 1rem; background: #fafafa; outline: none; box-sizing: border-box;
+        }
+
+        .btn-save { 
+            width: 100%; height: 56px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px;
+        }
+
+        .back-link { 
+            margin-top: 25px; display: block; text-align: center;
+            font-size: 0.85rem; color: #bbb; text-decoration: none; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-header-section">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <h1 class="main-title">관리자 설정</h1>
+    </div>
+
+    <div class="main-container">
+        <div class="settings-card">
+            <div class="setting-item">
+                <span class="setting-label">팀 공용 비밀번호 변경</span>
+                <input type="password" placeholder="새 비밀번호 입력">
+            </div>
+
+            <div class="setting-item">
+                <span class="setting-label">관리자 접속 코드 변경</span>
+                <input type="password" placeholder="새 접속 코드 입력">
+            </div>
+
+            <button class="btn-save" onclick="alert('설정이 저장되었습니다.'); location.href='admin_main.html'">
+                설정 저장하기
+            </button>
+            
+            <a href="admin_main.html" class="back-link">관리자 메인으로 돌아가기</a>
+        </div>
+    </div>
+
+</body>
+</html>
