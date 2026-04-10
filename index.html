@@ -7,17 +7,16 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         
-        /* 스크롤 방지 및 전체 레이아웃 */
-        html, body { height: 100%; overflow: hidden; }
+        /* 전체 화면 설정 */
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-gray); }
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
-            background-color: var(--bg-gray); 
-            margin: 0; padding: 0; 
-            display: flex; flex-direction: column; 
+            display: flex; 
+            flex-direction: column; 
             align-items: center;
         }
 
-        /* [표준] 슬림 헤더 & 로고 배경 합성 */
+        /* [표준] 슬림 헤더 */
         .top-header-section {
             width: 100%;
             background-color: var(--bg-gray);
@@ -26,50 +25,42 @@
             flex-direction: column;
             align-items: center;
             border-bottom: 2px solid var(--dtro-blue);
+            flex-shrink: 0; /* 헤더 크기 고정 */
         }
 
-        .brand-logo { 
-            height: 22px; 
-            margin-bottom: 4px; 
-            mix-blend-mode: multiply; /* 로고 흰 배경 투명화 */
-        }
+        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
+        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; letter-spacing: -1px; }
 
-        .main-title { 
-            font-size: 1.35rem; 
-            font-weight: bold; 
-            color: #222; 
-            margin: 0; 
-            letter-spacing: -1px;
-        }
-
-        /* [표준] 하단 여백 최적화 컨테이너 */
+        /* [핵심 수정] 내용이 잘리지 않도록 여백 재조정 */
         .main-container {
             flex: 1;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            width: 100%;
+            justify-content: flex-start; /* 위쪽부터 배치 */
             align-items: center;
-            padding-top: 40px; /* 상단 여백 확보 */
+            padding-top: 30px; /* 카드 위쪽 여백 살짝 줄임 */
+            overflow-y: auto; /* 만약의 경우 스크롤 허용 */
         }
 
-        /* 로그인 카드 디자인 */
+        /* 로그인 카드 - 높이 자동 조절 */
         .login-card { 
             width: 88%; 
             max-width: 380px; 
             background: white; 
             border-radius: 24px; 
-            padding: 35px 24px 22px 24px; 
-            box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
+            padding: 30px 24px 25px 24px; 
+            box-shadow: 0 10px 35px rgba(0,0,0,0.06); 
             text-align: center;
-            margin-bottom: 20px;
+            box-sizing: border-box;
+            margin-bottom: 30px; /* 하단 여백 확보 */
         }
         
-        .input-group { text-align: left; margin-bottom: 16px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
         label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 6px; padding-left: 5px; }
         
         input, select { 
-            width: 100%; height: 50px; padding: 0 15px; 
+            width: 100%; height: 48px; padding: 0 15px; 
             border: 1px solid #e8e8e8; border-radius: 12px; 
             font-size: 1rem; background: #fafafa; outline: none;
             box-sizing: border-box;
@@ -77,18 +68,18 @@
         input:focus, select:focus { border-color: var(--dtro-blue); background: #fff; }
 
         .btn-start { 
-            width: 100%; height: 56px; background: var(--dtro-blue); color: white; 
+            width: 100%; height: 55px; background: var(--dtro-blue); color: white; 
             border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
-            cursor: pointer; margin-top: 5px; box-shadow: 0 6px 20px rgba(0,114,188,0.2);
+            cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(0,114,188,0.2);
         }
 
-        /* 관리자 링크 (은밀한 통로) */
         .admin-link { 
-            margin-top: 25px; 
+            margin-top: 20px; 
             display: inline-block; 
             font-size: 0.8rem; 
             color: #ccc; 
             text-decoration: none;
+            padding-bottom: 20px; /* 바닥 끝까지 안 붙게 여백 */
         }
     </style>
 </head>
@@ -105,3 +96,30 @@
                 <label>소속 선택</label>
                 <select id="userDept">
                     <option value="">소속을 선택하세요</option>
+                    <option value="경산승무팀">경산승무팀</option>
+                    <option value="문양승무팀">문양승무팀</option>
+                    <option value="월배승무팀">월배승무팀</option>
+                    <option value="안심승무팀">안심승무팀</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>사번 (8자리)</label>
+                <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric">
+            </div>
+
+            <div class="input-group" style="margin-bottom: 25px;">
+                <label>팀 공용 비밀번호</label>
+                <input type="password" id="userPw" placeholder="비밀번호 입력">
+            </div>
+
+            <button class="btn-start" onclick="location.href='user_main.html'">
+                교육 시작하기 →
+            </button>
+
+            <a href="admin_login.html" class="admin-link">관리자 로그인</a>
+        </div>
+    </div>
+
+</body>
+</html>
