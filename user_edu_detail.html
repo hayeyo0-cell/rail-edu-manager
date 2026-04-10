@@ -41,7 +41,6 @@
             <div class="edu-category" id="detailCategory">카테고리</div>
             <div class="edu-title" id="detailTitle">교육 제목이 표시됩니다.</div>
             <div class="edu-deadline" id="detailDeadline">⏳ 마감 기한: 표시됨</div>
-            
             <div class="edu-body" id="detailContent">상세 내용이 여기에 표시됩니다.</div>
         </div>
     </div>
@@ -71,28 +70,23 @@
             }
         };
 
-        // [알아서 착착!] 완료 버튼 누르면 실행되는 마법의 로직
         function completeEducation() {
-            // 1. 내 완료 보관함 열어보기
             let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-
-            // 2. 이미 완료한 건지 확인 (제목으로 중복 검사)
             const isAlreadyCompleted = completedList.some(item => item.title === currentEdu.title);
 
             if(!isAlreadyCompleted) {
-                // 3. 오늘 날짜 구해서 '이수 완료일' 도장 찍어주기
                 const today = new Date();
                 const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
                 currentEdu.completedDate = dateStr;
-
-                // 4. 보관함에 넣고 문 잠그기
+                
                 completedList.unshift(currentEdu);
                 localStorage.setItem('completedEduList', JSON.stringify(completedList));
             }
 
-            // 5. 시원하게 완료 메시지 띄우고 메인으로 퇴근!
             alert('수고하셨습니다! 이수 완료 처리되었습니다.');
-            location.href = 'user_main.html';
+            
+            // [핵심 보강] 스마트폰 캐시를 뚫어버리고 무조건 새 화면을 받아오게 하는 마법의 코드!
+            window.location.href = 'user_main.html?reload=' + new Date().getTime();
         }
     </script>
 </body>
