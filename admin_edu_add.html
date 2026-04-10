@@ -21,9 +21,8 @@
             padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
         }
         
-        /* [수정] 메인 화면과 완벽하게 동일한 로고 크기 적용 */
+        /* 로고 크기 32px 유지 */
         .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
-        
         .header-spacer { width: 65px; }
 
         /* 메인 영역 */
@@ -96,6 +95,8 @@
                 <option value="면담교육">면담교육</option>
                 <option value="시뮬레이션">시뮬레이션</option>
                 <option value="육성방송 훈련">육성방송 훈련</option>
+                <option value="기타교육">기타교육</option>
+                <option value="공지사항">공지사항</option>
             </select>
             
             <label>교육 및 훈련 제목</label>
@@ -143,6 +144,7 @@
             }
         }
 
+        // 선택된 분류가 시뮬레이션/육성방송일 때만 특수창 표시
         function toggleFields() {
             const category = document.getElementById('eduCategory').value;
             const simFields = document.getElementById('simFields');
