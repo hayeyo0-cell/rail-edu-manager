@@ -1,33 +1,61 @@
-        function handleFinalSave() {
-            // 1. 값 가져오기
-            const newTeamPw = document.getElementById('newTeamPw').value;
-            const newAdminId = document.getElementById('newAdminId').value;
-            const newAdminPw = document.getElementById('newAdminPw').value;
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>관리자 설정</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .settings-card { width: 90%; max-width: 400px; background: white; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .section-title { font-size: 1rem; font-weight: bold; color: var(--dtro-blue); border-left: 4px solid var(--dtro-blue); padding-left: 10px; margin: 20px 0 15px 0; }
+        select, input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 0.95rem; outline: none; background: #fafafa; }
+        .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="settings-card">
+        <h2 style="text-align:center;">🛠️ 관리자 설정</h2>
+        
+        <div class="section-title">소속 지정</div>
+        <select id="setDept">
+            <option value="">소속을 선택하세요</option>
+            <option value="경산승무팀">경산승무팀</option>
+            <option value="안심승무팀">안심승무팀</option>
+            <option value="월배승무팀">월배승무팀</option>
+            <option value="문양승무팀">문양승무팀</option>
+        </select>
 
-            // 2. 일치 여부 최종 확인
-            const checks = ['TeamPw', 'AdminId', 'AdminPw'];
-            for (let type of checks) {
-                const original = document.getElementById('new' + type).value;
-                const confirm = document.getElementById('confirm' + type).value;
-                
-                if (original === "" || original !== confirm) {
-                    alert('입력되지 않았거나 일치하지 않는 항목이 있습니다.');
-                    return;
-                }
+        <div class="section-title">관리자 계정 설정</div>
+        <input type="number" id="setAdminId" placeholder="관리자 사번 입력">
+        <input type="password" id="setAdminPw" placeholder="관리자 새 비밀번호">
+
+        <div class="section-title">팀원용 공용 비번 설정</div>
+        <input type="password" id="setTeamPw" placeholder="팀원 공용 비밀번호 (예: 1234)">
+
+        <button class="save-btn" onclick="saveSettings()">설정 저장 및 완료</button>
+    </div>
+
+    <script>
+        function saveSettings() {
+            const dept = document.getElementById('setDept').value;
+            const id = document.getElementById('setAdminId').value;
+            const pw = document.getElementById('setAdminPw').value;
+            const teamPw = document.getElementById('setTeamPw').value;
+
+            if(!dept || !id || !pw || !teamPw) {
+                alert('모든 항목을 입력해 주세요!');
+                return;
             }
 
-            if(confirm('설정 내용을 저장하시겠습니까?\n이후 로그인 시 변경된 정보로 접속해야 합니다.')) {
-                
-                // [핵심 저장 로직]
-                // index.html에서 참조하는 이름과 똑같이 맞춰서 저장합니다.
-                localStorage.setItem('teamPw', newTeamPw);      // 팀 공용 비번
-                localStorage.setItem('adminId', newAdminId);    // 관리자 사번
-                localStorage.setItem('adminPw', newAdminPw);    // 관리자 비번
-                
-                // 현재 관리자의 '소속'은 이미 등록 시점에 저장되어 있다고 가정합니다.
-                // (만약 소속 선택 기능이 필요하면 여기에 추가하면 됩니다.)
+            localStorage.setItem('userDept', dept);
+            localStorage.setItem('adminId', id);
+            localStorage.setItem('adminPw', pw);
+            localStorage.setItem('teamPw', teamPw);
 
-                alert('모든 변경사항이 안전하게 저장되었습니다.\n보안을 위해 다시 로그인해 주세요.');
-                location.href='index.html'; // 저장 후 다시 로그인하게 유도
-            }
+            alert('설정이 완료되었습니다!\n이제 변경된 정보로 로그인하세요.');
+            location.href = 'index.html';
         }
+    </script>
+</body>
+</html>
