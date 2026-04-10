@@ -50,41 +50,68 @@
             <input type="date" id="eduDeadline">
             <label>상세 지시내용</label>
             <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
+            
             <label>참조 파일 (사진/매뉴얼)</label>
             <div class="file-wrapper">
                 <button class="file-btn" onclick="document.getElementById('fileInput').click()">파일 선택</button>
                 <span class="file-name" id="fileNameDisplay">선택된 파일 없음</span>
                 <input type="file" id="fileInput" onchange="updateFileName(this)">
             </div>
-            <button class="submit-btn" onclick="submitForm()">앱에 즉시 게시하기</button>
+            
+            <button class="submit-btn" id="saveBtn" onclick="submitForm()">앱에 즉시 게시하기</button>
         </div>
     </div>
+
     <script>
         let fileData = ""; 
         let fileName = "";
+
         function updateFileName(input) {
             const display = document.getElementById('fileNameDisplay');
+            const saveBtn = document.getElementById('saveBtn');
+            
             if (input.files && input.files[0]) {
                 fileName = input.files[0].name;
-                display.innerText = fileName;
+                display.innerText = "읽는 중...";
+                saveBtn.disabled = true; // 읽는 동안 버튼 잠금
+
                 const reader = new FileReader();
-                reader.onload = function(e) { fileData = e.target.result; };
+                reader.onload = function(e) { 
+                    fileData = e.target.result; 
+                    display.innerText = fileName;
+                    display.style.color = '#0072bc';
+                    saveBtn.disabled = false; // 완료 후 해제
+                };
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
         function submitForm() {
             const category = document.getElementById('eduCategory').value;
             const title = document.getElementById('eduTitle').value;
             const deadline = document.getElementById('eduDeadline').value;
             const content = document.getElementById('eduContent').value;
+
             if(!title || !deadline || !content) { alert('항목을 모두 채워주세요!'); return; }
+
             const today = new Date();
             const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
-            const newEdu = { category, title, deadline, content, date: dateStr, fileName, fileContent: fileData };
+
+            const newEdu = { 
+                category: category, 
+                title: title, 
+                deadline: deadline, 
+                content: content, 
+                date: dateStr, 
+                fileName: fileName, 
+                fileContent: fileData 
+            };
+
             let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
             eduList.unshift(newEdu); 
             localStorage.setItem('myEduList', JSON.stringify(eduList));
-            alert('등록 완료!');
+            
+            alert('등록 완료! 이제 상세 화면에서 파일을 확인하세요.');
             window.location.replace('admin_main.html'); 
         }
     </script>
