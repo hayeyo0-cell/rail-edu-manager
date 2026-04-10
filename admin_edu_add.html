@@ -7,36 +7,21 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 26px; object-fit: contain; }
-
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
-
-        /* 둥근 카드 디자인 */
-        .edu-card { 
-            background: white; border-radius: 30px; padding: 30px 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; 
-        }
-
+        .edu-card { background: white; border-radius: 30px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; }
         .card-title { font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: block; text-align: left; }
         .dept-info-box { background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 25px; text-align: center; }
-
         .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; text-align: left; }
+        select, input, textarea { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         
-        select, input, textarea { 
-            width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; 
-            box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s;
-        }
-        input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
+        /* 🚨 요청하신 대로 깔끔하게 파일 첨부 레이아웃 */
+        .file-section { margin-top: 15px; text-align: left; }
+        .file-input-box { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; background: #fff; box-sizing: border-box; font-size: 0.9rem; color: #666; }
 
-        /* 하단 완료 버튼 */
-        .save-btn { 
-            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
-            margin-top: 35px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2);
-        }
+        .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; margin-top: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -54,11 +39,7 @@
 
             <label class="input-label">교육 분류</label>
             <select id="eduType">
-                <option>게시교육</option>
-                <option>운전취급</option>
-                <option>사고분석</option>
-                <option>지시사항</option>
-                <option>안전교육</option>
+                <option>게시교육</option><option>운전취급</option><option>사고분석</option><option>지시사항</option><option>안전교육</option>
             </select>
 
             <label class="input-label">교육 및 훈련 제목</label>
@@ -68,7 +49,12 @@
             <input type="date" id="eduDeadline">
 
             <label class="input-label">상세 지시내용</label>
-            <textarea id="eduContent" rows="8" placeholder="상세 내용을 입력하세요"></textarea>
+            <textarea id="eduContent" rows="6" placeholder="상세 내용을 입력하세요"></textarea>
+
+            <label class="input-label">📎 파일 첨부</label>
+            <div class="file-section">
+                <input type="file" id="eduFile" class="file-input-box" accept="image/*">
+            </div>
 
             <button class="save-btn" onclick="saveEdu()">설정 저장 및 완료</button>
         </div>
@@ -77,6 +63,16 @@
     <script>
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
         document.getElementById('currentDept').innerText = myDept;
+        let selectedFileData = ""; 
+
+        document.getElementById('eduFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) { selectedFileData = event.target.result; };
+                reader.readAsDataURL(file);
+            }
+        });
 
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
@@ -84,27 +80,21 @@
             const type = document.getElementById('eduType').value;
             const deadline = document.getElementById('eduDeadline').value;
 
-            if(!title || !content) {
-                alert("제목과 내용을 모두 입력해 주세요!");
-                return;
-            }
+            if(!title || !content) { alert("제목과 내용을 입력하세요!"); return; }
 
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            
-            const newEdu = {
+            totalEduList.push({
                 id: Date.now(),
                 dept: myDept,
                 type: type,
                 title: title,
                 content: content,
                 deadline: deadline,
+                fileData: selectedFileData,
                 date: new Date().toLocaleDateString()
-            };
-
-            totalEduList.push(newEdu);
+            });
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
-
-            alert("성공적으로 등록되었습니다!");
+            alert("등록되었습니다!");
             location.href = 'admin_main.html';
         }
     </script>
