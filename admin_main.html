@@ -9,42 +9,36 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* [핵심 수정] 상단 헤더 밸런스 조정 */
+        /* 상단 헤더 (유지) */
         .top-header-section {
             width: 100%; background: white; padding: 12px 0;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
         }
-        /* 버튼: 테두리는 얇게, 글씨는 아주 작고 연하게 */
         .header-btn {
             background: white; border: 1px solid #eaeaea; border-radius: 6px;
             padding: 6px 10px; font-size: 0.65rem; color: #a0a0a0; cursor: pointer; margin: 0 15px;
         }
-        /* 로고: 확실하게 키움 */
-        .brand-logo { 
-            height: 32px; 
-            mix-blend-mode: multiply; 
-            object-fit: contain; 
-        }
+        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
 
-        /* 메인 컨테이너 */
-        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 30px; padding-bottom: 40px; }
+        /* [간격 축소] 메인 컨테이너 상단 여백 줄임 */
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 15px; padding-bottom: 40px; }
 
-        /* 소속 표시 캡슐 */
+        /* [크기/여백 축소] 소속 표시 캡슐 다이어트 */
         .dept-capsule {
             background: var(--dtro-blue); color: white; border-radius: 50px;
-            padding: 10px 32px; font-weight: bold; font-size: 1.1rem;
-            box-shadow: 0 4px 12px rgba(0,114,188,0.2); margin-bottom: 25px;
+            padding: 6px 20px; font-weight: bold; font-size: 0.9rem; /* 글씨와 패딩 축소 */
+            box-shadow: 0 3px 10px rgba(0,114,188,0.2); margin-bottom: 10px; /* 하단 여백 축소 */
         }
 
-        /* 환영 문구 */
-        .welcome-msg { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 35px; text-align: center; }
+        /* [크기/여백 축소] 환영 문구 다이어트 */
+        .welcome-msg { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 22px; text-align: center; }
         .welcome-msg span { color: var(--dtro-blue); }
 
         /* 섹션 타이틀 */
-        .section-wrap { width: 90%; max-width: 400px; text-align: left; margin-bottom: 18px; }
+        .section-wrap { width: 90%; max-width: 400px; text-align: left; margin-bottom: 15px; }
         .section-title { 
-            font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); 
+            font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
             border-left: 5px solid var(--dtro-blue); padding-left: 12px;
         }
 
@@ -55,7 +49,6 @@
             display: flex; align-items: center; margin-bottom: 16px;
             cursor: pointer; box-sizing: border-box; border: 1px solid #fcfcfc;
         }
-        /* 아이콘 비율 고정 */
         .card-icon { width: 50px; height: 50px; margin-right: 18px; object-fit: contain; }
         .card-info { text-align: left; flex: 1; }
         .card-title { font-size: 1.1rem; font-weight: bold; color: #222; margin-bottom: 6px; display: block; }
@@ -97,7 +90,7 @@
             </div>
         </div>
 
-        <div class="section-wrap" style="margin-top: 15px;">
+        <div class="section-wrap" style="margin-top: 10px;">
             <span class="section-title">이수 현황 및 소통</span>
         </div>
 
@@ -111,7 +104,6 @@
     </div>
 
     <script>
-        // 소속 정보 자동 연동 로직
         window.onload = function() {
             const savedDept = localStorage.getItem('adminDept');
             if (savedDept) {
