@@ -6,6 +6,8 @@
     <title>DTRO 관리자 메인</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        
+        /* 전체 레이아웃 설정 */
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
@@ -18,17 +20,17 @@
         .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
         .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
 
-        /* 메인 컨테이너 */
+        /* 메인 컨텐츠 영역 */
         .main-container { 
             flex: 1; width: 100%; display: flex; flex-direction: column; 
-            justify-content: flex-start; align-items: center; padding-top: 30px; 
+            justify-content: flex-start; align-items: center; padding-top: 35px; 
         }
 
-        /* 환영 메시지 카드 */
+        /* [요청 반영] 환영 메시지 카드 */
         .welcome-card {
             width: 88%; max-width: 400px; background: white; border-radius: 24px;
             padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            text-align: center; margin-bottom: 20px;
+            text-align: center; margin-bottom: 25px;
         }
 
         .welcome-text { 
@@ -37,24 +39,28 @@
         }
         .welcome-text span { color: var(--dtro-blue); }
 
-        /* 관리 메뉴 버튼들 */
+        /* [핵심] 관리 메뉴 4구 그리드 */
         .menu-grid {
             width: 88%; max-width: 400px; display: grid;
             grid-template-columns: 1fr 1fr; gap: 15px;
         }
 
         .menu-item {
-            background: white; border-radius: 18px; padding: 20px 10px;
+            background: white; border-radius: 20px; padding: 25px 10px;
             text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
-            cursor: pointer; transition: transform 0.2s; border: 1px solid #f0f0f0;
+            cursor: pointer; transition: transform 0.2s, background-color 0.2s; 
+            border: 1px solid #f0f0f0;
         }
-        .menu-item:active { transform: scale(0.96); }
-        .menu-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
-        .menu-name { font-size: 0.95rem; font-weight: bold; color: #444; }
+        .menu-item:active { transform: scale(0.96); background-color: #f0f7ff; }
+        
+        .menu-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .menu-name { font-size: 1rem; font-weight: bold; color: #444; }
 
-        /* 하단 로그아웃 */
-        .logout-link {
-            margin-top: 40px; font-size: 0.85rem; color: #bbb; text-decoration: none;
+        /* 하단 로그아웃 및 보조 링크 */
+        .bottom-links { margin-top: auto; padding-bottom: 40px; text-align: center; }
+        .logout-btn {
+            font-size: 0.85rem; color: #bbb; text-decoration: none;
+            padding: 10px 20px;
         }
     </style>
 </head>
@@ -67,8 +73,8 @@
 
     <div class="main-container">
         <div class="welcome-card">
-            <p class="welcome-text" id="welcomeMsg">
-                <span id="deptName">관리자</span>님 환영합니다
+            <p class="welcome-text">
+                <span id="displayDept">관리자</span>님 환영합니다
             </p>
         </div>
 
@@ -77,29 +83,36 @@
                 <span class="menu-icon">📊</span>
                 <span class="menu-name">교육 현황</span>
             </div>
+            
             <div class="menu-item" onclick="location.href='admin_settings.html'">
                 <span class="menu-icon">⚙️</span>
                 <span class="menu-name">관리자 설정</span>
             </div>
-            <div class="menu-item" onclick="alert('준비 중인 기능입니다.')">
-                <span class="menu-icon">📋</span>
+            
+            <div class="menu-item" onclick="alert('데이터베이스 연결 준비 중입니다.')">
+                <span class="menu-icon">👥</span>
                 <span class="menu-name">명단 관리</span>
             </div>
-            <div class="menu-item" onclick="alert('준비 중인 기능입니다.')">
-                <span class="menu-icon">📢</span>
-                <span class="menu-name">공지사항</span>
+            
+            <div class="menu-item" onclick="alert('파일 업로드 기능을 구성 중입니다.')">
+                <span class="menu-icon">📤</span>
+                <span class="menu-name">자료 업로드</span>
             </div>
         </div>
 
-        <a href="index.html" class="logout-link" onclick="sessionStorage.clear()">안전하게 로그아웃</a>
+        <div class="bottom-links">
+            <a href="index.html" class="logout-btn">안전하게 로그아웃</a>
+        </div>
     </div>
 
     <script>
-        // 페이지 로드 시 저장된 소속 정보를 가져와서 문구를 바꿉니다.
+        // 페이지 시작 시 로컬 스토리지에서 소속 정보를 가져와 문구를 업데이트합니다.
         window.onload = function() {
-            const myDept = localStorage.getItem('adminDept');
-            if (myDept) {
-                document.getElementById('deptName').innerText = myDept + " 관리자";
+            const savedDept = localStorage.getItem('adminDept');
+            if (savedDept) {
+                document.getElementById('displayDept').innerText = savedDept + " 관리자";
+            } else {
+                document.getElementById('displayDept').innerText = "관리자";
             }
         };
     </script>
