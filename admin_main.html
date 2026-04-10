@@ -3,120 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>새 교육 등록</title>
+    <title>DTRO 관리자 메인</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
-        
-        /* 헤더 스타일 */
-        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
-        .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #333; padding: 0 10px; }
-        
-        /* 메인 컨테이너 */
-        .container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .input-card { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
-        
-        /* 입력 항목 스타일 */
-        label { display: block; font-weight: bold; font-size: 0.9rem; color: #444; margin-bottom: 8px; }
-        input, textarea, select { width: 100%; border: 1px solid #e8e8e8; border-radius: 12px; padding: 15px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; outline: none; background: #fafafa; }
-        textarea { height: 180px; resize: none; font-family: inherit; }
-        
-        /* [어제 고민 포인트] 교육 분류 select 스타일 */
-        select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 파일 업로드 박스 */
-        .file-upload-box { 
-            border: 2px dashed #ccd6e0; border-radius: 15px; padding: 40px 20px; 
-            text-align: center; color: #888; margin-bottom: 25px; cursor: pointer;
-            transition: 0.3s;
+        /* 사진 속 상단 헤더 복구 */
+        .top-header-section {
+            width: 100%; background: white; padding: 15px 0;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
         }
-        .file-upload-box:hover { background: #f0f7ff; border-color: var(--dtro-blue); color: var(--dtro-blue); }
-        
-        /* 동적 입력 필드 (기본 숨김) */
-        .dynamic-field { display: none; }
+        .header-btn {
+            background: none; border: 1px solid #eee; border-radius: 8px;
+            padding: 6px 12px; font-size: 0.75rem; color: #999; cursor: pointer; margin: 0 15px;
+        }
+        .brand-logo { height: 20px; mix-blend-mode: multiply; }
 
-        /* 등록 버튼 */
-        .submit-btn { width: 100%; height: 60px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; box-shadow: 0 6px 15px rgba(0,114,188,0.2); }
+        /* 메인 컨테이너 */
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 25px; }
+
+        /* [복구] 소속 표시 캡슐 */
+        .dept-capsule {
+            background: var(--dtro-blue); color: white; border-radius: 50px;
+            padding: 8px 30px; font-weight: bold; font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,114,188,0.2); margin-bottom: 20px;
+        }
+
+        /* [복구] 환영 문구 */
+        .welcome-msg { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 25px; }
+        .welcome-msg span { color: var(--dtro-blue); }
+
+        /* 섹션 타이틀 (사진 속 파란색 바) */
+        .section-wrap { width: 90%; max-width: 400px; text-align: left; margin-bottom: 15px; }
+        .section-title { 
+            font-size: 1.1rem; font-weight: bold; color: var(--dtro-blue); 
+            border-left: 5px solid var(--dtro-blue); padding-left: 10px;
+        }
+
+        /* [복구] 메뉴 카드 디자인 */
+        .menu-card {
+            width: 90%; max-width: 400px; background: white; border-radius: 20px;
+            padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+            display: flex; align-items: center; margin-bottom: 15px;
+            cursor: pointer; box-sizing: border-box;
+        }
+        .card-icon { width: 50px; margin-right: 15px; }
+        .card-title { font-size: 1.05rem; font-weight: bold; color: #333; margin-bottom: 5px; display: block; }
+        .card-desc { font-size: 0.8rem; color: #999; line-height: 1.3; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button class="back-btn" onclick="history.back()">←</button>
-        <span style="font-weight:bold; margin-left:10px; font-size:1.1rem;">새 교육 등록하기</span>
+
+    <div class="top-header-section">
+        <button class="header-btn" onclick="location.href='admin_settings.html'">관리자 설정</button>
+        <img src="logo.png" class="brand-logo" alt="대구교통공사">
+        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
     </div>
 
-    <div class="container">
-        <div class="input-card">
-            <label>교육 분류</label>
-            <select id="eduCategory" onchange="toggleFields()">
-                <option value="게시교육">게시교육</option>
-                <option value="시뮬레이션">시뮬레이션 훈련</option>
-                <option value="방송훈련">방송훈련</option>
-            </select>
-            
-            <label>교육 및 훈련 제목</label>
-            <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
-            
-            <div id="simFields" class="dynamic-field">
-                <label>훈련 시나리오 선택</label>
-                <select id="simScenario">
-                    <option value="scenario1">차량고장 응급조치</option>
-                    <option value="scenario2">신호장치 장애 대응</option>
-                </select>
-            </div>
+    <div class="main-container">
+        <div class="dept-capsule" id="deptDisplay">경산승무팀</div>
 
-            <div id="broadcastFields" class="dynamic-field">
-                <label>대본 입력</label>
-                <textarea id="broadcastScript" placeholder="훈련할 방송 대본을 입력하세요."></textarea>
-            </div>
+        <div class="welcome-msg">
+            <span id="welcomeDept">경산승무팀</span> 관리자님 환영합니다
+        </div>
 
-            <label>상세 내용 및 지시사항</label>
-            <textarea id="eduContent" placeholder="교육 내용을 상세히 입력하세요."></textarea>
-            
-            <label>참조 파일 (사진/매뉴얼)</label>
-            <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">
-                <div style="font-size: 1.5rem; margin-bottom: 5px;">📁</div>
-                파일 선택 (선택된 파일 없음)
-                <input type="file" id="fileInput" style="display:none;">
+        <div class="section-wrap">
+            <span class="section-title">교육 관리</span>
+        </div>
+
+        <div class="menu-card" onclick="location.href='admin_add_edu.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/3209/3209250.png" class="card-icon">
+            <div class="card-info">
+                <span class="card-title">새 교육 등록하기</span>
+                <span class="card-desc">오늘의 교육 내용 및 지시사항을 게시합니다.</span>
             </div>
-            
-            <button class="submit-btn" onclick="registerEducation()">앱에 즉시 게시하기</button>
+        </div>
+
+        <div class="menu-card" onclick="location.href='admin_edu_list.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991112.png" class="card-icon">
+            <div class="card-info">
+                <span class="card-title">등록된 교육 내역</span>
+                <span class="card-desc">게시 중인 교육을 수정하거나 삭제 관리합니다.</span>
+            </div>
+        </div>
+
+        <div class="section-wrap" style="margin-top: 10px;">
+            <span class="section-title">이수 현황 및 소통</span>
+        </div>
+
+        <div class="menu-card" onclick="location.href='admin_stats.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/3412/3412862.png" class="card-icon">
+            <div class="card-info">
+                <span class="card-title">실시간 이수 현황</span>
+                <span class="card-desc">현재 12명 완료 / 45명 미이수 상세 보기</span>
+            </div>
         </div>
     </div>
 
     <script>
-        // [복구] 어제 고민했던 동적 필드 전환 로직
-        function toggleFields() {
-            const category = document.getElementById('eduCategory').value;
-            const simFields = document.getElementById('simFields');
-            const broadcastFields = document.getElementById('broadcastFields');
-
-            // 초기화
-            simFields.style.display = 'none';
-            broadcastFields.style.display = 'none';
-
-            // 분류에 따라 필드 표시
-            if (category === '시뮬레이션') {
-                simFields.style.display = 'block';
-            } else if (category === '방송훈련') {
-                broadcastFields.style.display = 'block';
+        // 소속 정보 로드
+        window.onload = function() {
+            const savedDept = localStorage.getItem('adminDept');
+            if (savedDept) {
+                document.getElementById('deptDisplay').innerText = savedDept;
+                document.getElementById('welcomeDept').innerText = savedDept;
             }
-        }
-
-        function registerEducation() {
-            const category = document.getElementById('eduCategory').value;
-            const title = document.getElementById('eduTitle').value;
-            const content = document.getElementById('eduContent').value;
-            
-            if(!title || !content) {
-                alert('제목과 내용을 모두 입력해 주세요!');
-                return;
-            }
-            
-            // 등록 완료 처리
-            alert(`[${category}] 교육이 성공적으로 게시되었습니다.`);
-            location.href = 'admin_main.html';
-        }
+        };
     </script>
 </body>
 </html>
