@@ -3,126 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 상세 내용 - DTRO</title>
+    <title>교육 상세 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 24px; object-fit: contain; }
-
         .container { width: 92%; max-width: 420px; padding: 20px 0; padding-bottom: 120px; }
-
         .content-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
         .edu-type-badge { display: inline-block; padding: 4px 10px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; line-height: 1.4; display: block; }
         .edu-content-text { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
-
-        /* 🚨 첨부파일 이미지 뷰어 영역 (기관사님이 공들인 부분) */
-        .attachment-section { border-top: 1px dashed #ddd; padding-top: 20px; margin-top: 10px; }
+        .attachment-section { border-top: 1px dashed #ddd; padding-top: 20px; }
         .attach-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
         .img-container { width: 100%; border-radius: 15px; overflow: hidden; border: 1px solid #eee; background: #f9f9f9; display: none; }
         .img-container img { width: 100%; height: auto; display: block; }
-
         .signature-section { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
-        .sig-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 15px; }
-        .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; position: relative; touch-action: none; }
+        .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; touch-action: none; }
         canvas { width: 100%; height: 100%; }
-
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
-        .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
     <div class="top-nav">
         <button class="nav-btn" onclick="location.href='user_main.html'">← 메인으로</button>
-        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <img src="logo.png" class="brand-logo">
         <div style="width:75px;"></div>
     </div>
-
     <div class="container">
         <div class="content-card">
             <span id="displayType" class="edu-type-badge">게시교육</span>
-            <span id="displayTitle" class="edu-title">제목을 불러오는 중...</span>
-            <div id="displayContent" class="edu-content-text">내용을 불러오는 중...</div>
-
+            <span id="displayTitle" class="edu-title">제목</span>
+            <div id="displayContent" class="edu-content-text">내용</div>
             <div class="attachment-section">
-                <span class="attach-label">📎 첨부된 참조 파일(사진/매뉴얼)</span>
-                <div id="imgContainer" class="img-container">
-                    <img id="eduImage" src="">
-                </div>
-                <p id="noFileText" style="color: #bbb; font-size: 0.9rem; text-align: center; margin-top: 10px;">첨부된 파일이 없습니다.</p>
+                <span class="attach-label">📎 첨부된 참조 파일</span>
+                <div id="imgContainer" class="img-container"><img id="eduImage" src=""></div>
+                <p id="noFileText" style="color: #bbb; font-size: 0.9rem; text-align: center;">첨부파일 없음</p>
             </div>
         </div>
-
         <div class="signature-section">
-            <div class="sig-title">✒️ 본인 확인 서명</div>
-            <div class="sig-canvas-area">
-                <canvas id="sigCanvas"></canvas>
-            </div>
+            <p style="font-weight:bold; margin-bottom:10px;">✒️ 본인 확인 서명</p>
+            <div class="sig-canvas-area"><canvas id="sigCanvas"></canvas></div>
         </div>
     </div>
-
-    <div class="bottom-bar">
-        <button class="submit-btn" onclick="submitEducation()">✅ 서명 완료 및 제출</button>
-    </div>
-
+    <div class="bottom-bar"><button class="submit-btn" onclick="submitEducation()">✅ 서명 완료 및 제출</button></div>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
-
         window.onload = function() {
-            loadEduData();
-            initCanvas();
-        };
-
-        function loadEduData() {
-            const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            // ID 값이 일치하는 교육 찾기
-            const edu = totalEduList.find(e => String(e.id) === String(eduId));
-
+            const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            const edu = list.find(e => String(e.id) === String(eduId));
             if(edu) {
                 document.getElementById('displayTitle').innerText = edu.title;
                 document.getElementById('displayContent').innerText = edu.content;
                 document.getElementById('displayType').innerText = edu.type || "게시교육";
-
-                // 🚨 핵심: 첨부파일(fileData)이 있는지 확인하고 있으면 보여주기
-                if(edu.fileData) {
-                    const img = document.getElementById('eduImage');
-                    img.src = edu.fileData;
+                if(edu.fileData) { // 🚨 관리자가 저장한 이름과 일치 확인
+                    document.getElementById('eduImage').src = edu.fileData;
                     document.getElementById('imgContainer').style.display = 'block';
                     document.getElementById('noFileText').style.display = 'none';
                 }
             }
-        }
-
-        // 서명 로직 (생략 없이 유지)
+            initCanvas();
+        };
         let canvas, ctx, drawing = false;
         function initCanvas() {
-            canvas = document.getElementById('sigCanvas');
-            ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            canvas = document.getElementById('sigCanvas'); ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
             ctx.strokeStyle = "#222"; ctx.lineWidth = 3; ctx.lineCap = "round";
-            canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); });
+            canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); e.preventDefault(); });
             canvas.addEventListener("touchend", () => { drawing = false; });
             canvas.addEventListener("touchmove", (e) => {
                 if(!drawing) return;
-                const touch = e.touches[0];
-                const rect = canvas.getBoundingClientRect();
-                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-                ctx.stroke();
+                const touch = e.touches[0]; const rect = canvas.getBoundingClientRect();
+                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top); ctx.stroke();
                 e.preventDefault();
             });
         }
-
         function submitEducation() {
             if(!confirm("제출하시겠습니까?")) return;
-            // 이수 완료 데이터 처리 로직...
-            alert("이수가 완료되었습니다.");
-            location.href = 'user_main.html';
+            let signData = JSON.parse(localStorage.getItem('signData')) || [];
+            signData.push({ eduId: eduId, userId: localStorage.getItem('currentUserId'), date: new Date().toLocaleDateString() });
+            localStorage.setItem('signData', JSON.stringify(signData));
+            alert("완료되었습니다."); location.href = 'user_main.html';
         }
     </script>
 </body>
