@@ -52,15 +52,15 @@
 <body>
 
     <div class="top-header-section">
-        <button class="header-btn" onclick="location.href='admin_settings.html'">관리자 설정</button>
+        <button class="header-btn" onclick="location.href='admin_setting.html'">관리자 설정</button>
         <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
+        <button class="header-btn" onclick="logout()">로그아웃</button>
     </div>
 
     <div class="main-container">
-        <div class="dept-capsule" id="deptDisplay">경산승무팀</div>
+        <div class="dept-capsule" id="deptDisplay">-</div>
         <div class="welcome-msg">
-            <span id="welcomeDept">경산승무팀</span> 관리자님 환영합니다
+            <span id="welcomeDept">-</span> 관리자님 환영합니다
         </div>
 
         <div class="section-wrap">
@@ -87,11 +87,11 @@
             <span class="section-title">명단 관리</span>
         </div>
 
-        <div class="menu-card" onclick="location.href='admin_roster.html'">
+        <div class="menu-card" onclick="location.href='admin_user_list.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/681/681443.png" class="card-icon" alt="명단 관리">
             <div class="card-info">
                 <span class="card-title">교육 명단 관리</span>
-                <span class="card-desc">소속 기관사 명단을 등록하고 그룹을 관리합니다.</span>
+                <span class="card-desc">소속 기관사 명단을 등록하고 로그인 권한을 관리합니다.</span>
             </div>
         </div>
 
@@ -103,19 +103,26 @@
             <img src="https://cdn-icons-png.flaticon.com/512/3412/3412862.png" class="card-icon" alt="이수 현황">
             <div class="card-info">
                 <span class="card-title">실시간 이수 현황</span>
-                <span class="card-desc">현재 12명 완료 / 45명 미이수 상세 보기</span>
+                <span class="card-desc">누가 완료했는지, 누가 아직 미이수인지 확인합니다.</span>
             </div>
         </div>
     </div>
 
     <script>
         window.onload = function() {
-            const savedDept = localStorage.getItem('adminDept');
-            if (savedDept) {
-                document.getElementById('deptDisplay').innerText = savedDept;
-                document.getElementById('welcomeDept').innerText = savedDept;
-            }
+            // 로그인 시 저장했던 관리자의 소속 정보(userDept)를 가져옵니다.
+            const savedDept = localStorage.getItem('userDept') || "경산승무팀(기본)";
+            document.getElementById('deptDisplay').innerText = savedDept;
+            document.getElementById('welcomeDept').innerText = savedDept;
         };
+
+        function logout() {
+            if(confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userRole');
+                location.href = 'index.html';
+            }
+        }
     </script>
 </body>
 </html>
