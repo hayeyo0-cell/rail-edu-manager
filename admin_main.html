@@ -3,126 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 관리자 메인</title>
+    <title>관리자 메인 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
-        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
-
-        .top-header-section {
-            width: 100%; background: white; padding: 12px 0;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
-        }
-        .header-btn {
-            background: white; border: 1px solid #eaeaea; border-radius: 6px;
-            padding: 6px 10px; font-size: 0.65rem; color: #a0a0a0; cursor: pointer; margin: 0 15px;
-        }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
-
-        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 15px; padding-bottom: 40px; }
-
-        .dept-capsule {
-            background: var(--dtro-blue); color: white; border-radius: 50px;
-            padding: 6px 20px; font-weight: bold; font-size: 0.9rem;
-            box-shadow: 0 3px 10px rgba(0,114,188,0.2); margin-bottom: 10px;
-        }
-
-        .welcome-msg { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 22px; text-align: center; }
-        .welcome-msg span { color: var(--dtro-blue); }
-
-        .section-wrap { width: 90%; max-width: 400px; text-align: left; margin-bottom: 15px; }
-        .section-title { 
-            font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
-            border-left: 5px solid var(--dtro-blue); padding-left: 12px;
-        }
-
-        .menu-card {
-            width: 90%; max-width: 400px; background: white; border-radius: 20px;
-            padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            display: flex; align-items: center; margin-bottom: 16px;
-            cursor: pointer; box-sizing: border-box; border: 1px solid #fcfcfc;
-        }
-        .card-icon { width: 50px; height: 50px; margin-right: 18px; object-fit: contain; }
-        .card-info { text-align: left; flex: 1; }
-        .card-title { font-size: 1.1rem; font-weight: bold; color: #222; margin-bottom: 6px; display: block; }
-        .card-desc { font-size: 0.85rem; color: #999; line-height: 1.4; word-break: keep-all; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .logo { height: 35px; }
+        .menu-card { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; cursor: pointer; display: flex; align-items: center; }
+        .menu-icon { font-size: 2rem; margin-right: 20px; }
+        .menu-text { font-weight: bold; font-size: 1.1rem; color: #333; }
+        .dept-info { font-size: 0.9rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="top-header-section">
-        <button class="header-btn" onclick="location.href='admin_setting.html'">관리자 설정</button>
-        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <button class="header-btn" onclick="logout()">로그아웃</button>
+    <div class="header">
+        <img src="logo.png" class="logo">
+        <button onclick="localStorage.clear(); location.href='index.html';" style="border:none; background:none; color:#999; font-size:0.8rem;">로그아웃</button>
     </div>
 
-    <div class="main-container">
-        <div class="dept-capsule" id="deptDisplay">-</div>
-        <div class="welcome-msg">
-            <span id="welcomeDept">-</span> 관리자님 환영합니다
-        </div>
+    <div style="width:100%; max-width:400px; text-align:left;">
+        <div id="deptDisplay" class="dept-info">소속 정보 불러오는 중...</div>
+        <h2 style="margin-top:0;">관리자 모드</h2>
+    </div>
 
-        <div class="section-wrap">
-            <span class="section-title">교육 관리</span>
-        </div>
+    <div class="menu-card" onclick="location.href='admin_user_list.html'">
+        <span class="menu-icon">👥</span>
+        <span class="menu-text">팀원 명단 관리</span>
+    </div>
 
-        <div class="menu-card" onclick="location.href='admin_edu_add.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/3209/3209250.png" class="card-icon" alt="새 교육 등록">
-            <div class="card-info">
-                <span class="card-title">새 교육 등록하기</span>
-                <span class="card-desc">오늘의 교육 내용 및 지시사항을 게시합니다.</span>
-            </div>
-        </div>
+    <div class="menu-card" onclick="location.href='admin_edu_add.html'">
+        <span class="menu-icon">📢</span>
+        <span class="menu-text">교육 자료 등록</span>
+    </div>
 
-        <div class="menu-card" onclick="location.href='admin_edu_list.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991112.png" class="card-icon" alt="교육 내역">
-            <div class="card-info">
-                <span class="card-title">등록된 교육 내역</span>
-                <span class="card-desc">게시 중인 교육을 수정하거나 삭제 관리합니다.</span>
-            </div>
-        </div>
-
-        <div class="section-wrap" style="margin-top: 10px;">
-            <span class="section-title">명단 관리</span>
-        </div>
-
-        <div class="menu-card" onclick="location.href='admin_user_list.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/681/681443.png" class="card-icon" alt="명단 관리">
-            <div class="card-info">
-                <span class="card-title">교육 명단 관리</span>
-                <span class="card-desc">소속 기관사 명단을 등록하고 로그인 권한을 관리합니다.</span>
-            </div>
-        </div>
-
-        <div class="section-wrap" style="margin-top: 10px;">
-            <span class="section-title">이수 현황 및 소통</span>
-        </div>
-
-        <div class="menu-card" onclick="location.href='admin_stats.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/3412/3412862.png" class="card-icon" alt="이수 현황">
-            <div class="card-info">
-                <span class="card-title">실시간 이수 현황</span>
-                <span class="card-desc">누가 완료했는지, 누가 아직 미이수인지 확인합니다.</span>
-            </div>
-        </div>
+    <div class="menu-card" onclick="location.href='admin_status.html'">
+        <span class="menu-icon">📊</span>
+        <span class="menu-text">교육 이수 현황</span>
     </div>
 
     <script>
         window.onload = function() {
-            // 로그인 시 저장했던 관리자의 소속 정보(userDept)를 가져옵니다.
-            const savedDept = localStorage.getItem('userDept') || "경산승무팀(기본)";
-            document.getElementById('deptDisplay').innerText = savedDept;
-            document.getElementById('welcomeDept').innerText = savedDept;
+            const dept = localStorage.getItem('userDept') || "미지정";
+            document.getElementById('deptDisplay').innerText = "📍 " + dept;
         };
-
-        function logout() {
-            if(confirm('로그아웃 하시겠습니까?')) {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('userRole');
-                location.href = 'index.html';
-            }
-        }
     </script>
 </body>
 </html>
