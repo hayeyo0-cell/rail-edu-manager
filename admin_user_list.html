@@ -3,148 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 대상자 명단 관리</title>
+    <title>팀원 명단 관리</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
-        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .container { width: 100%; max-width: 450px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .back-btn { background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card-title { font-size: 1.1rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
 
-        /* 헤더 스타일 */
-        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
-        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; }
+        /* 📱 모바일 최적화 입력창 (아래위 정렬) */
+        .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+        .input-group input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; outline: none; background: #fafafa; }
+        .input-group input:focus { border-color: var(--dtro-blue); background: #fff; }
+        
+        .add-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,114,188,0.2); }
 
-        .main-container { width: 90%; max-width: 500px; padding: 20px 0; }
-
-        /* 입력 카드 */
-        .input-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
-        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; outline: none; }
-        input:focus { border-color: var(--dtro-blue); }
-        .add-btn { background: var(--dtro-blue); color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        /* 명단 리스트 */
-        .list-card { background: white; border-radius: 15px; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .list-header { padding: 15px; border-bottom: 2px solid #f4f6f9; font-weight: bold; color: #333; display: flex; justify-content: space-between; }
-        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f9f9f9; }
+        /* 명단 리스트 스타일 */
+        .user-list { list-style: none; padding: 0; margin: 0; }
+        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f0f0f0; }
         .user-info { display: flex; flex-direction: column; }
-        .user-name { font-weight: bold; color: #222; }
-        .user-id { font-size: 0.85rem; color: #888; }
-        .del-btn { background: #ffeded; color: #ff4d4d; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
-
-        .empty-text { text-align: center; padding: 40px; color: #999; font-size: 0.9rem; }
-        .dept-badge { font-size: 0.8rem; background: #eef6ff; color: var(--dtro-blue); padding: 3px 8px; border-radius: 5px; }
+        .user-name { font-weight: bold; font-size: 1rem; color: #333; }
+        .user-id { font-size: 0.85rem; color: #999; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; }
+        
+        .empty-msg { text-align: center; color: #ccc; padding: 30px 0; }
+        .team-badge { background: #eef9f1; color: #2ecc71; padding: 3px 8px; border-radius: 5px; font-size: 0.75rem; margin-bottom: 5px; display: inline-block; }
     </style>
 </head>
 <body>
 
-    <div class="top-header">
-        <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
-        <img src="logo.png" class="brand-logo" alt="DTRO">
-        <div style="width:65px;"></div>
-    </div>
-
-    <div class="main-container">
-        <div style="margin-bottom: 15px; text-align: left;">
-            <h2 style="margin:0; font-size: 1.3rem;">👥 교육 대상자 명단 관리</h2>
-            <p style="margin:5px 0; font-size:0.85rem; color:#666;">등록된 사번만 사용자로 로그인 가능합니다.</p>
+    <div class="container">
+        <div class="header">
+            <button class="back-btn" onclick="location.href='admin_main.html'">← 이전</button>
+            <h3 style="margin:0;">명단 관리</h3>
+            <div style="width:60px;"></div>
         </div>
 
-        <div class="input-card">
-            <div style="margin-bottom: 10px; font-weight: bold; font-size: 0.9rem;">대상자 추가 (<span id="currentDept" class="dept-badge">-</span>)</div>
+        <div class="card">
+            <div class="card-title">신규 팀원 등록</div>
             <div class="input-group">
-                <input type="number" id="newUserId" placeholder="사번 입력">
-                <input type="text" id="newUserName" placeholder="성함 입력">
+                <input type="number" id="newUserId" placeholder="사번 8자리 입력">
+                <input type="text" id="newUserName" placeholder="이름 입력">
             </div>
-            <button class="add-btn" style="width:100%; height:45px;" onclick="addUser()">명단에 추가하기</button>
+            <button class="add-btn" onclick="addUser()">명단에 추가하기</button>
         </div>
 
-        <div class="list-card">
-            <div class="list-header">
-                <span>현재 등록 명단</span>
-                <span id="userCount" style="color: var(--dtro-blue);">0명</span>
-            </div>
-            <div id="userListArea">
-                </div>
+        <div class="card">
+            <div class="card-title">우리 팀원 명단 (<span id="userCount">0</span>명)</div>
+            <ul id="userListArea" class="user-list">
+                </ul>
+            <div id="emptyMsg" class="empty-msg">등록된 팀원이 없습니다.</div>
         </div>
     </div>
 
     <script>
-        let adminDept = localStorage.getItem('userDept') || "미지정 소속";
-        let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+        // 관리자의 소속 가져오기
+        const myDept = localStorage.getItem('userDept') || "미지정";
 
         window.onload = function() {
-            document.getElementById('currentDept').innerText = adminDept;
-            renderUserList();
+            renderList();
         };
 
         // 명단 그리기
-        function renderUserList() {
+        function renderList() {
             const listArea = document.getElementById('userListArea');
-            const countDisplay = document.getElementById('userCount');
+            const emptyMsg = document.getElementById('emptyMsg');
+            const countLabel = document.getElementById('userCount');
             
-            // 현재 관리자의 소속 명단만 필터링
-            const myDeptUsers = totalUserList.filter(user => user.dept === adminDept);
-            countDisplay.innerText = myDeptUsers.length + "명";
+            // 전체 명단에서 내 소속 팀원만 필터링
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const myTeamList = totalUserList.filter(u => u.dept === myDept);
 
-            if (myDeptUsers.length === 0) {
-                listArea.innerHTML = '<div class="empty-text">등록된 명단이 없습니다.<br>사번과 성함을 입력해 주세요.</div>';
+            countLabel.innerText = myTeamList.length;
+
+            if (myTeamList.length === 0) {
+                emptyMsg.style.display = 'block';
+                listArea.innerHTML = '';
                 return;
             }
 
+            emptyMsg.style.display = 'none';
             let html = '';
-            myDeptUsers.forEach((user) => {
+            myTeamList.forEach((user, index) => {
                 html += `
-                <div class="user-item">
+                <li class="user-item">
                     <div class="user-info">
+                        <span class="team-badge">${user.dept}</span>
                         <span class="user-name">${user.name}</span>
                         <span class="user-id">사번: ${user.id}</span>
                     </div>
                     <button class="del-btn" onclick="deleteUser('${user.id}')">삭제</button>
-                </div>
+                </li>
                 `;
             });
             listArea.innerHTML = html;
         }
 
-        // 유저 추가
+        // 팀원 추가
         function addUser() {
             const idInput = document.getElementById('newUserId');
             const nameInput = document.getElementById('newUserName');
 
             if (!idInput.value || !nameInput.value) {
-                alert('사번과 성함을 모두 입력하세요.');
+                alert("사번과 이름을 모두 입력해 주세요!");
                 return;
             }
 
-            // 중복 체크 (전체 명단에서 사번 중복 확인)
-            const isExist = totalUserList.some(user => user.id === idInput.value);
-            if (isExist) {
-                alert('이미 등록된 사번입니다.');
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            
+            // 중복 사번 체크
+            if (totalUserList.some(u => String(u.id) === String(idInput.value))) {
+                alert("이미 등록된 사번입니다.");
                 return;
             }
 
             const newUser = {
                 id: idInput.value,
                 name: nameInput.value,
-                dept: adminDept
+                dept: myDept // 관리자의 소속으로 자동 저장
             };
 
             totalUserList.push(newUser);
             localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
-            
+
             idInput.value = '';
             nameInput.value = '';
-            renderUserList();
+            renderList();
+            alert("팀원이 명단에 추가되었습니다.");
         }
 
-        // 유저 삭제
+        // 팀원 삭제
         function deleteUser(id) {
-            if (!confirm('해당 사용자를 명단에서 삭제하시겠습니까?')) return;
+            if (!confirm("정말 명단에서 삭제하시겠습니까?")) return;
+
+            let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            totalUserList = totalUserList.filter(u => String(u.id) !== String(id));
             
-            totalUserList = totalUserList.filter(user => user.id !== id);
             localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
-            renderUserList();
+            renderList();
         }
     </script>
 </body>
