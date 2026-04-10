@@ -33,10 +33,11 @@
         .welcome-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 5px; }
         .welcome-desc { font-size: 0.9rem; opacity: 0.9; line-height: 1.4; }
 
-        .page-title { 
-            font-size: 1.15rem; font-weight: bold; color: #333; 
-            margin-bottom: 12px; display: flex; align-items: center; 
-            border-left: 4px solid var(--dtro-blue); padding-left: 10px; 
+        /* [통일 1] 관리자 화면과 똑같은 섹션 타이틀 적용 */
+        .section-wrap { width: 100%; text-align: left; margin-bottom: 15px; }
+        .section-title { 
+            font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
+            border-left: 5px solid var(--dtro-blue); padding-left: 10px; 
         }
 
         /* 필터 버튼 영역 */
@@ -56,13 +57,12 @@
             background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold;
         }
 
-        /* 교육 카드 */
+        /* 교육 전용 카드 */
         .edu-card {
             background: white; border-radius: 16px; padding: 18px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
             border: 1px solid #fcfcfc;
         }
-        
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
         
@@ -81,15 +81,17 @@
 
         .empty-msg { text-align: center; color: #999; padding: 30px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; margin-bottom: 15px; }
 
-        /* [신규] 완료 내역 이동 버튼 (하단 메뉴 박스형) */
-        .btn-history {
-            width: 100%; padding: 18px; background: white; color: #333;
-            border: 1px solid #eaeaea; border-radius: 16px; font-size: 1.05rem;
-            font-weight: bold; cursor: pointer; margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex;
-            justify-content: space-between; align-items: center;
+        /* [통일 2] 관리자 화면과 똑같은 메뉴 카드 적용 (하단 이동용) */
+        .menu-card {
+            width: 100%; background: white; border-radius: 20px;
+            padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            display: flex; align-items: center; margin-bottom: 16px;
+            cursor: pointer; box-sizing: border-box; border: 1px solid #fcfcfc;
         }
-        .btn-history span { color: #888; font-size: 1.2rem; }
+        .menu-icon { width: 50px; height: 50px; margin-right: 18px; object-fit: contain; }
+        .menu-info { text-align: left; flex: 1; }
+        .menu-title { font-size: 1.1rem; font-weight: bold; color: #222; margin-bottom: 6px; display: block; }
+        .menu-desc { font-size: 0.85rem; color: #999; line-height: 1.4; word-break: keep-all; }
     </style>
 </head>
 <body>
@@ -108,7 +110,9 @@
                 <div class="welcome-desc">오늘 이수해야 할 교육 및 훈련 목록입니다.<br>운행 전 꼼꼼히 확인해 주세요.</div>
             </div>
 
-            <div class="page-title">오늘의 필수 교육 목록</div>
+            <div class="section-wrap">
+                <span class="section-title">오늘의 필수 교육 목록</span>
+            </div>
 
             <div class="filter-wrapper" id="categoryFilters">
                 </div>
@@ -116,9 +120,17 @@
             <div id="userEduListArea"></div>
             <div class="empty-msg" id="emptyMessage">현재 예정된 필수 교육이 없습니다.<br>오늘도 안전운행 하십시오!</div>
 
-            <button class="btn-history" onclick="location.href='user_completed_list.html'">
-                ✅ 나의 이수 완료 내역 보러가기 <span>→</span>
-            </button>
+            <div class="section-wrap" style="margin-top: 15px;">
+                <span class="section-title">학습 보관함</span>
+            </div>
+
+            <div class="menu-card" onclick="location.href='user_completed_list.html'">
+                <img src="https://cdn-icons-png.flaticon.com/512/3285/3285813.png" class="menu-icon" alt="완료 내역">
+                <div class="menu-info">
+                    <span class="menu-title">나의 이수 완료 내역</span>
+                    <span class="menu-desc">이전에 수강을 완료한 교육 및 훈련 목록을 확인합니다.</span>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -148,59 +160,4 @@
         function changeFilter(selectedCat) {
             currentFilter = selectedCat; 
             renderFilters(); 
-            renderEduList(); 
-        }
-
-        function renderEduList() {
-            const listArea = document.getElementById('userEduListArea');
-            const emptyMsg = document.getElementById('emptyMessage');
-            
-            const filteredData = allEduData.filter(edu => {
-                if(currentFilter === '전체') return true;
-                return edu.category === currentFilter;
-            });
-
-            if(filteredData.length === 0) {
-                emptyMsg.style.display = 'block'; 
-                listArea.innerHTML = '';
-                return;
-            }
-
-            emptyMsg.style.display = 'none';
-            let html = '';
-
-            filteredData.forEach((edu, index) => {
-                let badgeClass = 'badge-general';
-                if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
-                else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
-                else if(edu.category === '육성방송 훈련') badgeClass = 'badge-voice';
-                else if(edu.category === '기타교육' || edu.category === '공지사항') badgeClass = 'badge-etc';
-
-                const deadlineText = edu.deadline ? edu.deadline : '기한 없음';
-
-                html += `
-                <div class="edu-card">
-                    <div class="card-header">
-                        <span class="badge ${badgeClass}">${edu.category}</span>
-                        <span class="date">게시일: ${edu.date}</span>
-                    </div>
-                    <div class="edu-title">${edu.title}</div>
-                    
-                    <div class="edu-deadline">⏳ 마감 기한: ${deadlineText} 까지</div>
-
-                    <div class="card-actions">
-                        <button class="btn-start" onclick="enterEducation('${edu.title}')">교육 입장하기 →</button>
-                    </div>
-                </div>
-                `;
-            });
-
-            listArea.innerHTML = html;
-        }
-
-        function enterEducation(title) {
-            alert('[' + title + '] 상세 화면으로 이동합니다! (기능 준비 중)');
-        }
-    </script>
-</body>
-</html>
+            renderEduList();
