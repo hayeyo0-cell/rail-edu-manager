@@ -9,12 +9,7 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        .top-header {
-            width: 100%; background: white; padding: 12px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
-            box-sizing: border-box;
-        }
+        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
         .header-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
         .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
         .header-spacer { width: 68px; } 
@@ -48,6 +43,7 @@
 
         .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
         .btn-start { background: var(--dtro-blue); color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 0.9rem; cursor: pointer; font-weight: bold; width: 100%; }
+
         .empty-msg { text-align: center; color: #999; padding: 30px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; margin-bottom: 15px; }
 
         .menu-card { width: 100%; background: white; border-radius: 20px; padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; margin-bottom: 16px; cursor: pointer; box-sizing: border-box; border: 1px solid #fcfcfc; }
@@ -58,6 +54,7 @@
     </style>
 </head>
 <body>
+
     <div class="top-header">
         <div class="header-spacer"></div>
         <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
@@ -66,18 +63,25 @@
 
     <div class="main-container">
         <div class="list-wrapper">
+            
             <div class="welcome-card">
                 <div class="welcome-title">기관사님, 안전운행 하십시오! 🚆</div>
                 <div class="welcome-desc">오늘 이수해야 할 교육 및 훈련 목록입니다.<br>운행 전 꼼꼼히 확인해 주세요.</div>
             </div>
 
-            <div class="section-wrap"><span class="section-title">오늘의 필수 교육 목록</span></div>
+            <div class="section-wrap">
+                <span class="section-title">오늘의 필수 교육 목록</span>
+            </div>
+
             <div class="filter-wrapper" id="categoryFilters"></div>
-            
+
             <div id="userEduListArea"></div>
             <div class="empty-msg" id="emptyMessage">현재 예정된 필수 교육이 없습니다.<br>오늘도 안전운행 하십시오!</div>
 
-            <div class="section-wrap" style="margin-top: 15px;"><span class="section-title">학습 보관함</span></div>
+            <div class="section-wrap" style="margin-top: 15px;">
+                <span class="section-title">학습 보관함</span>
+            </div>
+
             <div class="menu-card" onclick="location.href='user_completed_list.html'">
                 <img src="https://cdn-icons-png.flaticon.com/512/3285/3285813.png" class="menu-icon" alt="완료 내역">
                 <div class="menu-info">
@@ -85,6 +89,7 @@
                     <span class="menu-desc">이전에 수강을 완료한 교육 및 훈련 목록을 확인합니다.</span>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -119,7 +124,15 @@
             const listArea = document.getElementById('userEduListArea');
             const emptyMsg = document.getElementById('emptyMessage');
             
-            const filteredData = allEduData.filter(edu => {
+            // [알아서 착착!] 완료 보관함 목록 가져와서 이미 끝난 건 제외하기!
+            const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const completedTitles = completedList.map(item => item.title);
+
+            // 완료 안 한 진짜 필수 교육만 남기기
+            const pendingData = allEduData.filter(edu => !completedTitles.includes(edu.title));
+
+            // 카테고리로 한 번 더 거르기
+            const filteredData = pendingData.filter(edu => {
                 if(currentFilter === '전체') return true;
                 return edu.category === currentFilter;
             });
@@ -132,7 +145,6 @@
             let html = '';
 
             filteredData.forEach((edu) => {
-                // 원본 배열(allEduData)에서의 진짜 인덱스 번호를 찾습니다.
                 const originalIndex = allEduData.indexOf(edu);
 
                 let badgeClass = 'badge-general';
@@ -160,7 +172,6 @@
             listArea.innerHTML = html;
         }
 
-        // 알림창 없애고 진짜 페이지로 연결!
         function enterEducation(index) {
             location.href = 'user_edu_detail.html?id=' + index;
         }
