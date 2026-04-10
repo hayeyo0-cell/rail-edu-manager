@@ -6,113 +6,109 @@
     <title>DTRO 관리자 메인</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        
-        /* 전체 레이아웃 설정 */
-        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-gray); }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* [표준] 슬림 헤더 */
-        .top-header-section { 
-            width: 100%; background-color: var(--bg-gray); padding: 12px 0 8px 0; 
-            display: flex; flex-direction: column; align-items: center; 
-            border-bottom: 2px solid var(--dtro-blue); flex-shrink: 0; 
+        /* [표준] 사진과 동일한 헤더 구성 */
+        .top-header-section {
+            width: 100%; background: white; padding: 15px 0;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
         }
-        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
-        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
+        .header-btn {
+            background: #fff; border: 1px solid #eee; border-radius: 8px;
+            padding: 8px 12px; font-size: 0.8rem; color: #999; cursor: pointer; margin: 0 15px;
+        }
+        .brand-logo { height: 18px; mix-blend-mode: multiply; }
 
         /* 메인 컨텐츠 영역 */
         .main-container { 
-            flex: 1; width: 100%; display: flex; flex-direction: column; 
-            justify-content: flex-start; align-items: center; padding-top: 35px; 
+            width: 100%; display: flex; flex-direction: column; 
+            align-items: center; padding-top: 25px; overflow-y: auto;
         }
 
-        /* [요청 반영] 환영 메시지 카드 */
-        .welcome-card {
+        /* [핵심] 소속 표시 캡슐 */
+        .dept-capsule {
+            background: var(--dtro-blue); color: white; border-radius: 50px;
+            padding: 10px 35px; font-weight: bold; font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,114,188,0.3); margin-bottom: 35px;
+        }
+
+        /* 섹션 타이틀 */
+        .section-wrap { width: 88%; max-width: 400px; text-align: left; margin-bottom: 20px; }
+        .section-title { 
+            font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
+            border-left: 5px solid var(--dtro-blue); padding-left: 12px;
+        }
+
+        /* 메뉴 카드 디자인 (사진과 동일) */
+        .menu-card {
             width: 88%; max-width: 400px; background: white; border-radius: 24px;
-            padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            text-align: center; margin-bottom: 25px;
+            padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+            display: flex; align-items: center; margin-bottom: 15px;
+            cursor: pointer; border: 1px solid rgba(0,0,0,0.02);
         }
+        .card-icon { width: 65px; margin-right: 20px; }
+        .card-info { text-align: left; }
+        .card-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 5px; display: block; }
+        .card-desc { font-size: 0.85rem; color: #999; line-height: 1.4; }
 
-        .welcome-text { 
-            font-size: 1.25rem; font-weight: bold; color: #333; margin: 0;
-            line-height: 1.4;
-        }
-        .welcome-text span { color: var(--dtro-blue); }
-
-        /* [핵심] 관리 메뉴 4구 그리드 */
-        .menu-grid {
-            width: 88%; max-width: 400px; display: grid;
-            grid-template-columns: 1fr 1fr; gap: 15px;
-        }
-
-        .menu-item {
-            background: white; border-radius: 20px; padding: 25px 10px;
-            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
-            cursor: pointer; transition: transform 0.2s, background-color 0.2s; 
-            border: 1px solid #f0f0f0;
-        }
-        .menu-item:active { transform: scale(0.96); background-color: #f0f7ff; }
-        
-        .menu-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
-        .menu-name { font-size: 1rem; font-weight: bold; color: #444; }
-
-        /* 하단 로그아웃 및 보조 링크 */
-        .bottom-links { margin-top: auto; padding-bottom: 40px; text-align: center; }
-        .logout-btn {
-            font-size: 0.85rem; color: #bbb; text-decoration: none;
-            padding: 10px 20px;
-        }
+        /* 하단 네비게이션바 간섭 방지 */
+        .bottom-spacer { height: 50px; }
     </style>
 </head>
 <body>
 
     <div class="top-header-section">
+        <button class="header-btn" onclick="location.href='admin_settings.html'">관리자 설정</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
-        <h1 class="main-title">관리자 모드</h1>
+        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
     </div>
 
     <div class="main-container">
-        <div class="welcome-card">
-            <p class="welcome-text">
-                <span id="displayDept">관리자</span>님 환영합니다
-            </p>
+        <div class="dept-capsule" id="deptDisplay">경산승무팀</div>
+
+        <div class="section-wrap">
+            <span class="section-title">교육 관리</span>
         </div>
 
-        <div class="menu-grid">
-            <div class="menu-item" onclick="location.href='admin_stats.html'">
-                <span class="menu-icon">📊</span>
-                <span class="menu-name">교육 현황</span>
-            </div>
-            
-            <div class="menu-item" onclick="location.href='admin_settings.html'">
-                <span class="menu-icon">⚙️</span>
-                <span class="menu-name">관리자 설정</span>
-            </div>
-            
-            <div class="menu-item" onclick="alert('데이터베이스 연결 준비 중입니다.')">
-                <span class="menu-icon">👥</span>
-                <span class="menu-name">명단 관리</span>
-            </div>
-            
-            <div class="menu-item" onclick="alert('파일 업로드 기능을 구성 중입니다.')">
-                <span class="menu-icon">📤</span>
-                <span class="menu-name">자료 업로드</span>
+        <div class="menu-card" onclick="alert('새 교육 등록 화면으로 이동합니다.')">
+            <img src="https://cdn-icons-png.flaticon.com/512/3209/3209250.png" class="card-icon" alt="icon">
+            <div class="card-info">
+                <span class="card-title">새 교육 등록하기</span>
+                <span class="card-desc">오늘의 교육 내용 및 지시사항을 게시합니다.</span>
             </div>
         </div>
 
-        <div class="bottom-links">
-            <a href="index.html" class="logout-btn">안전하게 로그아웃</a>
+        <div class="menu-card" onclick="alert('교육 내역 화면으로 이동합니다.')">
+            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991112.png" class="card-icon" alt="icon">
+            <div class="card-info">
+                <span class="card-title">등록된 교육 내역</span>
+                <span class="card-desc">게시 중인 교육을 수정하거나 삭제 관리합니다.</span>
+            </div>
         </div>
+
+        <div class="section-wrap" style="margin-top: 20px;">
+            <span class="section-title">이수 현황 및 소통</span>
+        </div>
+
+        <div class="menu-card" onclick="alert('상세 이수 현황 화면으로 이동합니다.')">
+            <img src="https://cdn-icons-png.flaticon.com/512/3412/3412862.png" class="card-icon" alt="icon">
+            <div class="card-info">
+                <span class="card-title">실시간 이수 현황</span>
+                <span class="card-desc">현재 12명 완료 / 45명 미이수 상세 보기</span>
+            </div>
+        </div>
+
+        <div class="bottom-spacer"></div>
     </div>
 
     <script>
-        // 페이지 시작 시 로컬 스토리지에서 소속 정보를 가져와 문구를 업데이트합니다.
+        // 로그인 시 등록한 소속 정보를 캡슐에 자동 적용
         window.onload = function() {
             const savedDept = localStorage.getItem('adminDept');
             if (savedDept) {
-                document.getElementById('displayDept').innerText = savedDept + " 관리자";
-            } else {
-                document.getElementById('displayDept').innerText = "관리자";
+                document.getElementById('deptDisplay').innerText = savedDept;
             }
         };
     </script>
