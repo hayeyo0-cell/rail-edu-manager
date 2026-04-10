@@ -14,7 +14,6 @@
         input { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         input:focus { border-color: var(--dtro-blue); background: #fff; }
         .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        /* 초기화 버튼 (테스트용) */
         .reset-link { margin-top: 30px; font-size: 0.7rem; color: #eee; cursor: pointer; text-decoration: none; }
     </style>
 </head>
@@ -27,34 +26,26 @@
                 <span class="input-label">관리자 사번</span>
                 <input type="number" id="adminId" placeholder="사번 입력">
             </div>
-
             <div class="input-group">
                 <span id="pwLabel" class="input-label">마스터 비밀번호(1234) 인증</span>
                 <input type="password" id="adminPw" placeholder="비밀번호 입력">
             </div>
-
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
-
-        <div class="reset-link" onclick="resetData()">데이터 초기화 (최초 상태로)</div>
+        <div class="reset-link" onclick="resetData()">데이터 초기화</div>
     </div>
 
     <script>
-        window.onload = function() {
-            checkStatus();
-        };
+        window.onload = function() { checkStatus(); };
 
         function checkStatus() {
             const savedId = localStorage.getItem('adminId');
             const idArea = document.getElementById('adminIdArea');
             const pwLabel = document.getElementById('pwLabel');
-
             if (savedId && savedId.trim() !== "") {
-                // 관리자 정보가 있으면 사번창 보이기
                 idArea.style.display = 'block';
                 pwLabel.innerText = "관리자 비밀번호";
             } else {
-                // 없으면 사번창 숨기기
                 idArea.style.display = 'none';
                 pwLabel.innerText = "마스터 비밀번호(1234) 인증";
             }
@@ -66,22 +57,27 @@
             const savedId = localStorage.getItem('adminId');
             const savedPw = localStorage.getItem('adminPw');
 
-            // 1. 무조건 마스터 비번(1234)이면 설정창으로 이동
+            // [로직 수정] 1순위: 관리자 지정이 되어 있다면 사번+비번이 맞는지 먼저 체크
+            if (savedId && savedId.trim() !== "") {
+                if (inputId === savedId && inputPw === savedPw) {
+                    alert("관리자 인증 성공!");
+                    location.href = 'admin_main.html'; // 메인으로 이동
+                    return;
+                }
+            }
+
+            // 2순위: 관리자 지정 전이거나, 설정을 다시 하고 싶을 때 마스터비번(1234) 체크
             if (inputPw === "1234") {
+                alert("설정 페이지로 이동합니다.");
                 location.href = 'admin_setting.html';
                 return;
             }
 
-            // 2. 관리자 로그인
-            if (savedId && inputId === savedId && inputPw === savedPw) {
-                location.href = 'admin_main.html';
-            } else {
-                alert("비밀번호가 틀렸거나 마스터 비번(1234)을 입력하세요.");
-            }
+            alert("정보가 틀렸습니다. (최초 접속이면 비번 1234 입력)");
         }
 
         function resetData() {
-            if(confirm("모든 데이터를 초기화하고 처음으로 돌아갈까요?")) {
+            if(confirm("모든 데이터를 초기화하시겠습니까?")) {
                 localStorage.clear();
                 location.reload();
             }
