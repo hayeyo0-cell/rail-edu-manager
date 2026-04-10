@@ -12,9 +12,7 @@
         .tab-menu { display: flex; margin-bottom: 25px; background: #eee; border-radius: 12px; padding: 5px; }
         .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: none; color: #888; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
         input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 1rem; outline: none; }
-        input:focus { border-color: var(--dtro-blue); }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .footer-text { margin-top: 20px; font-size: 0.85rem; color: #999; }
     </style>
@@ -22,7 +20,7 @@
 <body>
 
     <div class="login-card">
-        <img src="logo.png" class="logo" alt="DTRO 대구교통공사">
+        <img src="logo.png" class="logo" alt="DTRO">
         
         <div class="tab-menu">
             <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
@@ -38,7 +36,7 @@
         <div id="adminForm" style="display: none;">
             <input type="password" id="adminPw" placeholder="관리자 비밀번호">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
-            <p style="font-size:0.8rem; color:#666; margin-top:10px;">최초 접속 시 마스터 비번을 입력하세요.</p>
+            <p style="font-size:0.8rem; color:#666; margin-top:10px;">최초 접속 시 마스터 비번(0000)을 입력하세요.</p>
         </div>
 
         <div class="footer-text">© 2026 DTRO Smart Education System</div>
@@ -46,8 +44,7 @@
 
     <script>
         let currentMode = 'user';
-        const TEAM_PW = "1234"; // 기관사님이 정한 팀 공용 비번 (나중에 수정 가능)
-        const MASTER_PW = "0000"; // 마스터 비번 (최초 관리자 등록용)
+        const MASTER_PW = "0000"; // 마스터 비번
 
         function switchTab(mode) {
             currentMode = mode;
@@ -57,60 +54,51 @@
             document.getElementById('adminForm').style.display = mode === 'admin' ? 'block' : 'none';
         }
 
-        // [사용자 로그인 로직]
         function userLogin() {
             const inputId = document.getElementById('userId').value;
             const inputPw = document.getElementById('userPw').value;
-            
-            // 1. 관리자가 등록한 전체 명단 가져오기
+            const TEAM_PW = localStorage.getItem('teamPw') || "1234"; // 설정에서 저장한 팀비번 사용
+
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            
-            // 2. 명단에서 해당 사번 찾기
-            const userInfo = totalUserList.find(user => user.id === inputId);
+            const userInfo = totalUserList.find(user => String(user.id) === String(inputId));
 
             if (!userInfo) {
-                alert('등록된 교육 대상자가 아닙니다. 관리자에게 문의하세요.');
+                alert('명단에 없는 사번입니다. 관리자에게 문의하세요.');
                 return;
             }
 
             if (inputPw !== TEAM_PW) {
-                alert('비밀번호가 틀렸습니다.');
+                alert('팀 비밀번호가 틀렸습니다.');
                 return;
             }
 
-            // 3. 로그인 성공: 세션에 사용자 정보 저장
-            localStorage.setItem('isLoggedIn', 'true');
-            localStorage.setItem('userRole', 'user');
+            // 로그인 성공 시 해당 유저의 소속을 세션에 저장! (중요)
             localStorage.setItem('userId', userInfo.id);
             localStorage.setItem('userName', userInfo.name);
-            localStorage.setItem('userDept', userInfo.dept);
+            localStorage.setItem('userDept', userInfo.dept); 
+            localStorage.setItem('userRole', 'user');
 
+            alert(userInfo.dept + " " + userInfo.name + " 기관사님 환영합니다.");
             location.href = 'user_main.html';
         }
 
-        // [관리자 로그인 로직]
         function adminLogin() {
             const inputPw = document.getElementById('adminPw').value;
-            const registeredAdmin = localStorage.getItem('adminPw');
+            const savedAdminPw = localStorage.getItem('adminPw');
 
-            // 1. 이미 등록된 관리자가 있는 경우
-            if (registeredAdmin) {
-                if (inputPw === registeredAdmin) {
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('userRole', 'admin');
-                    location.href = 'admin_main.html';
-                } else {
-                    alert('비밀번호가 틀렸습니다.');
-                }
-            } 
-            // 2. 관리자 최초 등록 (마스터 비번 확인)
-            else {
-                if (inputPw === MASTER_PW) {
-                    alert('관리자 설정 페이지로 이동합니다. 소속과 비번을 설정해주세요.');
-                    location.href = 'admin_setting.html'; // 관리자 정보 설정 페이지 (Step 3 예정)
-                } else {
-                    alert('비밀번호가 틀렸습니다.');
-                }
+            // 1. 마스터 비번을 입력한 경우 -> 소속 설정 페이지로 강제 이동
+            if (inputPw === MASTER_PW) {
+                alert('마스터 인증 성공! 관리자 설정 및 소속 지정 페이지로 이동합니다.');
+                location.href = 'admin_setting.html';
+                return;
+            }
+
+            // 2. 이미 등록된 관리자 비번인 경우 -> 관리자 메인으로 이동
+            if (savedAdminPw && inputPw === savedAdminPw) {
+                localStorage.setItem('userRole', 'admin');
+                location.href = 'admin_main.html';
+            } else {
+                alert('비밀번호가 올바르지 않습니다.');
             }
         }
     </script>
