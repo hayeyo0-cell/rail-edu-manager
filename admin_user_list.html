@@ -3,88 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>팀원 명단 관리</title>
+    <title>팀원 명단 관리 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 400px; }
-        .back-btn { background: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; margin-bottom: 20px; cursor: pointer; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; text-align: left; }
-        .card-title { font-size: 1.1rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        .top-nav { width: 100%; background: white; padding: 15px 12px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
+        .brand-logo { height: 28px; object-fit: contain; }
+        .container { width: 92%; max-width: 400px; padding: 20px 0; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .section-title { font-size: 1.1rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
         .input-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; }
+        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; }
         .add-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
         .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f0f0f0; }
-        .user-name { font-weight: bold; }
-        .user-id { font-size: 0.85rem; color: #999; }
-        .del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
-
+    <div class="top-nav">
+        <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Daegu_Transportation_Corporation_Logo.svg/1200px-Daegu_Transportation_Corporation_Logo.svg.png" class="brand-logo">
+        <div style="width:70px;"></div>
+    </div>
     <div class="container">
-        <button class="back-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
-
         <div class="card">
-            <div class="card-title">신규 팀원 등록</div>
+            <div class="section-title">신규 팀원 등록</div>
             <div class="input-group">
-                <input type="number" id="newUserId" placeholder="사번 8자리">
+                <input type="number" id="newUserId" placeholder="사번 8자리 입력">
                 <input type="text" id="newUserName" placeholder="성함 입력">
             </div>
             <button class="add-btn" onclick="addUser()">명단에 추가하기</button>
         </div>
-
         <div class="card">
-            <div class="card-title">등록된 팀원 명단</div>
+            <div class="section-title">등록된 팀원 명단</div>
             <div id="userListArea"></div>
         </div>
     </div>
-
     <script>
-        const myDept = localStorage.getItem('userDept') || "미지정";
-
+        const myDept = localStorage.getItem('userDept') || "경산승무팀";
         window.onload = function() { renderList(); };
-
         function renderList() {
             const listArea = document.getElementById('userListArea');
-            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const myTeamList = totalUserList.filter(u => u.dept === myDept);
-
-            if (myTeamList.length === 0) {
-                listArea.innerHTML = '<p style="text-align:center; color:#ccc;">등록된 인원이 없습니다.</p>';
-                return;
-            }
-
+            const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const myTeam = list.filter(u => u.dept === myDept);
+            if (myTeam.length === 0) { listArea.innerHTML = '<p style="text-align:center; color:#ccc;">등록된 인원이 없습니다.</p>'; return; }
             let html = '';
-            myTeamList.forEach((user) => {
-                html += `
-                <div class="user-item">
-                    <div>
-                        <div class="user-name">${user.name}</div>
-                        <div class="user-id">사번: ${user.id}</div>
-                    </div>
-                    <button class="del-btn" onclick="deleteUser('${user.id}')">삭제</button>
-                </div>`;
-            });
+            myTeam.forEach(u => { html += `<div class="user-item"><div><strong>${u.name}</strong><br><small style="color:#999;">사번: ${u.id}</small></div><button class="del-btn" onclick="deleteUser('${u.id}')">삭제</button></div>`; });
             listArea.innerHTML = html;
         }
-
         function addUser() {
             const id = document.getElementById('newUserId').value;
             const name = document.getElementById('newUserName').value;
-            if (!id || !name) return alert("모두 입력하세요!");
-
-            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            totalUserList.push({ id, name, dept: myDept });
-            localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
-            
-            document.getElementById('newUserId').value = '';
-            document.getElementById('newUserName').value = '';
-            renderList();
+            if(!id || !name) return alert("정보를 입력하세요.");
+            const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            list.push({id, name, dept: myDept});
+            localStorage.setItem('totalUserList', JSON.stringify(list));
+            location.reload();
         }
-
         function deleteUser(id) {
-            if (!confirm("삭제할까요?")) return;
+            if(!confirm("삭제할까요?")) return;
             let list = JSON.parse(localStorage.getItem('totalUserList')) || [];
             list = list.filter(u => String(u.id) !== String(id));
             localStorage.setItem('totalUserList', JSON.stringify(list));
