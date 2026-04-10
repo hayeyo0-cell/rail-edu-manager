@@ -9,7 +9,6 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 상단 헤더 */
         .top-header {
             width: 100%; background: white; padding: 12px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -26,7 +25,6 @@
         .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
         .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
 
-        /* 환영 문구 카드 */
         .welcome-card {
             background: var(--dtro-blue); color: white; border-radius: 16px;
             padding: 20px; box-shadow: 0 4px 15px rgba(0,114,188,0.2);
@@ -41,11 +39,10 @@
             border-left: 4px solid var(--dtro-blue); padding-left: 10px; 
         }
 
-        /* [핵심 추가] 가로 스크롤 필터 버튼 영역 */
+        /* 필터 버튼 영역 */
         .filter-wrapper {
             width: 100%; overflow-x: auto; white-space: nowrap; 
             margin-bottom: 15px; padding-bottom: 5px;
-            /* 스크롤바 숨기기 (모바일 최적화) */
             -ms-overflow-style: none; scrollbar-width: none; 
         }
         .filter-wrapper::-webkit-scrollbar { display: none; }
@@ -55,10 +52,8 @@
             border: 1px solid #ddd; background: white; color: #666;
             font-size: 0.85rem; margin-right: 6px; cursor: pointer; transition: 0.2s;
         }
-        /* 선택된 필터 버튼 스타일 */
         .filter-btn.active {
-            background: var(--dtro-blue); color: white; 
-            border-color: var(--dtro-blue); font-weight: bold;
+            background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold;
         }
 
         /* 교육 카드 */
@@ -76,7 +71,6 @@
         .badge-sim { background: #eef9f1; color: #2ecc71; } 
         .badge-voice { background: #fff5eb; color: #f39c12; } 
         .badge-etc { background: #f0f0f0; color: #555; } 
-        .badge-completed { background: #eef9f1; color: #2ecc71; } 
         
         .date { font-size: 0.8rem; color: #999; }
         .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 6px; line-height: 1.4; word-break: keep-all; }
@@ -85,12 +79,17 @@
         .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
         .btn-start { background: var(--dtro-blue); color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 0.9rem; cursor: pointer; font-weight: bold; width: 100%; }
 
-        .month-divider { font-size: 0.9rem; font-weight: bold; color: #888; margin: 15px 0 10px 5px; width: 100%; text-align: left; }
-        .completed-card { background: #fafbfc; border-color: #eee; box-shadow: none; }
-        .completed-card .edu-title { color: #888; }
-        .btn-view { background: white; border: 1px solid #ddd; color: #666; border-radius: 8px; padding: 8px 18px; font-size: 0.9rem; cursor: pointer; font-weight: bold; width: 100%; }
+        .empty-msg { text-align: center; color: #999; padding: 30px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; margin-bottom: 15px; }
 
-        .empty-msg { text-align: center; color: #999; padding: 30px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; }
+        /* [신규] 완료 내역 이동 버튼 (하단 메뉴 박스형) */
+        .btn-history {
+            width: 100%; padding: 18px; background: white; color: #333;
+            border: 1px solid #eaeaea; border-radius: 16px; font-size: 1.05rem;
+            font-weight: bold; cursor: pointer; margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02); display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .btn-history span { color: #888; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -117,65 +116,45 @@
             <div id="userEduListArea"></div>
             <div class="empty-msg" id="emptyMessage">현재 예정된 필수 교육이 없습니다.<br>오늘도 안전운행 하십시오!</div>
 
-            <div class="page-title" style="margin-top: 35px; border-left-color: #2ecc71;">✅ 나의 이수 완료 내역</div>
-            <div id="completedListArea">
-                <div class="month-divider">2026년 4월</div>
-                <div class="edu-card completed-card">
-                    <div class="card-header">
-                        <span class="badge badge-completed">이수 완료</span>
-                        <span class="date">완료일: 2026.04.05</span>
-                    </div>
-                    <div class="edu-title">[게시교육] 봄철 안개 구간 서행 운전 지시</div>
-                    <div class="card-actions">
-                        <button class="btn-view" onclick="alert('완료된 교육 내용을 다시 확인합니다.')">내용 다시보기</button>
-                    </div>
-                </div>
-            </div>
+            <button class="btn-history" onclick="location.href='user_completed_list.html'">
+                ✅ 나의 이수 완료 내역 보러가기 <span>→</span>
+            </button>
 
         </div>
     </div>
 
     <script>
-        // 현재 선택된 필터를 기억하는 변수 ('전체'가 기본값)
         let currentFilter = '전체'; 
-        let allEduData = []; // 전체 데이터 저장용
+        let allEduData = []; 
 
         window.onload = function() {
-            // 저장된 데이터 불러오기
             allEduData = JSON.parse(localStorage.getItem('myEduList')) || [];
-            
-            renderFilters(); // 필터 버튼 그리기
-            renderEduList(); // 목록 그리기
+            renderFilters(); 
+            renderEduList(); 
         };
 
-        // 1. 필터 버튼을 화면에 그리는 함수
         function renderFilters() {
             const filterDiv = document.getElementById('categoryFilters');
-            // 우리가 만든 7가지 카테고리 배열
             const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션', '육성방송 훈련', '기타교육'];
             
             let html = '';
             categories.forEach(cat => {
-                // 현재 선택된 필터면 'active' 클래스 추가
                 const activeClass = (cat === currentFilter) ? 'active' : '';
                 html += `<button class="filter-btn ${activeClass}" onclick="changeFilter('${cat}')">${cat}</button>`;
             });
             filterDiv.innerHTML = html;
         }
 
-        // 2. 필터 버튼을 클릭했을 때 실행되는 함수
         function changeFilter(selectedCat) {
-            currentFilter = selectedCat; // 선택된 필터 업데이트
-            renderFilters(); // 버튼 색상 갱신 (파란색 불 들어오게)
-            renderEduList(); // 아래 카드 목록 갱신
+            currentFilter = selectedCat; 
+            renderFilters(); 
+            renderEduList(); 
         }
 
-        // 3. 조건에 맞는 카드만 화면에 그리는 함수
         function renderEduList() {
             const listArea = document.getElementById('userEduListArea');
             const emptyMsg = document.getElementById('emptyMessage');
             
-            // 핵심 로직: '전체'면 다 보여주고, 아니면 선택한 카테고리랑 똑같은 것만 남기기
             const filteredData = allEduData.filter(edu => {
                 if(currentFilter === '전체') return true;
                 return edu.category === currentFilter;
