@@ -3,114 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 상세 - DTRO</title>
+    <title>교육 상세</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 헤더 디자인 고정 */
-        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
-        .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
-        .brand-logo { height: 26px; object-fit: contain; }
-
-        .container { width: 92%; max-width: 420px; padding: 25px 0; padding-bottom: 120px; }
-
-        /* 내용 카드 */
-        .content-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
-        .edu-badge { display: inline-block; padding: 4px 10px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
-        .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; }
-        .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
-
-        /* 첨부파일 영역 */
-        .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
-        .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
-        
-        /* 이미지인 경우 표시 */
-        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; }
-        
-        /* 일반 파일(PDF 등)인 경우 다운로드 버튼 */
-        .download-link { 
-            display: none; width: 100%; padding: 15px; background: #f0f4f8; 
-            color: var(--dtro-blue); border-radius: 12px; text-decoration: none; 
-            text-align: center; font-weight: bold; font-size: 0.9rem; border: 1px solid #d0e0f0;
-        }
-
-        /* 서명 영역 */
-        .sig-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
-        .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; margin-top: 10px; touch-action: none; }
-        canvas { width: 100%; height: 100%; }
-
-        /* 하단 고정 버튼 */
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
-        .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .container { width: 92%; max-width: 420px; padding: 20px 0; padding-bottom: 100px; }
+        .card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+        .sig-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; touch-action: none; }
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; border-top: 1px solid #eee; }
+        .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <div class="top-nav">
-        <button class="nav-btn" onclick="location.href='user_main.html'">← 메인으로</button>
-        <img src="logo.png" class="brand-logo" alt="DTRO">
-        <div style="width:75px;"></div>
-    </div>
-
+    <div class="top-nav"><button onclick="location.href='user_main.html'" style="border:1px solid #ddd; background:white; padding:5px 10px; border-radius:5px;">← 메인으로</button><img src="logo.png" style="height:22px;"><div style="width:60px;"></div></div>
     <div class="container">
-        <div class="content-card">
-            <span id="displayType" class="edu-badge">게시교육</span>
-            <span id="displayTitle" class="edu-title">제목</span>
-            <div id="displayContent" class="edu-content">내용을 불러오는 중...</div>
-
-            <div class="file-section">
-                <span class="file-label">📎 첨부 파일 확인</span>
-                <img id="imageViewer" class="img-preview">
-                <a id="fileDownload" class="download-link" download="첨부파일">📂 파일 다운로드 / 열기</a>
-                <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
-            </div>
+        <div class="card">
+            <div id="dType" style="color:var(--dtro-blue); font-weight:bold; font-size:0.8rem;">분류</div>
+            <div id="dTitle" style="font-weight:bold; font-size:1.2rem; margin:10px 0;">제목</div>
+            <div id="dContent" style="white-space:pre-wrap; color:#555; line-height:1.6; margin-bottom:20px;">내용</div>
+            <img id="dImg" style="width:100%; border-radius:10px; display:none; border:1px solid #eee;">
         </div>
-
-        <div class="sig-card">
-            <p style="font-weight:bold; margin:0;">✒️ 본인 확인 서명</p>
-            <div class="sig-canvas-area"><canvas id="sigCanvas"></canvas></div>
+        <div class="card">
+            <p style="font-weight:bold; margin-bottom:10px;">✒️ 본인 확인 서명</p>
+            <div class="sig-area"><canvas id="sigCanvas"></canvas></div>
         </div>
     </div>
-
-    <div class="bottom-bar">
-        <button class="submit-btn" onclick="submitEdu()">✅ 서명 완료 및 제출</button>
-    </div>
-
+    <div class="bottom-bar"><button class="submit-btn" onclick="submitEdu()">✅ 서명 완료 및 제출</button></div>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const eduId = urlParams.get('id');
-
+        const id = new URLSearchParams(window.location.search).get('id');
         window.onload = function() {
-            const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const edu = list.find(e => String(e.id) === String(eduId));
-
+            const edu = (JSON.parse(localStorage.getItem('totalEduList')) || []).find(e => String(e.id) === String(id));
             if(edu) {
-                document.getElementById('displayTitle').innerText = edu.title;
-                document.getElementById('displayContent').innerText = edu.content;
-                document.getElementById('displayType').innerText = edu.type;
-
-                // 🚨 파일 연결 핵심 로직
-                if(edu.fileData) {
-                    document.getElementById('noFileText').style.display = 'none';
-                    
-                    // 이미지 파일인지 확인 (data:image/... 형식)
-                    if(edu.fileData.startsWith('data:image/')) {
-                        const img = document.getElementById('imageViewer');
-                        img.src = edu.fileData;
-                        img.style.display = 'block';
-                    } else {
-                        // 이미지가 아닌 경우(PDF 등) 다운로드 링크로 표시
-                        const link = document.getElementById('fileDownload');
-                        link.href = edu.fileData;
-                        link.style.display = 'block';
-                    }
-                }
+                document.getElementById('dType').innerText = edu.type;
+                document.getElementById('dTitle').innerText = edu.title;
+                document.getElementById('dContent').innerText = edu.content;
+                if(edu.fileData) { const img = document.getElementById('dImg'); img.src = edu.fileData; img.style.display = 'block'; }
             }
             initCanvas();
         };
-
-        // 서명 패드 (기관사님 원본 로직 유지)
         let canvas, ctx, drawing = false;
         function initCanvas() {
             canvas = document.getElementById('sigCanvas'); ctx = canvas.getContext('2d');
@@ -120,23 +51,16 @@
             canvas.addEventListener("touchend", () => { drawing = false; });
             canvas.addEventListener("touchmove", (e) => {
                 if(!drawing) return;
-                const touch = e.touches[0]; const rect = canvas.getBoundingClientRect();
-                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top); ctx.stroke();
-                e.preventDefault();
+                const t = e.touches[0]; const r = canvas.getBoundingClientRect();
+                ctx.lineTo(t.clientX - r.left, t.clientY - r.top); ctx.stroke(); e.preventDefault();
             });
         }
-
         function submitEdu() {
             if(!confirm("제출하시겠습니까?")) return;
-            let signData = JSON.parse(localStorage.getItem('signData')) || [];
-            signData.push({ 
-                eduId: eduId, 
-                userId: localStorage.getItem('currentUserId'), 
-                date: new Date().toLocaleDateString() 
-            });
+            const signData = JSON.parse(localStorage.getItem('signData')) || [];
+            signData.push({ eduId: id, userId: localStorage.getItem('currentUserId'), date: new Date().toLocaleDateString() });
             localStorage.setItem('signData', JSON.stringify(signData));
-            alert("이수가 완료되었습니다.");
-            location.href = 'user_main.html';
+            alert("완료되었습니다."); location.href = 'user_main.html';
         }
     </script>
 </body>
