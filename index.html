@@ -7,7 +7,7 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         
-        /* [수정] 스크롤 없이 화면 전체를 활용 */
+        /* 스크롤 방지 */
         html, body { height: 100%; overflow: hidden; }
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
@@ -17,22 +17,21 @@
             align-items: center;
         }
 
-        /* 초슬림 헤더 */
+        /* 슬림 헤더 */
         .top-header-section {
             width: 100%;
             background-color: var(--bg-gray);
-            padding: 12px 0 8px 0; /* 여백 더 축소 */
+            padding: 12px 0 8px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             border-bottom: 2px solid var(--dtro-blue);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
 
         .brand-logo { 
             height: 22px; 
             margin-bottom: 4px; 
-            mix-blend-mode: multiply; /* 로고 배경 합성 */
+            mix-blend-mode: multiply; 
         }
 
         .main-title { 
@@ -43,15 +42,15 @@
             letter-spacing: -1px;
         }
 
-        /* [핵심 수정] 하단 빈 공간 문제를 해결하는 컨테이너 */
+        /* [핵심 수정] 하단 여백을 절반으로 줄이는 컨테이너 */
         .main-container {
-            flex: 1; /* 남은 세로 공간을 차지 */
+            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 카드와 요소를 세로 중앙에 적절히 배치 */
+            justify-content: flex-start; /* 위에서부터 배치 */
             width: 100%;
             align-items: center;
-            padding-bottom: 40px; /* 바닥에 너무 붙지 않게 살짝 띄움 */
+            padding-top: 40px; /* 상단 헤더와의 간격 */
         }
 
         /* 로그인 카드 */
@@ -60,9 +59,11 @@
             max-width: 380px; 
             background: white; 
             border-radius: 24px; 
-            padding: 30px 24px 22px 24px; 
+            padding: 35px 24px 22px 24px; 
             box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
             text-align: center;
+            /* [수정] 아래쪽으로 더 내려오도록 마진 추가 */
+            margin-bottom: 20px; 
         }
         
         .input-group { text-align: left; margin-bottom: 16px; }
@@ -81,13 +82,13 @@
             cursor: pointer; margin-top: 5px; box-shadow: 0 6px 20px rgba(0,114,188,0.2);
         }
 
+        /* 관리자 링크를 카드와 바짝 붙여서 하단 여백 확보 */
         .admin-link { 
-            margin-top: 25px; 
+            margin-top: 20px; 
             display: inline-block; 
             font-size: 0.8rem; 
-            color: #ccc; 
-            text-decoration: none; 
-            letter-spacing: -0.5px;
+            color: #bbb; 
+            text-decoration: none;
         }
     </style>
 </head>
