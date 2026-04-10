@@ -2,56 +2,88 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 스마트 교육 플랫폼</title>
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fb; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { width: 90%; max-width: 400px; background: white; padding: 40px; border-radius: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
-        .main-title { font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; background: linear-gradient(to top, #d0e7f5 40%, transparent 40%); display: inline-block; padding: 0 5px; }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; }
-        .login-btn { width: 100%; padding: 15px; background: #0072bc; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
+        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 35px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-label { font-size: 0.9rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block; padding-left: 5px; }
+        input { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
+        input:focus { border-color: var(--dtro-blue); background: #fff; }
+        .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        /* 초기화 버튼 (테스트용) */
+        .reset-link { margin-top: 30px; font-size: 0.7rem; color: #eee; cursor: pointer; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="card">
+    <div class="login-card">
         <div class="main-title">스마트 교육 플랫폼</div>
+        
         <div id="adminForm">
-            <div id="adminIdArea" style="display:none; text-align:left;">
-                <label>관리자 사번</label>
+            <div id="adminIdArea" class="input-group" style="display:none;">
+                <span class="input-label">관리자 사번</span>
                 <input type="number" id="adminId" placeholder="사번 입력">
             </div>
-            <label id="pwLabel">마스터 비밀번호(1234) 입력</label>
-            <input type="password" id="adminPw" placeholder="비밀번호">
+
+            <div class="input-group">
+                <span id="pwLabel" class="input-label">마스터 비밀번호(1234) 인증</span>
+                <input type="password" id="adminPw" placeholder="비밀번호 입력">
+            </div>
+
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
+
+        <div class="reset-link" onclick="resetData()">데이터 초기화 (최초 상태로)</div>
     </div>
 
     <script>
-        window.onload = () => {
-            const savedAdminId = localStorage.getItem('adminId');
-            if (savedAdminId) {
-                document.getElementById('adminIdArea').style.display = 'block';
-                document.getElementById('pwLabel').innerText = "관리자 비밀번호";
-            }
+        window.onload = function() {
+            checkStatus();
         };
+
+        function checkStatus() {
+            const savedId = localStorage.getItem('adminId');
+            const idArea = document.getElementById('adminIdArea');
+            const pwLabel = document.getElementById('pwLabel');
+
+            if (savedId && savedId.trim() !== "") {
+                // 관리자 정보가 있으면 사번창 보이기
+                idArea.style.display = 'block';
+                pwLabel.innerText = "관리자 비밀번호";
+            } else {
+                // 없으면 사번창 숨기기
+                idArea.style.display = 'none';
+                pwLabel.innerText = "마스터 비밀번호(1234) 인증";
+            }
+        }
 
         function adminLogin() {
             const inputId = document.getElementById('adminId').value;
             const inputPw = document.getElementById('adminPw').value;
-            
-            // 1. 마스터 비번 인증 (초기화 및 설정 진입)
+            const savedId = localStorage.getItem('adminId');
+            const savedPw = localStorage.getItem('adminPw');
+
+            // 1. 무조건 마스터 비번(1234)이면 설정창으로 이동
             if (inputPw === "1234") {
                 location.href = 'admin_setting.html';
                 return;
             }
 
-            // 2. 정식 관리자 로그인
-            const savedId = localStorage.getItem('adminId');
-            const savedPw = localStorage.getItem('adminPw');
-            if (inputId === savedId && inputPw === savedPw) {
+            // 2. 관리자 로그인
+            if (savedId && inputId === savedId && inputPw === savedPw) {
                 location.href = 'admin_main.html';
             } else {
-                alert("정보가 일치하지 않습니다.");
+                alert("비밀번호가 틀렸거나 마스터 비번(1234)을 입력하세요.");
+            }
+        }
+
+        function resetData() {
+            if(confirm("모든 데이터를 초기화하고 처음으로 돌아갈까요?")) {
+                localStorage.clear();
+                location.reload();
             }
         }
     </script>
