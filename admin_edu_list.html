@@ -9,7 +9,6 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* [통일] 상단 헤더 및 32px 로고 */
         .top-header {
             width: 100%; background: white; padding: 12px 15px;
             display: flex; justify-content: space-between; align-items: center;
@@ -23,37 +22,35 @@
         .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
         .header-spacer { width: 65px; }
 
-        /* 메인 컨테이너 */
         .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
-        
-        /* 리스트 감싸는 영역 */
         .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
 
-        /* 📄 페이지 타이틀 */
         .page-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 20px; display: flex; align-items: center; }
         .page-title span { margin-right: 8px; font-size: 1.3rem; }
 
-        /* 개별 교육 카드 디자인 */
+        /* 교육 카드 디자인 */
         .edu-card {
             background: white; border-radius: 16px; padding: 18px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
             border: 1px solid #fcfcfc;
         }
         
-        /* 카드 상단: 분류 뱃지 & 날짜 */
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .badge { 
-            padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; 
-        }
+        .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
+        
+        /* 7가지 분류별 뱃지 색상 */
         .badge-general { background: #eef6ff; color: var(--dtro-blue); } /* 게시교육 */
+        .badge-face { background: #f3e8ff; color: #8e44ad; } /* 대면/면담교육 */
         .badge-sim { background: #eef9f1; color: #2ecc71; } /* 시뮬레이션 */
-        .badge-voice { background: #fff5eb; color: #f39c12; } /* 육성방송 훈련 */
+        .badge-voice { background: #fff5eb; color: #f39c12; } /* 육성방송 */
+        .badge-etc { background: #f0f0f0; color: #555; } /* 기타/공지 */
+        
         .date { font-size: 0.8rem; color: #999; }
+        .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 6px; line-height: 1.4; word-break: keep-all; }
+        
+        /* 이수 기한 표시 디자인 */
+        .edu-deadline { font-size: 0.85rem; color: #ff4d4d; font-weight: bold; margin-bottom: 15px; }
 
-        /* 카드 중단: 제목 */
-        .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 15px; line-height: 1.4; word-break: keep-all; }
-
-        /* 카드 하단: 버튼 영역 */
         .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
         .action-btn { 
             background: white; border: 1px solid #ddd; border-radius: 8px; 
@@ -62,6 +59,14 @@
         }
         .btn-edit { border-color: var(--dtro-blue); color: var(--dtro-blue); }
         .btn-delete { border-color: #ff4d4d; color: #ff4d4d; }
+        
+        /* 데이터가 없을 때 뜨는 메시지 */
+        .empty-msg { 
+            text-align: center; color: #999; padding: 40px 0; 
+            font-size: 0.95rem; line-height: 1.5; background: white; 
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            display: none; 
+        }
     </style>
 </head>
 <body>
@@ -79,53 +84,79 @@
                 <span>📄</span> 등록된 교육 내역
             </div>
 
-            <div class="edu-card">
-                <div class="card-header">
-                    <span class="badge badge-general">게시교육</span>
-                    <span class="date">2026.04.10</span>
-                </div>
-                <div class="edu-title">봄철 안개 구간 서행 운전 및 주의사항 안내</div>
-                <div class="card-actions">
-                    <button class="action-btn btn-edit" onclick="alert('수정 화면으로 이동합니다.')">수정</button>
-                    <button class="action-btn btn-delete" onclick="confirmDelete(this)">삭제</button>
-                </div>
-            </div>
+            <div id="dynamicListArea"></div>
 
-            <div class="edu-card">
-                <div class="card-header">
-                    <span class="badge badge-sim">시뮬레이션</span>
-                    <span class="date">2026.04.08</span>
-                </div>
-                <div class="edu-title">차량고장 (TCU 통신불량) 발생 시 응급조치 훈련</div>
-                <div class="card-actions">
-                    <button class="action-btn btn-edit" onclick="alert('수정 화면으로 이동합니다.')">수정</button>
-                    <button class="action-btn btn-delete" onclick="confirmDelete(this)">삭제</button>
-                </div>
-            </div>
-
-            <div class="edu-card">
-                <div class="card-header">
-                    <span class="badge badge-voice">육성방송 훈련</span>
-                    <span class="date">2026.04.05</span>
-                </div>
-                <div class="edu-title">화재 발생 시 승객 대피 유도 안내방송 훈련</div>
-                <div class="card-actions">
-                    <button class="action-btn btn-edit" onclick="alert('수정 화면으로 이동합니다.')">수정</button>
-                    <button class="action-btn btn-delete" onclick="confirmDelete(this)">삭제</button>
-                </div>
+            <div class="empty-msg" id="emptyMessage">
+                등록된 교육 내역이 없습니다.<br>새 교육을 먼저 등록해 주세요!
             </div>
 
         </div>
     </div>
 
     <script>
-        // 삭제 버튼 클릭 시 확인 알림창
-        function confirmDelete(buttonElement) {
-            if(confirm('이 교육 내역을 정말 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다.)')) {
-                // 부모 요소(카드)를 찾아서 화면에서 숨김(삭제) 처리
-                const card = buttonElement.closest('.edu-card');
-                card.style.display = 'none';
-                alert('삭제되었습니다.');
+        // 페이지가 열리면 스마트폰 기억장치(localStorage)를 뒤져서 데이터를 가져옵니다.
+        window.onload = function() {
+            loadSavedEdu();
+        };
+
+        function loadSavedEdu() {
+            const listArea = document.getElementById('dynamicListArea');
+            const emptyMsg = document.getElementById('emptyMessage');
+            
+            // 저장된 목록 가져오기 (없으면 빈 목록 [])
+            let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+
+            // 글이 하나도 없으면 '등록된 내역이 없습니다' 안내문 띄우기
+            if(eduList.length === 0) {
+                emptyMsg.style.display = 'block'; 
+                listArea.innerHTML = '';
+                return;
+            }
+
+            // 글이 있으면 안내문 숨기고 리스트 그리기
+            emptyMsg.style.display = 'none';
+            let html = '';
+
+            eduList.forEach((edu, index) => {
+                // 카테고리별 뱃지 색상 매칭
+                let badgeClass = 'badge-general';
+                if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
+                else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
+                else if(edu.category === '육성방송 훈련') badgeClass = 'badge-voice';
+                else if(edu.category === '기타교육' || edu.category === '공지사항') badgeClass = 'badge-etc';
+
+                // 기한 표시 (없으면 '기한 없음')
+                const deadlineText = edu.deadline ? edu.deadline : '기한 없음';
+
+                html += `
+                <div class="edu-card">
+                    <div class="card-header">
+                        <span class="badge ${badgeClass}">${edu.category}</span>
+                        <span class="date">등록: ${edu.date}</span>
+                    </div>
+                    <div class="edu-title">${edu.title}</div>
+                    
+                    <div class="edu-deadline">⏳ 마감 기한: ${deadlineText} 까지</div>
+
+                    <div class="card-actions">
+                        <button class="action-btn btn-edit" onclick="alert('수정 화면은 준비 중입니다.')">수정</button>
+                        <button class="action-btn btn-delete" onclick="deleteEdu(${index})">삭제</button>
+                    </div>
+                </div>
+                `;
+            });
+
+            // 진짜 데이터 화면에 붙여넣기
+            listArea.innerHTML = html;
+        }
+
+        // 삭제 기능
+        function deleteEdu(index) {
+            if(confirm('이 교육 내역을 정말 삭제하시겠습니까?')) {
+                let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+                eduList.splice(index, 1); 
+                localStorage.setItem('myEduList', JSON.stringify(eduList)); 
+                loadSavedEdu(); // 삭제 후 화면 즉시 갱신
             }
         }
     </script>
