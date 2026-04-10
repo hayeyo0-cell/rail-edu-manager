@@ -1,39 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>이수 완료 보관함 - DTRO</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 헤더: 메인으로 돌아가는 버튼 */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee; 
+        }
+        .nav-btn { 
+            background: white; border: 1px solid #eaeaea; border-radius: 8px; 
+            padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
+        }
+        .brand-logo { height: 24px; object-fit: contain; }
+
+        .container { width: 92%; max-width: 420px; padding: 25px 0; }
+        .section-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 20px; text-align: left; width: 100%; }
+
+        /* 이수 완료 카드 (디자인 고정) */
+        .archive-item { 
+            background: white; border-radius: 20px; padding: 20px; 
+            margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); 
+            display: flex; flex-direction: column; text-align: left; border-left: 5px solid #27ae60;
+        }
+        .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .comp-badge { font-size: 0.75rem; color: #27ae60; font-weight: bold; background: #e8f5e9; padding: 3px 8px; border-radius: 5px; }
+        .item-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .empty-msg { text-align: center; color: #bbb; padding: 60px 0; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="nav-btn" onclick="location.href='user_main.html'">← 메인으로</button>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:85px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">📦 나의 이수 완료 내역</div>
+        <div id="archiveList"></div>
+    </div>
+
     <script>
+        const userId = localStorage.getItem('currentUserId');
+
         window.onload = function() {
-            const listArea = document.getElementById('completedListArea');
-            const emptyMsg = document.getElementById('emptyMessage');
+            if(!userId) { location.href = 'index.html'; return; }
+            renderArchive();
+        };
+
+        function renderArchive() {
+            const archiveListDiv = document.getElementById('archiveList');
             
-            // 1. 로그인한 사용자의 소속 가져오기
-            const userDept = localStorage.getItem('userDept') || "";
+            // 🚨 유기적 연결의 핵심: 이수 완료 장부와 전체 교육 목록을 가져옴
+            const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            
+            // 내 사번(userId)으로 완료된 항목만 필터링
+            const myCompleted = completedList.filter(c => String(c.userId) === String(userId));
 
-            // 2. 완료 보관함 전체 가져오기
-            const allCompletedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-
-            // 3. [핵심] 내 소속(userDept) 데이터만 골라내기
-            const myCompletedList = allCompletedList.filter(edu => edu.dept === userDept);
-
-            if(myCompletedList.length === 0) {
-                emptyMsg.style.display = 'block'; 
-                listArea.innerHTML = '';
+            if (myCompleted.length === 0) {
+                archiveListDiv.innerHTML = '<div class="empty-msg">아직 이수 완료한 내역이 없습니다.</div>';
                 return;
             }
 
-            emptyMsg.style.display = 'none';
             let html = '';
-
-            // 4. 필터링된 내 팀 데이터만 화면에 출력
-            myCompletedList.forEach((edu) => {
-                html += `
-                <div class="edu-card">
-                    <div class="card-header">
-                        <span class="badge-completed">이수 완료</span>
-                        <span class="date">완료일: ${edu.completedDate || '기록없음'}</span>
-                    </div>
-                    <div class="edu-title">[${edu.category}] ${edu.title}</div>
-                </div>
-                `;
+            // 최신 완료 내역이 위로 오도록 역순 출력
+            myCompleted.reverse().forEach(item => {
+                // 이수 장부에 기록된 eduId로 원본 교육 정보 매칭
+                const edu = totalEduList.find(e => String(e.id) === String(item.eduId));
+                if (edu) {
+                    html += `
+                        <div class="archive-item">
+                            <div class="item-header">
+                                <span class="comp-badge">이수 완료</span>
+                                <span style="font-size:0.8rem; color:#999;">완료일: ${item.completedDate || '기록없음'}</span>
+                            </div>
+                            <div class="item-title">${edu.title}</div>
+                            <div style="font-size:0.85rem; color:#666;">${edu.dept} | ${edu.type}</div>
+                        </div>
+                    `;
+                }
             });
-
-            listArea.innerHTML = html;
-        };
+            archiveListDiv.innerHTML = html;
+        }
     </script>
+</body>
+</html>
