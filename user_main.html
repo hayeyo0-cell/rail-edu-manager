@@ -124,14 +124,13 @@
             const listArea = document.getElementById('userEduListArea');
             const emptyMsg = document.getElementById('emptyMessage');
             
-            // [알아서 착착!] 완료 보관함 목록 가져와서 이미 끝난 건 제외하기!
+            // [핵심 마법!] 완료 보관함을 열어보고, 이미 끝낸 교육은 화면에서 싹 빼버립니다.
             const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             const completedTitles = completedList.map(item => item.title);
 
             // 완료 안 한 진짜 필수 교육만 남기기
             const pendingData = allEduData.filter(edu => !completedTitles.includes(edu.title));
 
-            // 카테고리로 한 번 더 거르기
             const filteredData = pendingData.filter(edu => {
                 if(currentFilter === '전체') return true;
                 return edu.category === currentFilter;
@@ -145,6 +144,7 @@
             let html = '';
 
             filteredData.forEach((edu) => {
+                // 원래 데이터에서 몇 번째인지 정확한 번호 찾기 (상세페이지 연결용)
                 const originalIndex = allEduData.indexOf(edu);
 
                 let badgeClass = 'badge-general';
