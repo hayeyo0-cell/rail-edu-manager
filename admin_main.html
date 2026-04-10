@@ -9,7 +9,6 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 상단 헤더 (유지) */
         .top-header-section {
             width: 100%; background: white; padding: 12px 0;
             display: flex; justify-content: space-between; align-items: center;
@@ -21,28 +20,23 @@
         }
         .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
 
-        /* [간격 축소] 메인 컨테이너 상단 여백 줄임 */
-        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 15px; padding-bottom: 40px; }
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding-top: 30px; padding-bottom: 40px; }
 
-        /* [크기/여백 축소] 소속 표시 캡슐 다이어트 */
         .dept-capsule {
             background: var(--dtro-blue); color: white; border-radius: 50px;
-            padding: 6px 20px; font-weight: bold; font-size: 0.9rem; /* 글씨와 패딩 축소 */
-            box-shadow: 0 3px 10px rgba(0,114,188,0.2); margin-bottom: 10px; /* 하단 여백 축소 */
+            padding: 6px 20px; font-weight: bold; font-size: 0.9rem;
+            box-shadow: 0 3px 10px rgba(0,114,188,0.2); margin-bottom: 10px;
         }
 
-        /* [크기/여백 축소] 환영 문구 다이어트 */
         .welcome-msg { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 22px; text-align: center; }
         .welcome-msg span { color: var(--dtro-blue); }
 
-        /* 섹션 타이틀 */
         .section-wrap { width: 90%; max-width: 400px; text-align: left; margin-bottom: 15px; }
         .section-title { 
             font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
             border-left: 5px solid var(--dtro-blue); padding-left: 12px;
         }
 
-        /* 메뉴 카드 */
         .menu-card {
             width: 90%; max-width: 400px; background: white; border-radius: 20px;
             padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
@@ -65,7 +59,6 @@
 
     <div class="main-container">
         <div class="dept-capsule" id="deptDisplay">경산승무팀</div>
-
         <div class="welcome-msg">
             <span id="welcomeDept">경산승무팀</span> 관리자님 환영합니다
         </div>
@@ -74,7 +67,7 @@
             <span class="section-title">교육 관리</span>
         </div>
 
-        <div class="menu-card" onclick="location.href='admin_add_edu.html'">
+        <div class="menu-card" onclick="location.href='Admin_edu_add.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3209/3209250.png" class="card-icon" alt="새 교육 등록">
             <div class="card-info">
                 <span class="card-title">새 교육 등록하기</span>
