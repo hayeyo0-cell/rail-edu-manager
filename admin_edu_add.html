@@ -1,166 +1,51 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 및 훈련 등록</title>
-    <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
-        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
+<script>
+    let fileData = ""; // 파일 데이터를 담을 변수
+    let fileName = "";
 
-        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
-        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
-        .header-spacer { width: 65px; }
+    function updateFileName(input) {
+        const display = document.getElementById('fileNameDisplay');
+        if (input.files && input.files[0]) {
+            fileName = input.files[0].name;
+            display.innerText = fileName;
+            display.style.color = '#333';
 
-        .main-container { width: 100%; display: flex; justify-content: center; padding: 20px 0; }
-        .input-card { width: 90%; max-width: 400px; background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
-
-        .card-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: flex; align-items: center; }
-        .card-title span { margin-right: 8px; font-size: 1.3rem; }
-
-        label { display: block; font-size: 0.95rem; font-weight: bold; color: #555; margin-bottom: 8px; }
-        input[type="text"], input[type="date"], textarea, select { width: 100%; border: 1px solid #ddd; border-radius: 10px; padding: 14px 15px; font-size: 1rem; margin-bottom: 20px; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; font-family: 'Noto Sans KR', sans-serif; }
-        input:focus, textarea:focus, select:focus { border-color: var(--dtro-blue); }
-        textarea { height: 130px; resize: none; }
-
-        select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%23999" d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; }
-
-        .file-wrapper { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 30px; }
-        .file-btn { background: #f8f9fa; border: 1px solid #ccc; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-right: 12px; color: #333; }
-        .file-name { font-size: 0.9rem; color: #999; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        input[type="file"] { display: none; }
-
-        .dynamic-field { display: none; background: #f4f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e0eeff; }
-
-        .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.15rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,114,188,0.2); }
-    </style>
-</head>
-<body>
-
-    <div class="top-header">
-        <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
-        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <div class="header-spacer"></div>
-    </div>
-
-    <div class="main-container">
-        <div class="input-card">
-            <div class="card-title"><span>✍️</span> 교육 및 훈련 등록</div>
-
-            <label>교육 분류</label>
-            <select id="eduCategory" onchange="toggleFields()">
-                <option value="게시교육">게시교육</option>
-                <option value="대면교육">대면교육</option>
-                <option value="면담교육">면담교육</option>
-                <option value="시뮬레이션">시뮬레이션</option>
-                <option value="육성방송 훈련">육성방송 훈련</option>
-                <option value="기타교육">기타교육</option>
-                <option value="공지사항">공지사항</option>
-            </select>
-            
-            <label>교육 및 훈련 제목</label>
-            <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
-
-            <label style="color:#ff4d4d;">⏳ 이수 마감 기한</label>
-            <input type="date" id="eduDeadline">
-
-            <div id="simFields" class="dynamic-field">
-                <label style="color:var(--dtro-blue);">🎮 훈련 시나리오 선택</label>
-                <select id="simScenario" style="margin-bottom:0;">
-                    <option value="">시나리오를 선택하세요</option>
-                    <option value="S1">차량고장 (TCU 통신불량)</option>
-                    <option value="S2">신호장치 장애 (ATC 절연)</option>
-                    <option value="S3">화재 발생 시 대피 유도</option>
-                </select>
-            </div>
-
-            <div id="broadcastFields" class="dynamic-field">
-                <label style="color:var(--dtro-blue);">🎙️ 훈련용 방송 대본</label>
-                <textarea id="broadcastScript" placeholder="기관사가 연습할 방송 대본을 입력하세요." style="height:100px; margin-bottom:0;"></textarea>
-            </div>
-
-            <label>상세 지시내용</label>
-            <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
-            
-            <label>참조 파일 (사진/매뉴얼)</label>
-            <div class="file-wrapper">
-                <button class="file-btn" onclick="document.getElementById('fileInput').click()">파일 선택</button>
-                <span class="file-name" id="fileNameDisplay">선택된 파일 없음</span>
-                <input type="file" id="fileInput" onchange="updateFileName(this)">
-            </div>
-            
-            <button class="submit-btn" onclick="submitForm()">앱에 즉시 게시하기</button>
-        </div>
-    </div>
-
-    <script>
-        function updateFileName(input) {
-            const display = document.getElementById('fileNameDisplay');
-            if (input.files && input.files.length > 0) {
-                display.innerText = input.files[0].name;
-                display.style.color = '#333';
-            } else {
-                display.innerText = '선택된 파일 없음';
-                display.style.color = '#999';
-            }
+            // [핵심] 파일을 읽어서 데이터 형태로 변환
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fileData = e.target.result; // 파일의 실제 데이터(base64)
+            };
+            reader.readAsDataURL(input.files[0]);
         }
+    }
 
-        function toggleFields() {
+    function submitForm() {
+        try {
             const category = document.getElementById('eduCategory').value;
-            const simFields = document.getElementById('simFields');
-            const broadcastFields = document.getElementById('broadcastFields');
+            const title = document.getElementById('eduTitle').value;
+            const deadline = document.getElementById('eduDeadline').value;
+            const content = document.getElementById('eduContent').value;
+            
+            if(!title || !deadline || !content) { alert('모든 항목을 입력해주세요!'); return; }
 
-            simFields.style.display = 'none';
-            broadcastFields.style.display = 'none';
+            const today = new Date();
+            const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
 
-            if (category === '시뮬레이션') simFields.style.display = 'block';
-            else if (category === '육성방송 훈련') broadcastFields.style.display = 'block';
-        }
+            const newEdu = {
+                category: category,
+                title: title,
+                deadline: deadline,
+                content: content,
+                date: dateStr,
+                fileName: fileName, // 파일 이름
+                fileContent: fileData // [핵심] 파일의 실제 내용 데이터
+            };
 
-        function submitForm() {
-            try {
-                const category = document.getElementById('eduCategory').value;
-                const title = document.getElementById('eduTitle').value;
-                const deadline = document.getElementById('eduDeadline').value;
-                const content = document.getElementById('eduContent').value;
-                
-                // [추가] 파일 입력창에서 파일 이름 가져오기
-                const fileInput = document.getElementById('fileInput');
-                let attachedFileName = "";
-                if (fileInput.files && fileInput.files.length > 0) {
-                    attachedFileName = fileInput.files[0].name;
-                }
-                
-                if(!title) { alert('제목을 입력해 주세요!'); return; }
-                if(!deadline) { alert('이수 마감 기한을 달력에서 선택해 주세요!'); return; }
-                if(!content) { alert('상세 지시내용을 입력해 주세요!'); return; }
-
-                const today = new Date();
-                const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
-
-                // 데이터에 fileName 같이 포장해서 저장
-                const newEdu = {
-                    category: category,
-                    title: title,
-                    deadline: deadline,
-                    content: content,
-                    date: dateStr,
-                    fileName: attachedFileName // <--- 파일 이름 추가!
-                };
-
-                let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
-                eduList.unshift(newEdu); 
-                localStorage.setItem('myEduList', JSON.stringify(eduList));
-                
-                alert('[' + category + '] 등록이 완료되었습니다!');
-                window.location.replace('admin_main.html'); 
-                
-            } catch (error) {
-                alert('저장 중 오류가 발생했습니다: ' + error.message);
-            }
-        }
-    </script>
-</body>
-</html>
+            let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+            eduList.unshift(newEdu); 
+            localStorage.setItem('myEduList', JSON.stringify(eduList));
+            
+            alert('등록 완료! 이제 상세페이지에서 파일을 확인할 수 있습니다.');
+            window.location.replace('admin_main.html'); 
+        } catch (e) { alert('오류 발생: ' + e); }
+    }
+</script>
