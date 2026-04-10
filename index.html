@@ -7,21 +7,52 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
         .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
-        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 35px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        
+        /* 대구교통공사 로고 */
+        .logo-area { margin-bottom: 20px; }
+        .logo-area img { width: 180px; }
+
+        /* 제목 형광펜 효과 */
+        .main-title { 
+            display: inline-block; font-size: 1.6rem; font-weight: bold; color: #222; margin-bottom: 35px; 
+            background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; 
+        }
+        
+        /* 왼쪽 사진의 핵심: 탭 메뉴 */
+        .tab-menu { display: flex; margin-bottom: 30px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; transition: 0.3s; }
+        .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
         .input-group { text-align: left; margin-bottom: 20px; }
         .input-label { font-size: 0.9rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block; padding-left: 5px; }
+        
         input { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         input:focus { border-color: var(--dtro-blue); background: #fff; }
-        .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,114,188,0.2); }
+        
         .reset-link { margin-top: 30px; font-size: 0.7rem; color: #eee; cursor: pointer; text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="login-card">
+        <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
         <div class="main-title">스마트 교육 플랫폼</div>
         
-        <div id="adminForm">
+        <div class="tab-menu">
+            <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
+            <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
+        </div>
+
+        <div id="userForm">
+            <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력"></div>
+            <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
+            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
+        </div>
+
+        <div id="adminForm" style="display: none;">
             <div id="adminIdArea" class="input-group" style="display:none;">
                 <span class="input-label">관리자 사번</span>
                 <input type="number" id="adminId" placeholder="사번 입력">
@@ -32,16 +63,32 @@
             </div>
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
+
         <div class="reset-link" onclick="resetData()">데이터 초기화</div>
     </div>
 
     <script>
-        window.onload = function() { checkStatus(); };
+        // 페이지가 열리면 무조건 사용자 탭부터 시작!
+        window.onload = function() {
+            switchTab('user');
+        };
 
-        function checkStatus() {
+        function switchTab(mode) {
+            const isUser = (mode === 'user');
+            document.getElementById('userTab').className = isUser ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('adminTab').className = isUser ? 'tab-btn' : 'tab-btn active';
+            
+            document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
+            document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
+            
+            if(!isUser) checkAdminStatus(); // 관리자 탭으로 올 때만 상태 체크
+        }
+
+        function checkAdminStatus() {
             const savedId = localStorage.getItem('adminId');
             const idArea = document.getElementById('adminIdArea');
             const pwLabel = document.getElementById('pwLabel');
+
             if (savedId && savedId.trim() !== "") {
                 idArea.style.display = 'block';
                 pwLabel.innerText = "관리자 비밀번호";
@@ -51,36 +98,40 @@
             }
         }
 
+        function userLogin() {
+            const inputId = document.getElementById('userId').value;
+            const inputPw = document.getElementById('userPw').value;
+            const savedTeamPw = localStorage.getItem('teamPw') || "1234";
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const userInfo = totalUserList.find(u => String(u.id) === String(inputId));
+
+            if (!userInfo) { alert('명단에 없는 사번입니다.'); return; }
+            if (inputPw !== savedTeamPw) { alert('비밀번호가 틀렸습니다.'); return; }
+
+            localStorage.setItem('userDept', userInfo.dept);
+            localStorage.setItem('userName', userInfo.name);
+            location.href = 'user_main.html';
+        }
+
         function adminLogin() {
             const inputId = document.getElementById('adminId').value;
             const inputPw = document.getElementById('adminPw').value;
             const savedId = localStorage.getItem('adminId');
             const savedPw = localStorage.getItem('adminPw');
 
-            // [로직 수정] 1순위: 관리자 지정이 되어 있다면 사번+비번이 맞는지 먼저 체크
-            if (savedId && savedId.trim() !== "") {
-                if (inputId === savedId && inputPw === savedPw) {
-                    alert("관리자 인증 성공!");
-                    location.href = 'admin_main.html'; // 메인으로 이동
-                    return;
-                }
+            if (savedId && inputId === savedId && inputPw === savedPw) {
+                location.href = 'admin_main.html';
+                return;
             }
-
-            // 2순위: 관리자 지정 전이거나, 설정을 다시 하고 싶을 때 마스터비번(1234) 체크
             if (inputPw === "1234") {
-                alert("설정 페이지로 이동합니다.");
                 location.href = 'admin_setting.html';
                 return;
             }
-
-            alert("정보가 틀렸습니다. (최초 접속이면 비번 1234 입력)");
+            alert("인증 정보가 틀렸습니다.");
         }
 
         function resetData() {
-            if(confirm("모든 데이터를 초기화하시겠습니까?")) {
-                localStorage.clear();
-                location.reload();
-            }
+            if(confirm("초기화하시겠습니까?")) { localStorage.clear(); location.reload(); }
         }
     </script>
 </body>
