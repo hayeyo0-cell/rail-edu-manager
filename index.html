@@ -26,20 +26,25 @@
     <div class="login-card">
         <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
         <div class="main-title">스마트 교육 플랫폼</div>
+        
         <div class="tab-menu">
             <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
             <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
         </div>
+
         <div id="userForm">
-            <div class="input-group"><span class="input-label">사번 (8자리)</span><input type="number" id="userId" placeholder="사번 입력"></div>
+            <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력"></div>
             <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
             <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
         </div>
+
         <div id="adminForm" style="display: none;">
+            <div class="input-group"><span class="input-label">관리자 사번</span><input type="number" id="adminId" placeholder="관리자 사번 입력"></div>
             <div class="input-group"><span class="input-label">관리자 비밀번호</span><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
-            <p style="font-size:0.75rem; color:#999; margin-top:15px;">최초 접속 시 마스터 비번(1234)을 입력하세요.</p>
+            <p style="font-size:0.75rem; color:#999; margin-top:15px;">최초 접속 시 마스터 비번(1234)을 비밀번호 칸에 입력하세요.</p>
         </div>
+        
         <div class="footer-text">© 2026 DTRO Smart Education System</div>
     </div>
 
@@ -53,11 +58,13 @@
             document.getElementById('adminForm').style.display = mode === 'admin' ? 'block' : 'none';
         }
 
+        // 사용자 로그인
         function userLogin() {
             const inputId = document.getElementById('userId').value;
             const inputPw = document.getElementById('userPw').value;
             const savedTeamPw = localStorage.getItem('teamPw') || "1234";
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            
             const userInfo = totalUserList.find(user => String(user.id) === String(inputId));
 
             if (!userInfo) { alert('명단에 없는 사번입니다.'); return; }
@@ -70,21 +77,31 @@
             location.href = 'user_main.html';
         }
 
+        // 관리자 로그인 (보안 강화 로직)
         function adminLogin() {
+            const inputId = document.getElementById('adminId').value;
             const inputPw = document.getElementById('adminPw').value;
+            
+            const savedAdminId = localStorage.getItem('adminId');
             const savedAdminPw = localStorage.getItem('adminPw');
 
+            // 1. 최초 마스터 비번 체크 (사번 상관없이 비번만 1234이면 통과)
             if (inputPw === MASTER_PW) {
                 alert('마스터 인증 성공! 설정 페이지로 이동합니다.');
                 location.href = 'admin_setting.html';
                 return;
             }
 
-            if (savedAdminPw && inputPw === savedAdminPw) {
-                localStorage.setItem('userRole', 'admin');
-                location.href = 'admin_main.html';
+            // 2. 관리자 지정 후 사번과 비번 이중 체크
+            if (savedAdminId && savedAdminPw) {
+                if (String(inputId) === String(savedAdminId) && inputPw === savedAdminPw) {
+                    localStorage.setItem('userRole', 'admin');
+                    location.href = 'admin_main.html';
+                } else {
+                    alert('관리자 사번 또는 비밀번호가 일치하지 않습니다.');
+                }
             } else {
-                alert('비밀번호가 틀렸습니다.');
+                alert('등록된 관리자 정보가 없습니다. 마스터 비번으로 먼저 설정을 완료해주세요.');
             }
         }
     </script>
