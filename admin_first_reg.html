@@ -9,12 +9,10 @@
         html, body { height: 100%; overflow: hidden; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
 
-        /* 표준 슬림 헤더 */
         .top-header-section { width: 100%; background-color: var(--bg-gray); padding: 12px 0 8px 0; display: flex; flex-direction: column; align-items: center; border-bottom: 2px solid var(--dtro-blue); }
         .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
         .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
 
-        /* 하단 밀착형 밸런스 */
         .main-container { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; align-items: center; padding-bottom: 30px; }
         .reg-card { width: 88%; max-width: 380px; background: white; border-radius: 24px; padding: 25px 22px 20px 22px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
         
@@ -41,6 +39,7 @@
                     <option value="경산승무팀">경산승무팀</option>
                     <option value="월배승무팀">월배승무팀</option>
                     <option value="안심승무팀">안심승무팀</option>
+                    <option value="문양승무팀">문양승무팀</option>
                 </select>
             </div>
 
@@ -76,22 +75,16 @@
             const pw = document.getElementById('adminPw').value;
             const cpw = document.getElementById('confirmPw').value;
 
-            // 빈칸 검사
             if(!dept || !id || !pw) { alert('모든 항목을 입력해 주세요.'); return; }
-            
-            // 2중 확인 검사
             if(id !== cid) { alert('사번 입력값이 서로 다릅니다.'); return; }
             if(pw !== cpw) { alert('비밀번호 입력값이 서로 다릅니다.'); return; }
 
-            // 로컬 스토리지에 관리자 정보 저장
             localStorage.setItem('adminCreated', 'true');
             localStorage.setItem('adminDept', dept);
             localStorage.setItem('adminId', id);
             localStorage.setItem('adminPw', pw);
 
-            alert('관리자 등록이 완료되었습니다!\n이제 등록하신 사번과 비번으로 로그인해 주세요.');
-            
-            // 등록 완료 후 로그인 화면으로 이동
+            alert('관리자 등록 완료! 이제 등록하신 사번과 비번으로 로그인하세요.');
             location.href = 'admin_login.html';
         }
     </script>
