@@ -3,38 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 상세 보기</title>
+    <title>교육 상세 및 서명 제출</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); overflow-x: hidden; }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 상단 헤더 */
         .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
-        .header-spacer { width: 68px; }
-        .main-container { width: 100%; display: flex; justify-content: center; padding: 20px 0 120px 0; }
-        .content-card { width: 92%; max-width: 400px; background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
+        .brand-logo { height: 32px; mix-blend-mode: multiply; }
+
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 150px 0; }
+        
+        /* 교육 정보 카드 */
+        .content-card { width: 92%; max-width: 400px; background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; box-sizing: border-box; }
         .edu-category { display: inline-block; padding: 5px 12px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.85rem; font-weight: bold; margin-bottom: 12px; }
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #222; margin-bottom: 10px; line-height: 1.4; }
-        .edu-deadline { font-size: 0.95rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .edu-body { font-size: 1rem; color: #444; line-height: 1.6; min-height: 120px; white-space: pre-wrap; margin-bottom: 30px; }
+        .edu-body { font-size: 1rem; color: #444; line-height: 1.6; min-height: 100px; white-space: pre-wrap; margin-bottom: 20px; }
+
+        /* 첨부파일 영역 */
         .attachment-box { padding: 18px; background: #f0f7ff; border: 1.5px dashed #0072bc; border-radius: 12px; display: none; align-items: center; cursor: pointer; margin-top: 10px; }
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); box-sizing: border-box; display: flex; justify-content: center; }
+
+        /* 서명 패드 영역 */
+        .signature-wrap { width: 92%; max-width: 400px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: left; box-sizing: border-box; }
+        #signature-pad { border: 2px solid #eee; border-radius: 12px; background: #fdfdfd; width: 100%; height: 200px; touch-action: none; }
+        .sig-clear { background: #f1f1f1; border: none; padding: 8px 15px; border-radius: 6px; font-size: 0.8rem; color: #666; cursor: pointer; margin-top: 10px; float: right; }
+
+        /* 하단 고정 바 */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 100; box-sizing: border-box; }
         .complete-btn { width: 100%; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; padding: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="top-header">
         <button class="back-btn" onclick="history.back()">이전으로</button>
-        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <div class="header-spacer"></div>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:68px;"></div>
     </div>
+
     <div class="main-container">
         <div class="content-card">
             <div class="edu-category" id="detailCategory"></div>
             <div class="edu-title" id="detailTitle"></div>
-            <div class="edu-deadline" id="detailDeadline"></div>
             <div class="edu-body" id="detailContent"></div>
+            
             <div id="attachmentArea" class="attachment-box">
                 <span style="font-size:1.5rem; margin-right:12px;">📎</span>
                 <div style="flex:1;">
@@ -43,55 +56,109 @@
                 </div>
             </div>
         </div>
+
+        <div class="signature-wrap">
+            <div style="font-weight:bold; margin-bottom:10px; color:var(--dtro-blue);">✒️ 본인 확인 서명</div>
+            <canvas id="signature-pad"></canvas>
+            <button class="sig-clear" onclick="clearSig()">다시 그리기</button>
+        </div>
     </div>
+
     <div class="bottom-bar">
-        <button class="complete-btn" onclick="completeEdu()">✅ 이수 완료하기</button>
+        <button class="complete-btn" id="submitBtn" onclick="completeEdu()">✅ 서명 완료 및 제출</button>
     </div>
+
     <script>
-        let currentEduIndex = null;
+        const canvas = document.getElementById('signature-pad');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
         let eduList = [];
+        let currentId = null;
+
+        // 캔버스 설정
+        function initCanvas() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+
+            const getXY = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                return { x: (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left, y: (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top };
+            };
+            const start = (e) => { isDrawing = true; const p = getXY(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+            const move = (e) => { if(!isDrawing) return; const p = getXY(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+            const stop = () => { isDrawing = false; };
+
+            canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); window.addEventListener('mouseup', stop);
+            canvas.addEventListener('touchstart', (e) => { if(e.target == canvas) e.preventDefault(); start(e); });
+            canvas.addEventListener('touchmove', (e) => { if(e.target == canvas) e.preventDefault(); move(e); });
+            canvas.addEventListener('touchend', stop);
+        }
+
+        function clearSig() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.beginPath(); }
 
         window.onload = function() {
+            initCanvas();
             const urlParams = new URLSearchParams(window.location.search);
-            currentEduIndex = urlParams.get('id');
+            currentId = urlParams.get('id');
             eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
-            const edu = eduList[currentEduIndex];
+            const edu = eduList[currentId];
 
             if(edu) {
                 document.getElementById('detailCategory').innerText = edu.category;
                 document.getElementById('detailTitle').innerText = edu.title;
-                document.getElementById('detailDeadline').innerText = "⏳ 마감 기한: " + (edu.deadline || '기한 없음');
                 document.getElementById('detailContent').innerText = edu.content;
                 if(edu.fileContent) {
                     document.getElementById('attachmentArea').style.display = 'flex';
                     document.getElementById('detailFileName').innerText = edu.fileName;
-                    document.getElementById('attachmentArea').onclick = function() {
-                        const link = document.createElement('a'); link.href = edu.fileContent; link.download = edu.fileName; link.click();
+                    document.getElementById('attachmentArea').onclick = () => {
+                        const a = document.createElement('a'); a.href = edu.fileContent; a.download = edu.fileName; a.click();
                     };
                 }
             }
         };
 
         function completeEdu() {
-            if (currentEduIndex === null) return;
-            
-            // 1. 현재 교육 데이터 복사 및 완료 날짜 추가
-            const completedItem = eduList[currentEduIndex];
-            const today = new Date();
-            completedItem.completedDate = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
+            const sigImage = canvas.toDataURL();
+            if (sigImage.length < 2000) { alert('서명을 완료해 주세요!'); return; }
 
-            // 2. 완료 목록에 추가 (중복 검사 없이 무조건 추가)
-            let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            completedList.unshift(completedItem);
-            localStorage.setItem('completedEduList', JSON.stringify(completedList));
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerText = "데이터 전송 중...";
+            submitBtn.disabled = true;
 
-            // 3. 미이수 목록(메인 목록)에서 원천 삭제!
-            eduList.splice(currentEduIndex, 1);
-            localStorage.setItem('myEduList', JSON.stringify(eduList));
+            const edu = eduList[currentId];
+            const finalData = {
+                empName: localStorage.getItem('userName') || "기관사",
+                empId: localStorage.getItem('userId') || "사번미상",
+                category: edu.category,
+                title: edu.title,
+                signature: sigImage,
+                date: new Date().toLocaleString()
+            };
 
-            alert('이수 완료! 수고하셨습니다.');
-            // 캐시 방지를 위해 랜덤값을 붙여 메인으로 이동
-            window.location.href = 'user_main.html?v=' + Date.now();
+            // 🚀 기관사님이 보내주신 성공한 구글 스크립트 주소 적용 완료!
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec";
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(finalData)
+            }).then(() => {
+                // 로컬 데이터 처리 (완료 목록 이동 및 미완료 삭제)
+                let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+                completedList.unshift({ ...edu, completedDate: new Date().toLocaleDateString() });
+                localStorage.setItem('completedEduList', JSON.stringify(completedList));
+
+                eduList.splice(currentId, 1);
+                localStorage.setItem('myEduList', JSON.stringify(eduList));
+
+                alert('제출 성공! 구글 시트로 서명이 전송되었습니다.');
+                location.href = 'user_main.html';
+            }).catch(e => {
+                alert('전송 오류가 발생했습니다.');
+                submitBtn.disabled = false;
+                submitBtn.innerText = "✅ 서명 완료 및 제출";
+            });
         }
     </script>
 </body>
