@@ -8,29 +8,57 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 1. 상단 헤더 (로고 강조 + 로그아웃) */
-        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        /* 1. 상단 헤더: 원래 디자인 (로고 중앙, 로그아웃 오른쪽) */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: center; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee; position: relative;
+        }
+        .logout-btn { 
+            position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; 
+            border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #888; cursor: pointer;
+        }
         .brand-logo { height: 26px; object-fit: contain; }
-        .logout-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; color: #888; cursor: pointer; }
 
-        .container { width: 92%; max-width: 400px; padding: 20px 0; }
-        
-        /* 2. 카테고리 필터 버튼 */
-        .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 20px; padding-bottom: 5px; }
-        .filter-btn { padding: 8px 15px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 0.85rem; white-space: nowrap; }
+        .container { width: 92%; max-width: 420px; padding: 25px 0; text-align: center; }
+
+        /* 2. 소속 배지 및 환영 인사 (원래 디자인 큼직하게 유지) */
+        .dept-badge { 
+            background: var(--dtro-blue); color: white; padding: 8px 25px; border-radius: 30px; 
+            font-weight: bold; margin: 10px 0 15px 0; display: inline-block; 
+            box-shadow: 0 4px 10px rgba(0,114,188,0.1); 
+        }
+        .welcome-box { text-align: center; margin-bottom: 30px; }
+        .user-name { font-size: 1.3rem; font-weight: bold; color: #333; }
+
+        /* 3. 카테고리 필터 버튼 (원래 디자인 유지) */
+        .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding-bottom: 5px; justify-content: flex-start; }
+        .filter-btn { padding: 10px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 0.9rem; white-space: nowrap; cursor: pointer; }
         .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); }
 
-        /* 3. 교육 카드 스타일 */
-        .edu-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.04); }
-        .card-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+        /* 4. 교육 카드 스타일 (원래 디자인 유지) */
+        .edu-section-title { font-size: 1.15rem; font-weight: bold; color: #333; margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 4px solid var(--dtro-blue); padding-left: 10px; text-align: left; width: 100%; }
+        
+        .edu-card { 
+            background: white; border-radius: 25px; padding: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; 
+            display: flex; flex-direction: column; margin-bottom: 15px; text-align: left; border: 1px solid transparent; transition: 0.2s;
+        }
+        .edu-card:active { transform: scale(0.98); background: #f9f9f9; border-color: var(--dtro-blue); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .badge { padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; }
         .badge-general { background: #eee; color: #666; }
         .badge-face { background: #e3f2fd; color: #1976d2; }
         .badge-sim { background: #fff3e0; color: #f57c00; }
         .badge-voice { background: #f3e5f5; color: #7b1fa2; }
-        .date { font-size: 0.8rem; color: #999; }
-        .edu-title { font-weight: bold; font-size: 1.1rem; color: #333; margin-bottom: 8px; display: block; }
-        .btn-start { width: 100%; padding: 12px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .date { font-size: 0.85rem; color: #999; }
+        
+        .edu-title { font-weight: bold; font-size: 1.15rem; color: #333; margin-bottom: 10px; display: block; line-height: 1.4; }
+        .edu-deadline { font-size: 0.9rem; color: #ff4d4d; font-weight: bold; margin-bottom: 15px; display: block; }
+        
+        .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: auto; box-shadow: 0 4px 10px rgba(0,114,188,0.1); }
+        .btn-start:active { background: #005a9e; }
     </style>
 </head>
 <body>
@@ -41,15 +69,30 @@
     </div>
 
     <div class="container">
-        <div id="categoryFilters" class="filter-container"></div>
-        <div id="userEduListArea"></div>
-        <div id="emptyMessage" style="display:none; text-align:center; color:#999; margin-top:40px;">진행 중인 교육이 없습니다.</div>
+        <div class="welcome-box">
+            <div id="userDeptDisplay" class="dept-badge">소속 불러오는 중...</div>
+            <div class="user-name"><span id="userNameDisplay">사용자</span>님, 안녕하세요!</div>
+        </div>
+
+        <div class="edu-section-title">📝 오늘의 교육 및 지시사항</div>
+        
+        <div id="categoryFilters" class="filter-container">
+            </div>
+
+        <div id="userEduListArea">
+            </div>
+
+        <div id="emptyMessage" style="display:none; text-align:center; color:#ccc; margin-top:50px;">
+            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" style="width:60px; opacity:0.3; margin-bottom:15px;"><br>
+            진행 중인 교육이 없습니다.
+        </div>
     </div>
 
     <script>
         let currentFilter = '전체';
         let allEduList = [];
-        const userDept = localStorage.getItem('userDept') || "";
+        // [수정] index.html 로그인 시 currentUserDept 로 저장했던 소속 불러오기
+        const userDept = localStorage.getItem('currentUserDept') || ""; 
 
         window.onload = function() {
             if(!userDept) {
@@ -57,24 +100,38 @@
                 location.href = 'index.html';
                 return;
             }
+            // 상단 환영 박스 업데이트
+            document.getElementById('userDeptDisplay').innerText = userDept;
+            document.getElementById('userNameDisplay').innerText = localStorage.getItem('currentUserName') || "사용자";
+            
+            // 1. [보강] 보관함 자동 청소 로직 실행 (지난 달 데이터 삭제)
             cleanupOldData();
+            
             renderFilters();
             loadEduData();
         };
 
+        // [핵심] 월간 자동 삭제 로직 (손대지 않음)
         function cleanupOldData() {
             let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+
             const freshList = completedList.filter(edu => {
                 if(!edu.completedDate) return true;
                 const cDate = new Date(edu.completedDate.replace(/\./g, '-'));
-                return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
+                return cDate.getFullYear() === currentYear && cDate.getMonth() === currentMonth;
             });
-            localStorage.setItem('completedEduList', JSON.stringify(freshList));
+
+            if (completedList.length !== freshList.length) {
+                localStorage.setItem('completedEduList', JSON.stringify(freshList));
+            }
         }
 
         function renderFilters() {
             const filterDiv = document.getElementById('categoryFilters');
+            // [복구] 사진 속 모든 카테고리 옵션
             const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션', '육성방송 훈련', '기타교육'];
             let html = '';
             categories.forEach(cat => {
@@ -93,11 +150,20 @@
         function loadEduData() {
             const listArea = document.getElementById('userEduListArea');
             const emptyMsg = document.getElementById('emptyMessage');
-            allEduList = JSON.parse(localStorage.getItem('myEduList')) || [];
             
-            let filtered = allEduList.filter(edu => edu.dept === userDept && (currentFilter === '전체' || edu.category === currentFilter));
+            // 1. 전체 등록된 교육 가져오기 (관리자 페이지에서 저장한 totalEduList 사용)
+            allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            
+            // 2. [보강] 내 소속(userDept)과 일치하는 교육만 1차 필터링
+            let deptFiltered = allEduList.filter(edu => edu.dept === userDept);
+            
+            // 3. 카테고리 필터링 (2차)
+            let finalFiltered = deptFiltered.filter(edu => {
+                if(currentFilter === '전체') return true;
+                return edu.category === currentFilter;
+            });
 
-            if(filtered.length === 0) {
+            if(finalFiltered.length === 0) {
                 emptyMsg.style.display = 'block';
                 listArea.innerHTML = '';
                 return;
@@ -105,8 +171,11 @@
 
             emptyMsg.style.display = 'none';
             let html = '';
-            filtered.forEach(edu => {
+            
+            finalFiltered.forEach(edu => {
+                // 상세 페이지로 넘길 때의 정확한 원본 인덱스 찾기
                 const originalIndex = allEduList.indexOf(edu);
+
                 let badgeClass = 'badge-general';
                 if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
                 else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
@@ -119,9 +188,10 @@
                         <span class="date">${edu.date}</span>
                     </div>
                     <span class="edu-title">${edu.title}</span>
-                    <div style="font-size:0.85rem; color:#ff4d4d; font-weight:bold; margin-bottom:10px;">⏳ 마감: ${edu.deadline || '없음'}</div>
+                    <span class="edu-deadline">⏳ 마감 기한: ${edu.deadline || '없음'}</span>
                     <button class="btn-start" onclick="location.href='user_edu_detail.html?id=${originalIndex}'">교육 입장하기 →</button>
-                </div>`;
+                </div>
+                `;
             });
             listArea.innerHTML = html;
         }
