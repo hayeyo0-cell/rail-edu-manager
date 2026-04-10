@@ -8,19 +8,16 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
+        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; box-sizing: border-box; }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
-        .header-spacer { width: 68px; }
+        .brand-logo { height: 32px; mix-blend-mode: multiply; }
         .main-container { width: 100%; display: flex; justify-content: center; padding: 20px 0 120px 0; }
         .content-card { width: 92%; max-width: 400px; background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
         .edu-category { display: inline-block; padding: 5px 12px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.85rem; font-weight: bold; margin-bottom: 12px; }
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #222; margin-bottom: 10px; line-height: 1.4; }
         .edu-deadline { font-size: 0.95rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .edu-body { font-size: 1rem; color: #444; line-height: 1.6; min-height: 120px; white-space: pre-wrap; margin-bottom: 30px; }
-        
-        /* 파일 박스 강조 */
-        .attachment-box { padding: 18px; background: #f0f7ff; border: 1.5px dashed #0072bc; border-radius: 12px; display: none; align-items: center; cursor: pointer; margin-top: 10px; }
+        .attachment-box { padding: 18px; background: #f0f7ff; border: 1.5px dashed #0072bc; border-radius: 12px; display: none; align-items: center; cursor: pointer; }
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
         .complete-btn { width: 100%; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; padding: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
     </style>
@@ -29,20 +26,19 @@
     <div class="top-header">
         <button class="back-btn" onclick="history.back()">이전으로</button>
         <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <div class="header-spacer"></div>
+        <div style="width:68px;"></div>
     </div>
     <div class="main-container">
         <div class="content-card">
-            <div class="edu-category" id="detailCategory">카테고리</div>
-            <div class="edu-title" id="detailTitle">제목</div>
-            <div class="edu-deadline" id="detailDeadline">⏳ 마감 기한</div>
-            <div class="edu-body" id="detailContent">상세 내용</div>
-            
+            <div class="edu-category" id="detailCategory"></div>
+            <div class="edu-title" id="detailTitle"></div>
+            <div class="edu-deadline" id="detailDeadline"></div>
+            <div class="edu-body" id="detailContent"></div>
             <div id="attachmentArea" class="attachment-box">
                 <span style="font-size:1.5rem; margin-right:12px;">📎</span>
                 <div style="flex:1;">
                     <div style="font-size:0.75rem; color:#666;">첨부파일 확인</div>
-                    <div id="detailFileName" style="color:#0072bc; font-weight:bold; text-decoration:underline; font-size:0.95rem;">파일명</div>
+                    <div id="detailFileName" style="color:#0072bc; font-weight:bold; text-decoration:underline;"></div>
                 </div>
             </div>
         </div>
@@ -51,31 +47,48 @@
         <button class="complete-btn" onclick="completeEdu()">✅ 이수 완료하기</button>
     </div>
     <script>
+        let currentEduIndex = null;
+        let eduList = [];
+
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const eduId = urlParams.get('id');
-            const eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
-            const edu = eduList[eduId];
+            currentEduIndex = urlParams.get('id');
+            eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+            const edu = eduList[currentEduIndex];
+
             if(edu) {
                 document.getElementById('detailCategory').innerText = edu.category;
                 document.getElementById('detailTitle').innerText = edu.title;
-                document.getElementById('detailDeadline').innerText = "⏳ 마감 기한: " + (edu.deadline || '기한 없음');
+                document.getElementById('detailDeadline').innerText = "⏳ 마감 기한: " + (edu.deadline || '없음');
                 document.getElementById('detailContent').innerText = edu.content;
-                
-                // 파일 데이터가 존재할 때만 표시
-                if(edu.fileContent && edu.fileContent.length > 0) {
+                if(edu.fileContent) {
                     document.getElementById('attachmentArea').style.display = 'flex';
                     document.getElementById('detailFileName').innerText = edu.fileName;
                     document.getElementById('attachmentArea').onclick = function() {
-                        const link = document.createElement('a');
-                        link.href = edu.fileContent; link.download = edu.fileName; link.click();
+                        const link = document.createElement('a'); link.href = edu.fileContent; link.download = edu.fileName; link.click();
                     };
                 }
             }
         };
+
         function completeEdu() {
-            alert('수고하셨습니다!');
-            window.location.href = 'user_main.html?reload=' + new Date().getTime();
+            if (currentEduIndex === null) return;
+            
+            // 1. 현재 교육 데이터 복사
+            const completedItem = eduList[currentEduIndex];
+            completedItem.completedDate = new Date().toLocaleDateString();
+
+            // 2. 완료 목록에 추가
+            let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            completedList.unshift(completedItem);
+            localStorage.setItem('completedEduList', JSON.stringify(completedList));
+
+            // 3. 미이수 목록에서 삭제 (핵심!)
+            eduList.splice(currentEduIndex, 1);
+            localStorage.setItem('myEduList', JSON.stringify(eduList));
+
+            alert('이수가 완료되었습니다! 목록에서 제거됩니다.');
+            window.location.href = 'user_main.html';
         }
     </script>
 </body>
