@@ -1,100 +1,7 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>등록된 교육 내역</title>
-    <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
-        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
-
-        .top-header {
-            width: 100%; background: white; padding: 12px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
-            box-sizing: border-box;
-        }
-        .back-btn {
-            background: white; border: 1px solid #eaeaea; border-radius: 6px;
-            padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
-        }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
-        .header-spacer { width: 65px; }
-
-        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
-        .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
-
-        .page-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 20px; display: flex; align-items: center; }
-        .page-title span { margin-right: 8px; font-size: 1.3rem; }
-
-        /* 교육 카드 디자인 */
-        .edu-card {
-            background: white; border-radius: 16px; padding: 18px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
-            border: 1px solid #fcfcfc;
-        }
-        
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
-        
-        /* 7가지 분류별 뱃지 색상 */
-        .badge-general { background: #eef6ff; color: var(--dtro-blue); } /* 게시교육 */
-        .badge-face { background: #f3e8ff; color: #8e44ad; } /* 대면/면담교육 */
-        .badge-sim { background: #eef9f1; color: #2ecc71; } /* 시뮬레이션 */
-        .badge-voice { background: #fff5eb; color: #f39c12; } /* 육성방송 */
-        .badge-etc { background: #f0f0f0; color: #555; } /* 기타/공지 */
-        
-        .date { font-size: 0.8rem; color: #999; }
-        .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 6px; line-height: 1.4; word-break: keep-all; }
-        
-        /* 이수 기한 표시 디자인 */
-        .edu-deadline { font-size: 0.85rem; color: #ff4d4d; font-weight: bold; margin-bottom: 15px; }
-
-        .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
-        .action-btn { 
-            background: white; border: 1px solid #ddd; border-radius: 8px; 
-            padding: 6px 15px; font-size: 0.85rem; cursor: pointer; margin-left: 8px;
-            font-weight: bold; color: #555;
-        }
-        .btn-edit { border-color: var(--dtro-blue); color: var(--dtro-blue); }
-        .btn-delete { border-color: #ff4d4d; color: #ff4d4d; }
-        
-        /* 데이터가 없을 때 뜨는 메시지 */
-        .empty-msg { 
-            text-align: center; color: #999; padding: 40px 0; 
-            font-size: 0.95rem; line-height: 1.5; background: white; 
-            border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-            display: none; 
-        }
-    </style>
-</head>
-<body>
-
-    <div class="top-header">
-        <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
-        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <div class="header-spacer"></div>
-    </div>
-
-    <div class="main-container">
-        <div class="list-wrapper">
-            
-            <div class="page-title">
-                <span>📄</span> 등록된 교육 내역
-            </div>
-
-            <div id="dynamicListArea"></div>
-
-            <div class="empty-msg" id="emptyMessage">
-                등록된 교육 내역이 없습니다.<br>새 교육을 먼저 등록해 주세요!
-            </div>
-
-        </div>
-    </div>
-
     <script>
-        // 페이지가 열리면 스마트폰 기억장치(localStorage)를 뒤져서 데이터를 가져옵니다.
+        // 현재 로그인한 관리자의 소속 정보 가져오기
+        const adminDept = localStorage.getItem('userDept') || "미지정 소속";
+
         window.onload = function() {
             loadSavedEdu();
         };
@@ -103,29 +10,29 @@
             const listArea = document.getElementById('dynamicListArea');
             const emptyMsg = document.getElementById('emptyMessage');
             
-            // 저장된 목록 가져오기 (없으면 빈 목록 [])
-            let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+            // 1. 전체 목록 가져오기
+            let allEduList = JSON.parse(localStorage.getItem('myEduList')) || [];
 
-            // 글이 하나도 없으면 '등록된 내역이 없습니다' 안내문 띄우기
-            if(eduList.length === 0) {
+            // 2. [핵심] 현재 관리자의 소속과 일치하는 교육만 필터링
+            let myDeptEduList = allEduList.filter(edu => edu.dept === adminDept);
+
+            if(myDeptEduList.length === 0) {
                 emptyMsg.style.display = 'block'; 
                 listArea.innerHTML = '';
                 return;
             }
 
-            // 글이 있으면 안내문 숨기고 리스트 그리기
             emptyMsg.style.display = 'none';
             let html = '';
 
-            eduList.forEach((edu, index) => {
-                // 카테고리별 뱃지 색상 매칭
+            // 3. 내 소속 목록만 화면에 출력
+            myDeptEduList.forEach((edu) => {
                 let badgeClass = 'badge-general';
                 if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
                 else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
                 else if(edu.category === '육성방송 훈련') badgeClass = 'badge-voice';
                 else if(edu.category === '기타교육' || edu.category === '공지사항') badgeClass = 'badge-etc';
 
-                // 기한 표시 (없으면 '기한 없음')
                 const deadlineText = edu.deadline ? edu.deadline : '기한 없음';
 
                 html += `
@@ -135,30 +42,29 @@
                         <span class="date">등록: ${edu.date}</span>
                     </div>
                     <div class="edu-title">${edu.title}</div>
-                    
                     <div class="edu-deadline">⏳ 마감 기한: ${deadlineText} 까지</div>
 
                     <div class="card-actions">
-                        <button class="action-btn btn-edit" onclick="alert('수정 화면은 준비 중입니다.')">수정</button>
-                        <button class="action-btn btn-delete" onclick="deleteEdu(${index})">삭제</button>
+                        <button class="action-btn btn-edit" onclick="alert('수정 화면은 곧 업데이트 예정입니다.')">수정</button>
+                        <button class="action-btn btn-delete" onclick="deleteEdu('${edu.id}')">삭제</button>
                     </div>
                 </div>
                 `;
             });
 
-            // 진짜 데이터 화면에 붙여넣기
             listArea.innerHTML = html;
         }
 
-        // 삭제 기능
-        function deleteEdu(index) {
+        // 삭제 기능 (전체 목록에서 고유 ID를 찾아 삭제)
+        function deleteEdu(eduId) {
             if(confirm('이 교육 내역을 정말 삭제하시겠습니까?')) {
-                let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
-                eduList.splice(index, 1); 
-                localStorage.setItem('myEduList', JSON.stringify(eduList)); 
-                loadSavedEdu(); // 삭제 후 화면 즉시 갱신
+                let allEduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+                
+                // 해당 ID를 제외한 나머지만 다시 저장
+                const updatedList = allEduList.filter(edu => String(edu.id) !== String(eduId));
+                
+                localStorage.setItem('myEduList', JSON.stringify(updatedList)); 
+                loadSavedEdu(); // 화면 갱신
             }
         }
     </script>
-</body>
-</html>
