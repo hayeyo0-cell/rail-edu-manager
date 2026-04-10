@@ -1,99 +1,43 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 스마트 교육 플랫폼</title>
-    <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
-        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
-
-        /* 상단 헤더 */
-        .top-header {
-            width: 100%; background: white; padding: 12px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
-            box-sizing: border-box;
-        }
-        .header-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; }
-        .header-spacer { width: 68px; } 
-
-        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
-        .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
-
-        /* 섹션 타이틀 */
-        .section-wrap { width: 100%; text-align: left; margin-bottom: 12px; margin-top: 10px; }
-        .section-title { font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); border-left: 5px solid var(--dtro-blue); padding-left: 10px; }
-
-        /* 필터 칩 버튼 */
-        .filter-wrapper { width: 100%; overflow-x: auto; white-space: nowrap; margin-bottom: 15px; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
-        .filter-wrapper::-webkit-scrollbar { display: none; }
-        .filter-btn { display: inline-block; padding: 6px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; font-size: 0.85rem; margin-right: 6px; cursor: pointer; }
-        .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
-
-        /* 교육 카드 */
-        .edu-card { background: white; border-radius: 16px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #fcfcfc; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
-        
-        .badge-general { background: #eef6ff; color: var(--dtro-blue); } 
-        .badge-face { background: #f3e8ff; color: #8e44ad; } 
-        .badge-sim { background: #eef9f1; color: #2ecc71; } 
-        .badge-voice { background: #fff5eb; color: #f39c12; } 
-        
-        .date { font-size: 0.8rem; color: #999; }
-        .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 6px; line-height: 1.4; }
-        .btn-start { background: var(--dtro-blue); color: white; border: none; border-radius: 8px; padding: 12px; font-size: 0.95rem; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-
-        .menu-card { width: 100%; background: white; border-radius: 20px; padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; margin-bottom: 16px; cursor: pointer; border: 1px solid #fcfcfc; box-sizing: border-box; }
-        .empty-msg { text-align: center; color: #999; padding: 40px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; margin-bottom: 20px; }
-    </style>
-</head>
-<body>
-
-    <div class="top-header">
-        <div class="header-spacer"></div>
-        <img src="logo.png" class="brand-logo" alt="DTRO">
-        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
-    </div>
-
-    <div class="main-container">
-        <div class="list-wrapper">
-            
-            <div class="section-wrap">
-                <span class="section-title">오늘의 필수 교육 목록</span>
-            </div>
-
-            <div class="filter-wrapper" id="categoryFilters"></div>
-
-            <div id="userEduListArea"></div>
-            <div class="empty-msg" id="emptyMessage" style="display: none;">현재 예정된 필수 교육이 없습니다.<br>오늘도 안전운행 하십시오!</div>
-
-            <div class="section-wrap" style="margin-top: 20px;">
-                <span class="section-title">학습 보관함</span>
-            </div>
-
-            <div class="menu-card" onclick="location.href='user_completed_list.html'">
-                <img src="https://cdn-icons-png.flaticon.com/512/3285/3285813.png" style="width:40px; margin-right:15px;" alt="완료">
-                <div style="text-align: left;">
-                    <strong style="display:block; font-size:1.05rem;">나의 이수 완료 내역</strong>
-                    <span style="font-size:0.85rem; color:#999;">이전에 완료한 교육 목록을 확인합니다.</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <script>
         let currentFilter = '전체';
         let allEduList = [];
+        const userDept = localStorage.getItem('userDept') || ""; // 로그인 시 저장된 소속
 
         window.onload = function() {
+            if(!userDept) {
+                alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+                location.href = 'index.html';
+                return;
+            }
+            
+            // 1. [보강] 보관함 자동 청소 로직 실행 (지난 달 데이터 삭제)
+            cleanupOldData();
+            
             renderFilters();
             loadEduData();
         };
+
+        // [핵심] 월간 자동 삭제 로직
+        function cleanupOldData() {
+            let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth();
+
+            // 완료한 날짜를 기준으로 '이번 달' 것만 남기기
+            const freshList = completedList.filter(edu => {
+                if(!edu.completedDate) return true; // 날짜 없으면 일단 유지
+                
+                // 날짜 형식 예: '2026. 4. 10' 또는 '2026-04-10' 대응
+                const cDate = new Date(edu.completedDate.replace(/\./g, '-'));
+                return cDate.getFullYear() === currentYear && cDate.getMonth() === currentMonth;
+            });
+
+            if (completedList.length !== freshList.length) {
+                localStorage.setItem('completedEduList', JSON.stringify(freshList));
+                console.log("지난 달 이수 데이터가 자동으로 정리되었습니다.");
+            }
+        }
 
         function renderFilters() {
             const filterDiv = document.getElementById('categoryFilters');
@@ -119,13 +63,16 @@
             // 1. 전체 등록된 교육 가져오기
             allEduList = JSON.parse(localStorage.getItem('myEduList')) || [];
             
-            // 2. 카테고리 필터링
-            let filtered = allEduList.filter(edu => {
+            // 2. [보강] 내 소속(userDept)과 일치하는 교육만 1차 필터링
+            let deptFiltered = allEduList.filter(edu => edu.dept === userDept);
+            
+            // 3. 카테고리 필터링 (2차)
+            let finalFiltered = deptFiltered.filter(edu => {
                 if(currentFilter === '전체') return true;
                 return edu.category === currentFilter;
             });
 
-            if(filtered.length === 0) {
+            if(finalFiltered.length === 0) {
                 emptyMsg.style.display = 'block';
                 listArea.innerHTML = '';
                 return;
@@ -134,12 +81,12 @@
             emptyMsg.style.display = 'none';
             let html = '';
             
-            filtered.forEach(edu => {
-                // 원본 배열에서의 인덱스 찾기
+            finalFiltered.forEach(edu => {
+                // 상세 페이지로 넘길 때의 정확한 원본 인덱스 찾기
                 const originalIndex = allEduList.indexOf(edu);
 
                 let badgeClass = 'badge-general';
-                if(edu.category === '대면교육') badgeClass = 'badge-face';
+                if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
                 else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
                 else if(edu.category === '육성방송 훈련') badgeClass = 'badge-voice';
 
@@ -158,5 +105,3 @@
             listArea.innerHTML = html;
         }
     </script>
-</body>
-</html>
