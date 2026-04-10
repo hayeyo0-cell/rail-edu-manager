@@ -3,102 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 스마트 교육 플랫폼 - 로그인</title>
+    <title>DTRO 스마트 교육 플랫폼</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-card { width: 90%; max-width: 380px; background: white; padding: 40px 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); text-align: center; }
-        .logo { width: 180px; margin-bottom: 30px; }
-        .tab-menu { display: flex; margin-bottom: 25px; background: #eee; border-radius: 12px; padding: 5px; }
-        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: none; color: #888; }
-        .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        input { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; font-size: 1rem; outline: none; }
-        .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .footer-text { margin-top: 20px; font-size: 0.85rem; color: #999; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { 
+            font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); 
+            margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; 
+        }
+        .login-card { 
+            width: 90%; max-width: 400px; background: white; padding: 40px 25px; 
+            border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left; 
+        }
+        .logo-area { text-align: center; margin-bottom: 30px; }
+        .logo-area img { width: 180px; }
+        
+        .main-title { font-size: 1.4rem; font-weight: bold; color: #333; text-align: center; margin-bottom: 30px; }
+        
+        .input-label { font-size: 0.95rem; font-weight: bold; color: #555; margin-bottom: 8px; display: block; padding-left: 5px; }
+        
+        input, select { 
+            width: 100%; padding: 16px; margin-bottom: 20px; border: 1px solid #eaeaea; 
+            border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fcfcfc; outline: none;
+        }
+        input:focus { border-color: var(--dtro-blue); background: #fff; }
+
+        .login-btn { 
+            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 15px rgba(0,114,188,0.2);
+        }
+        
+        .admin-link { display: block; text-align: center; margin-top: 25px; font-size: 0.85rem; color: #bbb; text-decoration: underline; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <img src="logo.png" class="logo" alt="DTRO">
+        <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
+        <div class="main-title">스마트 교육 플랫폼</div>
         
-        <div class="tab-menu">
-            <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
-            <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
+        <div id="userSection">
+            <span class="input-label">사번 (8자리)</span>
+            <input type="number" id="userId" placeholder="사번 입력">
+            
+            <span class="input-label">팀 공용 비밀번호</span>
+            <input type="password" id="userPw" placeholder="비밀번호 입력">
+            
+            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
+            <div class="admin-link" onclick="showAdminPrompt()">관리자 페이지 이동</div>
         </div>
-
-        <div id="userForm">
-            <input type="number" id="userId" placeholder="사번을 입력하세요">
-            <input type="password" id="userPw" placeholder="팀 공용 비밀번호">
-            <button class="login-btn" onclick="userLogin()">로그인</button>
-        </div>
-
-        <div id="adminForm" style="display: none;">
-            <input type="password" id="adminPw" placeholder="관리자 비밀번호">
-            <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
-            <p style="font-size:0.8rem; color:#666; margin-top:10px;">최초 접속 시 마스터 비번(0000)을 입력하세요.</p>
-        </div>
-
-        <div class="footer-text">© 2026 DTRO Smart Education System</div>
     </div>
 
     <script>
-        let currentMode = 'user';
         const MASTER_PW = "0000"; // 마스터 비번
-
-        function switchTab(mode) {
-            currentMode = mode;
-            document.getElementById('userTab').className = mode === 'user' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('adminTab').className = mode === 'admin' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('userForm').style.display = mode === 'user' ? 'block' : 'none';
-            document.getElementById('adminForm').style.display = mode === 'admin' ? 'block' : 'none';
-        }
 
         function userLogin() {
             const inputId = document.getElementById('userId').value;
             const inputPw = document.getElementById('userPw').value;
-            const TEAM_PW = localStorage.getItem('teamPw') || "1234"; // 설정에서 저장한 팀비번 사용
+            const savedTeamPw = localStorage.getItem('teamPw') || "1234";
 
+            // 관리자가 등록한 명단 가져오기
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            
+            // 명단에서 해당 사번 찾기
             const userInfo = totalUserList.find(user => String(user.id) === String(inputId));
 
             if (!userInfo) {
-                alert('명단에 없는 사번입니다. 관리자에게 문의하세요.');
+                alert('등록된 교육 대상자가 아닙니다.\n관리자에게 사번 등록을 요청하세요.');
                 return;
             }
 
-            if (inputPw !== TEAM_PW) {
-                alert('팀 비밀번호가 틀렸습니다.');
+            if (inputPw !== savedTeamPw) {
+                alert('팀 비밀번호가 올바르지 않습니다.');
                 return;
             }
 
-            // 로그인 성공 시 해당 유저의 소속을 세션에 저장! (중요)
+            // 로그인 정보 저장 (소속 정보 자동 포함)
             localStorage.setItem('userId', userInfo.id);
             localStorage.setItem('userName', userInfo.name);
-            localStorage.setItem('userDept', userInfo.dept); 
+            localStorage.setItem('userDept', userInfo.dept);
             localStorage.setItem('userRole', 'user');
 
-            alert(userInfo.dept + " " + userInfo.name + " 기관사님 환영합니다.");
+            alert(userInfo.dept + " " + userInfo.name + " 기관사님,\n오늘도 안전운행 하십시오!");
             location.href = 'user_main.html';
         }
 
-        function adminLogin() {
-            const inputPw = document.getElementById('adminPw').value;
+        function showAdminPrompt() {
+            const adminPw = prompt("관리자 비밀번호를 입력하세요.");
+            if (!adminPw) return;
+
             const savedAdminPw = localStorage.getItem('adminPw');
 
-            // 1. 마스터 비번을 입력한 경우 -> 소속 설정 페이지로 강제 이동
-            if (inputPw === MASTER_PW) {
-                alert('마스터 인증 성공! 관리자 설정 및 소속 지정 페이지로 이동합니다.');
+            // 1. 마스터 비번 입력 시 설정 페이지로
+            if (adminPw === MASTER_PW) {
+                alert('마스터 인증 성공! 설정 페이지로 이동합니다.');
                 location.href = 'admin_setting.html';
                 return;
             }
 
-            // 2. 이미 등록된 관리자 비번인 경우 -> 관리자 메인으로 이동
-            if (savedAdminPw && inputPw === savedAdminPw) {
+            // 2. 등록된 관리자 비번 확인
+            if (savedAdminPw && adminPw === savedAdminPw) {
                 localStorage.setItem('userRole', 'admin');
                 location.href = 'admin_main.html';
             } else {
-                alert('비밀번호가 올바르지 않습니다.');
+                alert('비밀번호가 틀렸습니다.');
             }
         }
     </script>
