@@ -13,20 +13,24 @@
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* [표준] 슬림 헤더 */
+        /* 슬림 헤더 */
         .top-header-section {
             width: 100%; background-color: var(--bg-gray);
             padding: 12px 0 8px 0; display: flex; flex-direction: column;
             align-items: center; border-bottom: 2px solid var(--dtro-blue);
         }
         .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
-        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; letter-spacing: -1px; }
+        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
 
-        /* [표준] 상단 여백 확보 및 하단 공간 최적화 컨테이너 */
+        /* [핵심 수정] 하단 공간을 채우기 위해 전체 요소를 아래로 밀어냄 */
         .main-container {
-            flex: 1; display: flex; flex-direction: column;
-            justify-content: flex-start; width: 100%; align-items: center;
-            padding-top: 50px; /* 찾으신 황금 여백 */
+            flex: 1; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: flex-end; /* [변경] 요소를 아래쪽부터 차곡차곡 쌓음 */
+            width: 100%; 
+            align-items: center;
+            padding-bottom: 80px; /* [핵심] 바닥에서 이 정도만 띄워서 하단 여백 박멸 */
         }
 
         .login-card { 
@@ -36,16 +40,16 @@
         }
         
         .input-group { text-align: left; margin-bottom: 18px; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 6px; }
-        input { width: 100%; height: 50px; padding: 0 15px; border: 1px solid #e8e8e8; border-radius: 12px; font-size: 1rem; background: #fafafa; outline: none; box-sizing: border-box;}
+        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; }
+        input { width: 100%; height: 52px; padding: 0 15px; border: 1px solid #e8e8e8; border-radius: 12px; font-size: 1rem; background: #fafafa; outline: none; box-sizing: border-box;}
 
         .btn-admin { 
-            width: 100%; height: 56px; background: #333; color: white; 
+            width: 100%; height: 58px; background: #333; color: white; 
             border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
             cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
 
-        .back-link { margin-top: 25px; display: inline-block; font-size: 0.8rem; color: #bbb; text-decoration: none; }
+        .back-link { margin-top: 25px; display: inline-block; font-size: 0.85rem; color: #bbb; text-decoration: none; }
     </style>
 </head>
 <body>
