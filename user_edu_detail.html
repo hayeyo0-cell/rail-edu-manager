@@ -23,9 +23,9 @@
         
         .edu-body { font-size: 1rem; color: #444; line-height: 1.6; min-height: 200px; white-space: pre-wrap; }
 
-        /* 하단 고정 버튼 */
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); box-sizing: border-box; display: flex; justify-content: center; }
-        .complete-btn { width: 100%; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; padding: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,114,188,0.2); }
+        .complete-btn { width: 100%; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; padding: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,114,188,0.2); transition: 0.2s; }
+        .complete-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -42,9 +42,7 @@
             <div class="edu-title" id="detailTitle">교육 제목이 표시됩니다.</div>
             <div class="edu-deadline" id="detailDeadline">⏳ 마감 기한: 표시됨</div>
             
-            <div class="edu-body" id="detailContent">
-                상세 내용이 여기에 표시됩니다.
-            </div>
+            <div class="edu-body" id="detailContent">상세 내용이 여기에 표시됩니다.</div>
         </div>
     </div>
 
@@ -53,14 +51,12 @@
     </div>
 
     <script>
-        let currentEdu = null; // 현재 화면에 떠있는 교육 데이터
+        let currentEdu = null; 
 
         window.onload = function() {
-            // URL에서 몇 번째 교육을 클릭했는지 번호(id)를 가져옵니다.
             const urlParams = new URLSearchParams(window.location.search);
             const eduId = urlParams.get('id');
 
-            // 저장된 교육 목록을 불러와서 화면에 세팅합니다.
             const eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
             currentEdu = eduList[eduId];
 
@@ -75,12 +71,27 @@
             }
         };
 
-        // 이수 완료 버튼을 눌렀을 때
+        // [알아서 착착!] 완료 버튼 누르면 실행되는 마법의 로직
         function completeEducation() {
+            // 1. 내 완료 보관함 열어보기
+            let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+
+            // 2. 이미 완료한 건지 확인 (제목으로 중복 검사)
+            const isAlreadyCompleted = completedList.some(item => item.title === currentEdu.title);
+
+            if(!isAlreadyCompleted) {
+                // 3. 오늘 날짜 구해서 '이수 완료일' 도장 찍어주기
+                const today = new Date();
+                const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
+                currentEdu.completedDate = dateStr;
+
+                // 4. 보관함에 넣고 문 잠그기
+                completedList.unshift(currentEdu);
+                localStorage.setItem('completedEduList', JSON.stringify(completedList));
+            }
+
+            // 5. 시원하게 완료 메시지 띄우고 메인으로 퇴근!
             alert('수고하셨습니다! 이수 완료 처리되었습니다.');
-            
-            // 나중에는 이 데이터를 '완료 보관함'으로 넘기는 기능을 여기에 넣을 겁니다.
-            // 일단은 완료 메시지 띄우고 메인 화면으로 돌아갑니다.
             location.href = 'user_main.html';
         }
     </script>
