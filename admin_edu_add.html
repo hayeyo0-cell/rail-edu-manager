@@ -33,13 +33,15 @@
         .card-title span { margin-right: 8px; font-size: 1.3rem; }
 
         label { display: block; font-size: 0.95rem; font-weight: bold; color: #555; margin-bottom: 8px; }
-        input[type="text"], textarea, select { 
+        /* [추가] 달력(date) 타입도 스타일 똑같이 적용 */
+        input[type="text"], input[type="date"], textarea, select { 
             width: 100%; border: 1px solid #ddd; border-radius: 10px; 
             padding: 14px 15px; font-size: 1rem; margin-bottom: 20px; 
             background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s;
+            font-family: 'Noto Sans KR', sans-serif;
         }
         input:focus, textarea:focus, select:focus { border-color: var(--dtro-blue); }
-        textarea { height: 130px; resize: none; font-family: inherit; }
+        textarea { height: 130px; resize: none; }
 
         select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%23999" d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; }
 
@@ -91,6 +93,9 @@
             
             <label>교육 및 훈련 제목</label>
             <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
+
+            <label style="color:#ff4d4d;">⏳ 이수 마감 기한</label>
+            <input type="date" id="eduDeadline">
 
             <div id="simFields" class="dynamic-field">
                 <label style="color:var(--dtro-blue);">🎮 훈련 시나리오 선택</label>
@@ -149,41 +154,17 @@
             }
         }
 
-        // [핵심] 실제 데이터를 저장하는 로직
         function submitForm() {
             const category = document.getElementById('eduCategory').value;
             const title = document.getElementById('eduTitle').value;
+            const deadline = document.getElementById('eduDeadline').value; // 기한 가져오기
             const content = document.getElementById('eduContent').value;
             
-            if(!title || !content) {
-                alert('제목과 상세 지시내용을 모두 입력해 주세요.');
+            // 기한 입력 안 하면 경고
+            if(!title || !deadline || !content) {
+                alert('제목, 이수 기한, 지시내용을 모두 입력해 주세요.');
                 return;
             }
 
-            // 오늘 날짜 구하기 (ex: 2026.04.10)
             const today = new Date();
-            const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
-
-            // 새 교육 데이터 묶음 만들기
-            const newEdu = {
-                category: category,
-                title: title,
-                content: content,
-                date: dateStr
-            };
-
-            // 기존에 저장된 목록 가져오기 (없으면 빈 목록)
-            let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
-            
-            // 새 교육을 맨 앞에 추가
-            eduList.unshift(newEdu);
-            
-            // 다시 안전하게 기기에 저장!
-            localStorage.setItem('myEduList', JSON.stringify(eduList));
-            
-            alert('[' + category + '] 등록이 완료되었습니다!');
-            location.href = 'admin_main.html';
-        }
-    </script>
-</body>
-</html>
+            const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today
