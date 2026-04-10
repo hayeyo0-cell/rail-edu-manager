@@ -8,17 +8,18 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; box-sizing: border-box; }
+        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; }
+        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
+        .header-spacer { width: 68px; }
         .main-container { width: 100%; display: flex; justify-content: center; padding: 20px 0 120px 0; }
         .content-card { width: 92%; max-width: 400px; background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
         .edu-category { display: inline-block; padding: 5px 12px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.85rem; font-weight: bold; margin-bottom: 12px; }
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #222; margin-bottom: 10px; line-height: 1.4; }
         .edu-deadline { font-size: 0.95rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .edu-body { font-size: 1rem; color: #444; line-height: 1.6; min-height: 120px; white-space: pre-wrap; margin-bottom: 30px; }
-        .attachment-box { padding: 18px; background: #f0f7ff; border: 1.5px dashed #0072bc; border-radius: 12px; display: none; align-items: center; cursor: pointer; }
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .attachment-box { padding: 18px; background: #f0f7ff; border: 1.5px dashed #0072bc; border-radius: 12px; display: none; align-items: center; cursor: pointer; margin-top: 10px; }
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 450px; background: white; padding: 15px 20px; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); box-sizing: border-box; display: flex; justify-content: center; }
         .complete-btn { width: 100%; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; padding: 16px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
     </style>
 </head>
@@ -26,7 +27,7 @@
     <div class="top-header">
         <button class="back-btn" onclick="history.back()">이전으로</button>
         <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
-        <div style="width:68px;"></div>
+        <div class="header-spacer"></div>
     </div>
     <div class="main-container">
         <div class="content-card">
@@ -59,7 +60,7 @@
             if(edu) {
                 document.getElementById('detailCategory').innerText = edu.category;
                 document.getElementById('detailTitle').innerText = edu.title;
-                document.getElementById('detailDeadline').innerText = "⏳ 마감 기한: " + (edu.deadline || '없음');
+                document.getElementById('detailDeadline').innerText = "⏳ 마감 기한: " + (edu.deadline || '기한 없음');
                 document.getElementById('detailContent').innerText = edu.content;
                 if(edu.fileContent) {
                     document.getElementById('attachmentArea').style.display = 'flex';
@@ -74,21 +75,23 @@
         function completeEdu() {
             if (currentEduIndex === null) return;
             
-            // 1. 현재 교육 데이터 복사
+            // 1. 현재 교육 데이터 복사 및 완료 날짜 추가
             const completedItem = eduList[currentEduIndex];
-            completedItem.completedDate = new Date().toLocaleDateString();
+            const today = new Date();
+            completedItem.completedDate = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
 
-            // 2. 완료 목록에 추가
+            // 2. 완료 목록에 추가 (중복 검사 없이 무조건 추가)
             let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             completedList.unshift(completedItem);
             localStorage.setItem('completedEduList', JSON.stringify(completedList));
 
-            // 3. 미이수 목록에서 삭제 (핵심!)
+            // 3. 미이수 목록(메인 목록)에서 원천 삭제!
             eduList.splice(currentEduIndex, 1);
             localStorage.setItem('myEduList', JSON.stringify(eduList));
 
-            alert('이수가 완료되었습니다! 목록에서 제거됩니다.');
-            window.location.href = 'user_main.html';
+            alert('이수 완료! 수고하셨습니다.');
+            // 캐시 방지를 위해 랜덤값을 붙여 메인으로 이동
+            window.location.href = 'user_main.html?v=' + Date.now();
         }
     </script>
 </body>
