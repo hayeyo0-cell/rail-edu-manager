@@ -7,33 +7,23 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
         .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
-        
-        /* 대구교통공사 로고 */
         .logo-area { margin-bottom: 20px; }
-        .logo-area img { width: 180px; }
-
-        /* 제목 형광펜 효과 */
-        .main-title { 
-            display: inline-block; font-size: 1.6rem; font-weight: bold; color: #222; margin-bottom: 35px; 
-            background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; 
-        }
+        .logo-area img { width: 170px; }
+        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
         
-        /* 왼쪽 사진의 핵심: 탭 메뉴 */
-        .tab-menu { display: flex; margin-bottom: 30px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; transition: 0.3s; }
+        /* 탭 메뉴 */
+        .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        .input-group { text-align: left; margin-bottom: 20px; }
-        .input-label { font-size: 0.9rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block; padding-left: 5px; }
-        
-        input { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
+        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         input:focus { border-color: var(--dtro-blue); background: #fff; }
 
-        .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,114,188,0.2); }
-        
-        .reset-link { margin-top: 30px; font-size: 0.7rem; color: #eee; cursor: pointer; text-decoration: none; }
+        .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .reset-link { margin-top: 25px; font-size: 0.65rem; color: #ddd; cursor: pointer; display: block; }
     </style>
 </head>
 <body>
@@ -58,30 +48,28 @@
                 <input type="number" id="adminId" placeholder="사번 입력">
             </div>
             <div class="input-group">
-                <span id="pwLabel" class="input-label">마스터 비밀번호(1234) 인증</span>
+                <span id="pwLabel" class="input-label">마스터 인증(1234)</span>
                 <input type="password" id="adminPw" placeholder="비밀번호 입력">
             </div>
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
 
-        <div class="reset-link" onclick="resetData()">데이터 초기화</div>
+        <span class="reset-link" onclick="resetData()">데이터 초기화</span>
     </div>
 
     <script>
-        // 페이지가 열리면 무조건 사용자 탭부터 시작!
-        window.onload = function() {
-            switchTab('user');
+        // 무조건 사용자 화면으로 시작하도록 강제 설정
+        window.onload = function() { 
+            switchTab('user'); 
         };
 
         function switchTab(mode) {
             const isUser = (mode === 'user');
-            document.getElementById('userTab').className = isUser ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('adminTab').className = isUser ? 'tab-btn' : 'tab-btn active';
-            
+            document.getElementById('userTab').classList.toggle('active', isUser);
+            document.getElementById('adminTab').classList.toggle('active', !isUser);
             document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
-            
-            if(!isUser) checkAdminStatus(); // 관리자 탭으로 올 때만 상태 체크
+            if(!isUser) checkAdminStatus();
         }
 
         function checkAdminStatus() {
@@ -103,13 +91,13 @@
             const inputPw = document.getElementById('userPw').value;
             const savedTeamPw = localStorage.getItem('teamPw') || "1234";
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const userInfo = totalUserList.find(u => String(u.id) === String(inputId));
+            const user = totalUserList.find(u => String(u.id) === String(inputId));
 
-            if (!userInfo) { alert('명단에 없는 사번입니다.'); return; }
-            if (inputPw !== savedTeamPw) { alert('비밀번호가 틀렸습니다.'); return; }
+            if (!user) { alert("명단에 없는 사번입니다."); return; }
+            if (inputPw !== savedTeamPw) { alert("비밀번호가 틀렸습니다."); return; }
 
-            localStorage.setItem('userDept', userInfo.dept);
-            localStorage.setItem('userName', userInfo.name);
+            localStorage.setItem('userDept', user.dept);
+            localStorage.setItem('userName', user.name);
             location.href = 'user_main.html';
         }
 
@@ -119,19 +107,26 @@
             const savedId = localStorage.getItem('adminId');
             const savedPw = localStorage.getItem('adminPw');
 
-            if (savedId && inputId === savedId && inputPw === savedPw) {
+            // 1순위: 등록된 관리자 정보와 일치하는지 먼저 확인 (무한루프 방지)
+            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) {
                 location.href = 'admin_main.html';
                 return;
             }
+
+            // 2순위: 마스터 비번(1234)인 경우 설정으로 이동
             if (inputPw === "1234") {
                 location.href = 'admin_setting.html';
                 return;
             }
-            alert("인증 정보가 틀렸습니다.");
+
+            alert("정보가 틀렸습니다.");
         }
 
         function resetData() {
-            if(confirm("초기화하시겠습니까?")) { localStorage.clear(); location.reload(); }
+            if(confirm("모든 데이터를 지우고 초기화할까요?")) {
+                localStorage.clear();
+                location.reload();
+            }
         }
     </script>
 </body>
