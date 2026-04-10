@@ -6,26 +6,43 @@
     <title>DTRO 초기 설정 인증</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        html, body { height: 100%; overflow: hidden; display: flex; flex-direction: column; align-items: center; background: var(--bg-gray); font-family: 'Noto Sans KR', sans-serif; }
+        html, body { height: 100%; overflow: hidden; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+
+        /* 슬림 헤더 */
+        .top-header-section { width: 100%; background-color: var(--bg-gray); padding: 12px 0 8px 0; display: flex; flex-direction: column; align-items: center; border-bottom: 2px solid var(--dtro-blue); }
+        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
+        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
+
+        /* 하단 밀착형 밸런스 */
         .main-container { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; align-items: center; padding-bottom: 80px; }
         .auth-card { width: 88%; max-width: 380px; background: white; border-radius: 24px; padding: 40px 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
-        .title { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; color: #333; }
-        input { width: 100%; height: 55px; text-align: center; font-size: 1.2rem; border: 1px solid #eee; border-radius: 14px; margin-bottom: 20px; outline: none; }
-        .btn-next { width: 100%; height: 55px; background: #333; color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; }
+        
+        .title { font-size: 1.1rem; font-weight: bold; margin-bottom: 25px; color: #333; line-height: 1.5; }
+        input { width: 100%; height: 55px; text-align: center; font-size: 1.3rem; border: 1px solid #eee; border-radius: 14px; margin-bottom: 20px; outline: none; background: #fafafa; box-sizing: border-box; }
+        
+        .btn-next { width: 100%; height: 55px; background: #333; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
     </style>
 </head>
 <body>
+    <div class="top-header-section">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <h1 class="main-title">보안 인증</h1>
+    </div>
+
     <div class="main-container">
         <div class="auth-card">
-            <div class="title">초기 설정을 위해<br>마스터 비밀번호를 입력하세요</div>
+            <div class="title">초기 관리자 지정을 위해<br>마스터 비밀번호를 입력하세요</div>
             <input type="password" id="masterInput" placeholder="Master Password">
             <button class="btn-next" onclick="checkMaster()">인증하기</button>
         </div>
     </div>
+
     <script>
         function checkMaster() {
+            // 마스터 비번 1234 확인
             if(document.getElementById('masterInput').value === '1234') {
-                location.href = 'admin_first_reg.html'; // 인증 성공 시 등록 화면으로
+                location.href = 'admin_first_reg.html';
             } else {
                 alert('마스터 비밀번호가 틀립니다.');
             }
