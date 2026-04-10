@@ -3,48 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 초기 설정 인증</title>
+    <title>관리자 설정 확인</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        html, body { height: 100%; overflow: hidden; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-
-        /* 슬림 헤더 */
-        .top-header-section { width: 100%; background-color: var(--bg-gray); padding: 12px 0 8px 0; display: flex; flex-direction: column; align-items: center; border-bottom: 2px solid var(--dtro-blue); }
-        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
-        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
-
-        /* 하단 밀착형 밸런스 */
-        .main-container { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; align-items: center; padding-bottom: 80px; }
-        .auth-card { width: 88%; max-width: 380px; background: white; border-radius: 24px; padding: 40px 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        .title { font-size: 1.1rem; font-weight: bold; margin-bottom: 25px; color: #333; line-height: 1.5; }
-        input { width: 100%; height: 55px; text-align: center; font-size: 1.3rem; border: 1px solid #eee; border-radius: 14px; margin-bottom: 20px; outline: none; background: #fafafa; box-sizing: border-box; }
+        .settings-card { 
+            width: 100%; max-width: 400px; background: white; border-radius: 25px; 
+            padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); box-sizing: border-box; 
+            margin-top: 20px;
+        }
         
-        .btn-next { width: 100%; height: 55px; background: #333; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        h2 { text-align: center; color: #333; margin-bottom: 30px; font-size: 1.4rem; }
+        
+        .section-title { 
+            font-size: 1rem; font-weight: bold; color: var(--dtro-blue); 
+            border-left: 4px solid var(--dtro-blue); padding-left: 10px; margin: 25px 0 15px 0; 
+        }
+        
+        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 5px; display: block; padding-left: 5px; }
+        
+        select, input { 
+            width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #eee; 
+            border-radius: 12px; box-sizing: border-box; font-size: 0.95rem; outline: none; background: #fafafa; 
+        }
+        input:focus { border-color: var(--dtro-blue); background: #fff; }
+        
+        .check-msg { font-size: 0.75rem; margin-bottom: 15px; display: none; padding-left: 5px; }
+        .error { color: var(--error-red); }
+        .success { color: #2ecc71; }
+
+        .save-btn { 
+            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,114,188,0.2);
+        }
     </style>
 </head>
 <body>
-    <div class="top-header-section">
-        <img src="logo.png" class="brand-logo" alt="DTRO">
-        <h1 class="main-title">보안 인증</h1>
-    </div>
+    <div class="settings-card">
+        <h2>🛠️ 관리자 설정</h2>
+        
+        <div class="section-title">소속 지정</div>
+        <select id="setDept">
+            <option value="">소속을 선택하세요</option>
+            <option value="경산승무팀">경산승무팀</option>
+            <option value="안심승무팀">안심승무팀</option>
+            <option value="월배승무팀">월배승무팀</option>
+            <option value="문양승무팀">문양승무팀</option>
+        </select>
 
-    <div class="main-container">
-        <div class="auth-card">
-            <div class="title">초기 관리자 지정을 위해<br>마스터 비밀번호를 입력하세요</div>
-            <input type="password" id="masterInput" placeholder="Master Password">
-            <button class="btn-next" onclick="checkMaster()">인증하기</button>
-        </div>
+        <div class="section-title">관리자 계정 설정</div>
+        <span class="input-label">관리자 사번</span>
+        <input type="number" id="setAdminId" placeholder="사번 입력 (예: 20050552)">
+        
+        <span class="input-label">관리자 새 비밀번호</span>
+        <input type="password" id="setAdminPw" placeholder="비밀번호 입력">
+        <input type="password" id="confirmAdminPw" placeholder="비밀번호 확인" oninput="validatePw()">
+        <div id="pwCheckMsg" class="check-msg"></div>
+
+        <div class="section-title">팀원용 공용 비번 설정</div>
+        <span class="input-label">공용 비밀번호 (팀원 로그인용)</span>
+        <input type="password" id="setTeamPw" placeholder="공용 비밀번호 입력">
+
+        <button class="save-btn" onclick="saveSettings()">설정 저장 및 완료</button>
     </div>
 
     <script>
-        function checkMaster() {
-            // 마스터 비번 1234 확인
-            if(document.getElementById('masterInput').value === '1234') {
-                location.href = 'admin_first_reg.html';
+        // 비밀번호 실시간 일치 확인 로직
+        function validatePw() {
+            const pw = document.getElementById('setAdminPw').value;
+            const confirm = document.getElementById('confirmAdminPw').value;
+            const msg = document.getElementById('pwCheckMsg');
+
+            if (confirm.length > 0) {
+                msg.style.display = 'block';
+                if (pw === confirm) {
+                    msg.innerText = "✓ 비밀번호가 일치합니다.";
+                    msg.className = "check-msg success";
+                } else {
+                    msg.innerText = "✗ 비밀번호가 일치하지 않습니다.";
+                    msg.className = "check-msg error";
+                }
             } else {
-                alert('마스터 비밀번호가 틀립니다.');
+                msg.style.display = 'none';
+            }
+        }
+
+        function saveSettings() {
+            const dept = document.getElementById('setDept').value;
+            const id = document.getElementById('setAdminId').value;
+            const pw = document.getElementById('setAdminPw').value;
+            const confirmPw = document.getElementById('confirmAdminPw').value;
+            const teamPw = document.getElementById('setTeamPw').value;
+
+            if(!dept || !id || !pw || !teamPw) {
+                alert('모든 항목을 입력해 주세요!');
+                return;
+            }
+
+            if(pw !== confirmPw) {
+                alert('비밀번호 확인이 일치하지 않습니다.');
+                return;
+            }
+
+            const finalConfirm = confirm(
+                `📍 소속: ${dept}\n🆔 사번: ${id}\n\n위 정보로 관리자를 등록하시겠습니까?`
+            );
+
+            if(finalConfirm) {
+                // 저장 전 기존 데이터 싹 비우기
+                localStorage.clear();
+                
+                localStorage.setItem('userDept', dept);
+                localStorage.setItem('adminId', id);
+                localStorage.setItem('adminPw', pw);
+                localStorage.setItem('teamPw', teamPw);
+
+                alert('설정이 완료되었습니다!\n이제 정식 관리자 계정으로 로그인하세요.');
+                location.href = 'index.html';
             }
         }
     </script>
