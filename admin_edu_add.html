@@ -20,7 +20,10 @@
             background: white; border: 1px solid #eaeaea; border-radius: 6px;
             padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
         }
-        .brand-logo { height: 26px; mix-blend-mode: multiply; }
+        
+        /* [수정] 메인 화면과 완벽하게 동일한 로고 크기 적용 */
+        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
+        
         .header-spacer { width: 65px; }
 
         /* 메인 영역 */
@@ -140,17 +143,14 @@
             }
         }
 
-        // [핵심] 분류 변경 시 아래 입력창이 자동으로 변하는 마법!
         function toggleFields() {
             const category = document.getElementById('eduCategory').value;
             const simFields = document.getElementById('simFields');
             const broadcastFields = document.getElementById('broadcastFields');
 
-            // 1. 일단 모두 숨겨둡니다.
             simFields.style.display = 'none';
             broadcastFields.style.display = 'none';
 
-            // 2. 선택된 항목에 맞춰 필요한 입력창만 짠! 하고 보여줍니다.
             if (category === '시뮬레이션') {
                 simFields.style.display = 'block';
             } else if (category === '육성방송 훈련') {
