@@ -22,11 +22,11 @@
         .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
         .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
 
-        /* [표준] 하단 여백 박멸 컨테이너 */
+        /* [표준] 하단 여백 박멸 컨테이너 (80px) */
         .main-container {
             flex: 1; display: flex; flex-direction: column;
             justify-content: flex-end; width: 100%; align-items: center;
-            padding-bottom: 80px; /* 기관사님 전용 황금 높이 */
+            padding-bottom: 80px; 
         }
 
         .settings-card { 
@@ -35,25 +35,25 @@
             box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: left;
         }
         
-        .setting-item { margin-bottom: 25px; }
-        .setting-label { font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 10px; display: block; }
+        .section-title { font-size: 1rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 18px; display: block; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        
+        .setting-item { margin-bottom: 20px; }
+        .setting-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block; padding-left: 4px; }
         
         input { 
             width: 100%; height: 50px; padding: 0 15px; 
             border: 1px solid #e8e8e8; border-radius: 12px; 
             font-size: 1rem; background: #fafafa; outline: none; box-sizing: border-box;
         }
+        input:focus { border-color: var(--dtro-blue); background: #fff; }
 
         .btn-save { 
-            width: 100%; height: 56px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
-            cursor: pointer; margin-top: 10px;
+            width: 100%; height: 58px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 16px; font-size: 1.15rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(0,114,188,0.2);
         }
 
-        .back-link { 
-            margin-top: 25px; display: block; text-align: center;
-            font-size: 0.85rem; color: #bbb; text-decoration: none; 
-        }
+        .back-link { margin-top: 22px; display: block; text-align: center; font-size: 0.85rem; color: #bbb; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -65,18 +65,21 @@
 
     <div class="main-container">
         <div class="settings-card">
+            
+            <span class="section-title">담당자 계정 변경</span>
+            
             <div class="setting-item">
-                <span class="setting-label">팀 공용 비밀번호 변경</span>
+                <span class="setting-label">신규 관리자 ID (사번)</span>
+                <input type="text" placeholder="변경할 ID 입력">
+            </div>
+
+            <div class="setting-item" style="margin-bottom: 30px;">
+                <span class="setting-label">신규 관리자 비밀번호</span>
                 <input type="password" placeholder="새 비밀번호 입력">
             </div>
 
-            <div class="setting-item">
-                <span class="setting-label">관리자 접속 코드 변경</span>
-                <input type="password" placeholder="새 접속 코드 입력">
-            </div>
-
-            <button class="btn-save" onclick="alert('설정이 저장되었습니다.'); location.href='admin_main.html'">
-                설정 저장하기
+            <button class="btn-save" onclick="if(confirm('담당자 계정 정보를 변경하시겠습니까?')) { alert('성공적으로 변경되었습니다. 다음 로그인부터 적용됩니다.'); location.href='admin_main.html'; }">
+                담당자 정보 업데이트
             </button>
             
             <a href="admin_main.html" class="back-link">관리자 메인으로 돌아가기</a>
