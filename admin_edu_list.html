@@ -3,29 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 내역 관리</title>
+    <title>등록된 교육 내역</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
-        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
-        .container { padding: 20px; }
-        .edu-item { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
-        .edu-title { font-weight: bold; color: #333; }
-        .manage-btns button { border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer; margin-left: 5px; }
-        .edit-btn { background: #eef6ff; color: var(--dtro-blue); }
-        .del-btn { background: #fff1f1; color: #ff4d4d; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
+
+        /* [통일] 상단 헤더 및 32px 로고 */
+        .top-header {
+            width: 100%; background: white; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
+            box-sizing: border-box;
+        }
+        .back-btn {
+            background: white; border: 1px solid #eaeaea; border-radius: 6px;
+            padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
+        }
+        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
+        .header-spacer { width: 65px; }
+
+        /* 메인 컨테이너 */
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
+        
+        /* 리스트 감싸는 영역 */
+        .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
+
+        /* 📄 페이지 타이틀 */
+        .page-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 20px; display: flex; align-items: center; }
+        .page-title span { margin-right: 8px; font-size: 1.3rem; }
+
+        /* 개별 교육 카드 디자인 */
+        .edu-card {
+            background: white; border-radius: 16px; padding: 18px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
+            border: 1px solid #fcfcfc;
+        }
+        
+        /* 카드 상단: 분류 뱃지 & 날짜 */
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .badge { 
+            padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; 
+        }
+        .badge-general { background: #eef6ff; color: var(--dtro-blue); } /* 게시교육 */
+        .badge-sim { background: #eef9f1; color: #2ecc71; } /* 시뮬레이션 */
+        .badge-voice { background: #fff5eb; color: #f39c12; } /* 육성방송 훈련 */
+        .date { font-size: 0.8rem; color: #999; }
+
+        /* 카드 중단: 제목 */
+        .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 15px; line-height: 1.4; word-break: keep-all; }
+
+        /* 카드 하단: 버튼 영역 */
+        .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
+        .action-btn { 
+            background: white; border: 1px solid #ddd; border-radius: 8px; 
+            padding: 6px 15px; font-size: 0.85rem; cursor: pointer; margin-left: 8px;
+            font-weight: bold; color: #555;
+        }
+        .btn-edit { border-color: var(--dtro-blue); color: var(--dtro-blue); }
+        .btn-delete { border-color: #ff4d4d; color: #ff4d4d; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button onclick="history.back()" style="background:none; border:none; font-size:1.3rem;">←</button>
-        <span style="font-weight:bold; margin-left:10px;">등록된 교육 내역</span>
+
+    <div class="top-header">
+        <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
+        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
+        <div class="header-spacer"></div>
     </div>
-    <div class="container">
-        <div class="edu-item">
-            <div class="edu-info"><span style="font-size:0.8rem; color:#999;">2026.04.10</span><br><span class="edu-title">안개 구간 서행 운전</span></div>
-            <div class="manage-btns"><button class="edit-btn">수정</button><button class="del-btn">삭제</button></div>
+
+    <div class="main-container">
+        <div class="list-wrapper">
+            
+            <div class="page-title">
+                <span>📄</span> 등록된 교육 내역
+            </div>
+
+            <div class="edu-card">
+                <div class="card-header">
+                    <span class="badge badge-general">게시교육</span>
+                    <span class="date">2026.04.10</span>
+                </div>
+                <div class="edu-title">봄철 안개 구간 서행 운전 및 주의사항 안내</div>
+                <div class="card-actions">
+                    <button class="action-btn btn-edit" onclick="alert('수정 화면으로 이동합니다.')">수정</button>
+                    <button class="action-btn btn-delete" onclick="confirmDelete(this)">삭제</button>
+                </div>
+            </div>
+
+            <div class="edu-card">
+                <div class="card-header">
+                    <span class="badge badge-sim">시뮬레이션</span>
+                    <span class="date">2026.04.08</span>
+                </div>
+                <div class="edu-title">차량고장 (TCU 통신불량) 발생 시 응급조치 훈련</div>
+                <div class="card-actions">
+                    <button class="action-btn btn-edit" onclick="alert('수정 화면으로 이동합니다.')">수정</button>
+                    <button class="action-btn btn-delete" onclick="confirmDelete(this)">삭제</button>
+                </div>
+            </div>
+
+            <div class="edu-card">
+                <div class="card-header">
+                    <span class="badge badge-voice">육성방송 훈련</span>
+                    <span class="date">2026.04.05</span>
+                </div>
+                <div class="edu-title">화재 발생 시 승객 대피 유도 안내방송 훈련</div>
+                <div class="card-actions">
+                    <button class="action-btn btn-edit" onclick="alert('수정 화면으로 이동합니다.')">수정</button>
+                    <button class="action-btn btn-delete" onclick="confirmDelete(this)">삭제</button>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <script>
+        // 삭제 버튼 클릭 시 확인 알림창
+        function confirmDelete(buttonElement) {
+            if(confirm('이 교육 내역을 정말 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다.)')) {
+                // 부모 요소(카드)를 찾아서 화면에서 숨김(삭제) 처리
+                const card = buttonElement.closest('.edu-card');
+                card.style.display = 'none';
+                alert('삭제되었습니다.');
+            }
+        }
+    </script>
 </body>
 </html>
