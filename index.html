@@ -11,30 +11,47 @@
             margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; 
         }
         .login-card { 
-            width: 90%; max-width: 400px; background: white; padding: 40px 25px; 
-            border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: left; 
+            width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
+            border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; 
         }
-        .logo-area { text-align: center; margin-bottom: 30px; }
-        .logo-area img { width: 180px; }
+        .logo-area { margin-bottom: 25px; }
+        .logo-area img { width: 170px; }
         
-        .main-title { font-size: 1.4rem; font-weight: bold; color: #333; text-align: center; margin-bottom: 30px; }
-        
-        .input-label { font-size: 0.95rem; font-weight: bold; color: #555; margin-bottom: 8px; display: block; padding-left: 5px; }
-        
-        input, select { 
-            width: 100%; padding: 16px; margin-bottom: 20px; border: 1px solid #eaeaea; 
-            border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fcfcfc; outline: none;
+        /* ✨ 파란색 형광펜 효과 제목 */
+        .main-title { 
+            display: inline-block;
+            font-size: 1.5rem; font-weight: bold; color: #222; 
+            margin-bottom: 35px;
+            background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%);
+            padding: 0 5px;
         }
-        input:focus { border-color: var(--dtro-blue); background: #fff; }
+        
+        /* 탭 메뉴 스타일 (너가 좋아한 방식!) */
+        .tab-menu { display: flex; margin-bottom: 30px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
+        .tab-btn { 
+            flex: 1; padding: 12px; border: none; border-radius: 10px; 
+            cursor: pointer; font-weight: bold; background: none; color: #999;
+            transition: 0.3s;
+        }
+        .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .input-group { text-align: left; margin-bottom: 20px; }
+        .input-label { font-size: 0.9rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block; padding-left: 5px; }
+        
+        input { 
+            width: 100%; padding: 16px; border: 1px solid #eee; 
+            border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none;
+        }
+        input:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.1); }
 
         .login-btn { 
             width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
             border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
-            cursor: pointer; margin-top: 10px; display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 5px 15px rgba(0,114,188,0.2);
+            cursor: pointer; margin-top: 10px;
+            box-shadow: 0 8px 20px rgba(0,114,188,0.2);
         }
         
-        .admin-link { display: block; text-align: center; margin-top: 25px; font-size: 0.85rem; color: #bbb; text-decoration: underline; cursor: pointer; }
+        .footer-text { margin-top: 25px; font-size: 0.8rem; color: #ccc; }
     </style>
 </head>
 <body>
@@ -43,67 +60,84 @@
         <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
         <div class="main-title">스마트 교육 플랫폼</div>
         
-        <div id="userSection">
-            <span class="input-label">사번 (8자리)</span>
-            <input type="number" id="userId" placeholder="사번 입력">
-            
-            <span class="input-label">팀 공용 비밀번호</span>
-            <input type="password" id="userPw" placeholder="비밀번호 입력">
-            
-            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
-            <div class="admin-link" onclick="showAdminPrompt()">관리자 페이지 이동</div>
+        <div class="tab-menu">
+            <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
+            <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
         </div>
+
+        <div id="userForm">
+            <div class="input-group">
+                <span class="input-label">사번 (8자리)</span>
+                <input type="number" id="userId" placeholder="사번 입력">
+            </div>
+            <div class="input-group">
+                <span class="input-label">팀 공용 비밀번호</span>
+                <input type="password" id="userPw" placeholder="비밀번호 입력">
+            </div>
+            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
+        </div>
+
+        <div id="adminForm" style="display: none;">
+            <div class="input-group">
+                <span class="input-label">관리자 비밀번호</span>
+                <input type="password" id="adminPw" placeholder="비밀번호 입력">
+            </div>
+            <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
+            <p style="font-size:0.75rem; color:#999; margin-top:15px;">최초 접속 시 마스터 비번(0000)을 입력하세요.</p>
+        </div>
+
+        <div class="footer-text">© 2026 DTRO Smart Education System</div>
     </div>
 
     <script>
-        const MASTER_PW = "0000"; // 마스터 비번
+        let currentMode = 'user';
+        const MASTER_PW = "0000";
+
+        function switchTab(mode) {
+            currentMode = mode;
+            document.getElementById('userTab').className = mode === 'user' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('adminTab').className = mode === 'admin' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('userForm').style.display = mode === 'user' ? 'block' : 'none';
+            document.getElementById('adminForm').style.display = mode === 'admin' ? 'block' : 'none';
+        }
 
         function userLogin() {
             const inputId = document.getElementById('userId').value;
             const inputPw = document.getElementById('userPw').value;
             const savedTeamPw = localStorage.getItem('teamPw') || "1234";
 
-            // 관리자가 등록한 명단 가져오기
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            
-            // 명단에서 해당 사번 찾기
             const userInfo = totalUserList.find(user => String(user.id) === String(inputId));
 
             if (!userInfo) {
-                alert('등록된 교육 대상자가 아닙니다.\n관리자에게 사번 등록을 요청하세요.');
+                alert('명단에 없는 사번입니다. 관리자에게 문의하세요.');
                 return;
             }
-
             if (inputPw !== savedTeamPw) {
-                alert('팀 비밀번호가 올바르지 않습니다.');
+                alert('비밀번호가 틀렸습니다.');
                 return;
             }
 
-            // 로그인 정보 저장 (소속 정보 자동 포함)
             localStorage.setItem('userId', userInfo.id);
             localStorage.setItem('userName', userInfo.name);
             localStorage.setItem('userDept', userInfo.dept);
             localStorage.setItem('userRole', 'user');
 
-            alert(userInfo.dept + " " + userInfo.name + " 기관사님,\n오늘도 안전운행 하십시오!");
+            alert(userInfo.dept + " " + userInfo.name + " 기관사님 환영합니다!");
             location.href = 'user_main.html';
         }
 
-        function showAdminPrompt() {
-            const adminPw = prompt("관리자 비밀번호를 입력하세요.");
-            if (!adminPw) return;
-
+        function adminLogin() {
+            const inputPw = document.getElementById('adminPw').value;
             const savedAdminPw = localStorage.getItem('adminPw');
 
-            // 1. 마스터 비번 입력 시 설정 페이지로
-            if (adminPw === MASTER_PW) {
+            if (inputPw === MASTER_PW) {
                 alert('마스터 인증 성공! 설정 페이지로 이동합니다.');
                 location.href = 'admin_setting.html';
                 return;
             }
 
-            // 2. 등록된 관리자 비번 확인
-            if (savedAdminPw && adminPw === savedAdminPw) {
+            if (savedAdminPw && inputPw === savedAdminPw) {
                 localStorage.setItem('userRole', 'admin');
                 location.href = 'admin_main.html';
             } else {
