@@ -15,79 +15,42 @@
             border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
             box-sizing: border-box;
         }
-        .header-btn {
-            background: white; border: 1px solid #eaeaea; border-radius: 6px;
-            padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
-        }
+        .header-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
         .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
         .header-spacer { width: 68px; } 
 
         .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
         .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
 
-        .welcome-card {
-            background: var(--dtro-blue); color: white; border-radius: 16px;
-            padding: 20px; box-shadow: 0 4px 15px rgba(0,114,188,0.2);
-            margin-bottom: 25px; text-align: left;
-        }
+        .welcome-card { background: var(--dtro-blue); color: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,114,188,0.2); margin-bottom: 25px; text-align: left; }
         .welcome-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 5px; }
         .welcome-desc { font-size: 0.9rem; opacity: 0.9; line-height: 1.4; }
 
-        /* 파란색 통일 타이틀 */
         .section-wrap { width: 100%; text-align: left; margin-bottom: 12px; }
-        .section-title { 
-            font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
-            border-left: 5px solid var(--dtro-blue); padding-left: 10px; 
-        }
+        .section-title { font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); border-left: 5px solid var(--dtro-blue); padding-left: 10px; }
 
-        /* 필터 버튼 영역 (복구 완료!) */
-        .filter-wrapper {
-            width: 100%; overflow-x: auto; white-space: nowrap; 
-            margin-bottom: 15px; padding-bottom: 5px;
-            -ms-overflow-style: none; scrollbar-width: none; 
-        }
+        .filter-wrapper { width: 100%; overflow-x: auto; white-space: nowrap; margin-bottom: 15px; padding-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
         .filter-wrapper::-webkit-scrollbar { display: none; }
-        
-        .filter-btn {
-            display: inline-block; padding: 6px 14px; border-radius: 20px;
-            border: 1px solid #ddd; background: white; color: #666;
-            font-size: 0.85rem; margin-right: 6px; cursor: pointer; transition: 0.2s;
-        }
-        .filter-btn.active {
-            background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold;
-        }
+        .filter-btn { display: inline-block; padding: 6px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; color: #666; font-size: 0.85rem; margin-right: 6px; cursor: pointer; transition: 0.2s; }
+        .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
 
-        /* 교육 카드 */
-        .edu-card {
-            background: white; border-radius: 16px; padding: 18px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
-            border: 1px solid #fcfcfc;
-        }
+        .edu-card { background: white; border-radius: 16px; padding: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #fcfcfc; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
-        
         .badge-general { background: #eef6ff; color: var(--dtro-blue); } 
         .badge-face { background: #f3e8ff; color: #8e44ad; } 
         .badge-sim { background: #eef9f1; color: #2ecc71; } 
         .badge-voice { background: #fff5eb; color: #f39c12; } 
         .badge-etc { background: #f0f0f0; color: #555; } 
-        
         .date { font-size: 0.8rem; color: #999; }
         .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 6px; line-height: 1.4; word-break: keep-all; }
         .edu-deadline { font-size: 0.85rem; color: #ff4d4d; font-weight: bold; margin-bottom: 15px; }
 
         .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
         .btn-start { background: var(--dtro-blue); color: white; border: none; border-radius: 8px; padding: 8px 18px; font-size: 0.9rem; cursor: pointer; font-weight: bold; width: 100%; }
-
         .empty-msg { text-align: center; color: #999; padding: 30px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; margin-bottom: 15px; }
 
-        /* 하단 이동용 메뉴 카드 */
-        .menu-card {
-            width: 100%; background: white; border-radius: 20px;
-            padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            display: flex; align-items: center; margin-bottom: 16px;
-            cursor: pointer; box-sizing: border-box; border: 1px solid #fcfcfc;
-        }
+        .menu-card { width: 100%; background: white; border-radius: 20px; padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); display: flex; align-items: center; margin-bottom: 16px; cursor: pointer; box-sizing: border-box; border: 1px solid #fcfcfc; }
         .menu-icon { width: 50px; height: 50px; margin-right: 18px; object-fit: contain; }
         .menu-info { text-align: left; flex: 1; }
         .menu-title { font-size: 1.1rem; font-weight: bold; color: #222; margin-bottom: 6px; display: block; }
@@ -95,7 +58,6 @@
     </style>
 </head>
 <body>
-
     <div class="top-header">
         <div class="header-spacer"></div>
         <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
@@ -104,26 +66,18 @@
 
     <div class="main-container">
         <div class="list-wrapper">
-            
             <div class="welcome-card">
                 <div class="welcome-title">기관사님, 안전운행 하십시오! 🚆</div>
                 <div class="welcome-desc">오늘 이수해야 할 교육 및 훈련 목록입니다.<br>운행 전 꼼꼼히 확인해 주세요.</div>
             </div>
 
-            <div class="section-wrap">
-                <span class="section-title">오늘의 필수 교육 목록</span>
-            </div>
-
-            <div class="filter-wrapper" id="categoryFilters">
-                </div>
-
+            <div class="section-wrap"><span class="section-title">오늘의 필수 교육 목록</span></div>
+            <div class="filter-wrapper" id="categoryFilters"></div>
+            
             <div id="userEduListArea"></div>
             <div class="empty-msg" id="emptyMessage">현재 예정된 필수 교육이 없습니다.<br>오늘도 안전운행 하십시오!</div>
 
-            <div class="section-wrap" style="margin-top: 15px;">
-                <span class="section-title">학습 보관함</span>
-            </div>
-
+            <div class="section-wrap" style="margin-top: 15px;"><span class="section-title">학습 보관함</span></div>
             <div class="menu-card" onclick="location.href='user_completed_list.html'">
                 <img src="https://cdn-icons-png.flaticon.com/512/3285/3285813.png" class="menu-icon" alt="완료 내역">
                 <div class="menu-info">
@@ -131,7 +85,6 @@
                     <span class="menu-desc">이전에 수강을 완료한 교육 및 훈련 목록을 확인합니다.</span>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -140,7 +93,6 @@
         let allEduData = []; 
 
         window.onload = function() {
-            // 저장된 교육 목록을 불러옵니다
             allEduData = JSON.parse(localStorage.getItem('myEduList')) || [];
             renderFilters(); 
             renderEduList(); 
@@ -149,7 +101,6 @@
         function renderFilters() {
             const filterDiv = document.getElementById('categoryFilters');
             const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션', '육성방송 훈련', '기타교육'];
-            
             let html = '';
             categories.forEach(cat => {
                 const activeClass = (cat === currentFilter) ? 'active' : '';
@@ -168,24 +119,22 @@
             const listArea = document.getElementById('userEduListArea');
             const emptyMsg = document.getElementById('emptyMessage');
             
-            // 선택된 카테고리에 맞게 필터링
             const filteredData = allEduData.filter(edu => {
                 if(currentFilter === '전체') return true;
                 return edu.category === currentFilter;
             });
 
-            // 데이터가 없으면 안내 메시지 표시
             if(filteredData.length === 0) {
-                emptyMsg.style.display = 'block'; 
-                listArea.innerHTML = '';
-                return;
+                emptyMsg.style.display = 'block'; listArea.innerHTML = ''; return;
             }
 
-            // 데이터가 있으면 목록 그려주기
             emptyMsg.style.display = 'none';
             let html = '';
 
-            filteredData.forEach((edu, index) => {
+            filteredData.forEach((edu) => {
+                // 원본 배열(allEduData)에서의 진짜 인덱스 번호를 찾습니다.
+                const originalIndex = allEduData.indexOf(edu);
+
                 let badgeClass = 'badge-general';
                 if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
                 else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
@@ -201,21 +150,19 @@
                         <span class="date">게시일: ${edu.date}</span>
                     </div>
                     <div class="edu-title">${edu.title}</div>
-                    
                     <div class="edu-deadline">⏳ 마감 기한: ${deadlineText} 까지</div>
-
                     <div class="card-actions">
-                        <button class="btn-start" onclick="enterEducation('${edu.title}')">교육 입장하기 →</button>
+                        <button class="btn-start" onclick="enterEducation(${originalIndex})">교육 입장하기 →</button>
                     </div>
                 </div>
                 `;
             });
-
             listArea.innerHTML = html;
         }
 
-        function enterEducation(title) {
-            alert('[' + title + '] 상세 화면으로 이동합니다! (기능 준비 중)');
+        // 알림창 없애고 진짜 페이지로 연결!
+        function enterEducation(index) {
+            location.href = 'user_edu_detail.html?id=' + index;
         }
     </script>
 </body>
