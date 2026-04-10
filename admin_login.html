@@ -6,99 +6,68 @@
     <title>DTRO 관리자 로그인</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        
         html, body { height: 100%; overflow: hidden; }
         body { 
             font-family: 'Noto Sans KR', sans-serif; 
-            background-color: var(--bg-gray); 
-            margin: 0; padding: 0; 
-            display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
+            background-color: var(--bg-gray); margin: 0; padding: 0; 
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        /* [핵심 수정] 상단 공간 다이어트 및 로고 강조 */
-        .brand-area { 
-            text-align: center; 
-            margin-bottom: 25px; /* 카드와의 간격 */
-            margin-top: -30px; /* 위쪽 빈 공간을 강제로 끌어올림 */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* [표준] 슬림 헤더 */
+        .top-header-section {
+            width: 100%; background-color: var(--bg-gray);
+            padding: 12px 0 8px 0; display: flex; flex-direction: column;
+            align-items: center; border-bottom: 2px solid var(--dtro-blue);
+        }
+        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
+        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; letter-spacing: -1px; }
+
+        /* [표준] 상단 여백 확보 및 하단 공간 최적화 컨테이너 */
+        .main-container {
+            flex: 1; display: flex; flex-direction: column;
+            justify-content: flex-start; width: 100%; align-items: center;
+            padding-top: 50px; /* 찾으신 황금 여백 */
         }
 
-        .brand-logo { 
-            height: 32px; /* 로고를 시원하게 키움 */
-            margin-bottom: 12px; /* Administrator 문구와의 간격 */
-            opacity: 1; /* 선명하게 */
-        }
-
-        .admin-sub { 
-            color: var(--dtro-blue); 
-            font-size: 0.9rem; 
-            font-weight: 600; 
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-        }
-
-        .main-title { 
-            font-size: 1.65rem; 
-            font-weight: bold; 
-            color: #222; 
-            margin: 0; 
-            letter-spacing: -1px;
-        }
-
-        /* 카드 디자인 */
         .login-card { 
-            width: 88%; max-width: 380px; 
-            background: white; border-radius: 24px; 
-            padding: 35px 22px 25px 22px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06); 
-            text-align: center;
+            width: 88%; max-width: 380px; background: white; 
+            border-radius: 24px; padding: 35px 24px 25px 24px; 
+            box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center;
         }
         
         .input-group { text-align: left; margin-bottom: 18px; }
-        label { display: block; font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 7px; padding-left: 5px; }
-        
-        input { 
-            width: 100%; height: 50px; padding: 0 15px; 
-            border: 1px solid #e1e1e1; border-radius: 12px; 
-            font-size: 1rem; background: #fafafa; outline: none; box-sizing: border-box;
-        }
+        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 6px; }
+        input { width: 100%; height: 50px; padding: 0 15px; border: 1px solid #e8e8e8; border-radius: 12px; font-size: 1rem; background: #fafafa; outline: none; box-sizing: border-box;}
 
         .btn-admin { 
-            width: 100%; height: 55px; background: #333; color: white; 
-            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: bold; 
-            cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%; height: 56px; background: #333; color: white; 
+            border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         }
 
-        .back-link { margin-top: 20px; display: inline-block; font-size: 0.75rem; color: #bbb; text-decoration: none; border-bottom: 1px solid #eee; }
+        .back-link { margin-top: 25px; display: inline-block; font-size: 0.8rem; color: #bbb; text-decoration: none; }
     </style>
 </head>
 <body>
 
-    <div class="brand-area">
+    <div class="top-header-section">
         <img src="logo.png" class="brand-logo" alt="DTRO">
-        <span class="admin-sub">Administrator</span>
-        <h1 class="main-title">관리자 로그인</h1>
+        <h1 class="main-title">관리자 전용 로그인</h1>
     </div>
 
-    <div class="login-card">
-        <div class="input-group">
-            <label>관리자 사번/ID</label>
-            <input type="text" id="adminId" placeholder="아이디 입력">
+    <div class="main-container">
+        <div class="login-card">
+            <div class="input-group">
+                <label>관리자 사번/ID</label>
+                <input type="text" id="adminId" placeholder="아이디 입력">
+            </div>
+            <div class="input-group" style="margin-bottom: 30px;">
+                <label>비밀번호</label>
+                <input type="password" id="adminPw" placeholder="비밀번호 입력">
+            </div>
+            <button class="btn-admin" onclick="location.href='admin_main.html'">관리자 접속하기</button>
+            <a href="index.html" class="back-link">일반 사용자 페이지로 돌아가기</a>
         </div>
-
-        <div class="input-group" style="margin-bottom: 30px;">
-            <label>관리자 비밀번호</label>
-            <input type="password" id="adminPw" placeholder="비밀번호 입력">
-        </div>
-
-        <button class="btn-admin" onclick="location.href='admin_main.html'">
-            관리자 접속하기
-        </button>
-
-        <a href="index.html" class="back-link">일반 사용자 페이지로 돌아가기</a>
     </div>
 
 </body>
