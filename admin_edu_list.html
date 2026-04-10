@@ -3,44 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 내역 - DTRO</title>
+    <title>교육 내역 관리 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-nav { width: 100%; background: white; padding: 15px 12px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        .top-nav { width: 100%; background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
+        /* 🚨 내 로고 크기 지정 */
         .brand-logo { height: 28px; object-fit: contain; }
         .container { width: 92%; max-width: 400px; padding: 20px 0; }
         .edu-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
         .edu-title { font-weight: bold; font-size: 1.1rem; color: #333; margin-bottom: 8px; display: block; }
         .edu-date { font-size: 0.8rem; color: #999; margin-bottom: 12px; display: block; }
-        .del-btn { width: 100%; padding: 10px; background: #fff; border: 1px solid #ff4d4d; color: #ff4d4d; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-group { display: flex; gap: 10px; justify-content: flex-end; }
+        .del-btn { background: #ff4d4d; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="top-nav">
         <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Daegu_Transportation_Corporation_Logo.svg/1200px-Daegu_Transportation_Corporation_Logo.svg.png" class="brand-logo">
+        <img src="logo.png" class="brand-logo" alt="DTRO Logo">
         <div style="width:70px;"></div>
     </div>
-    <div class="container" id="listArea"></div>
+    <div class="container" id="listArea">
+        </div>
     <script>
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
         window.onload = function() {
-            const listArea = document.getElementById('listArea');
-            const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const myEdu = list.filter(e => e.dept === myDept);
-            if(myEdu.length === 0) { listArea.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">내역이 없습니다.</p>'; return; }
-            let html = '';
-            myEdu.forEach(e => { html += `<div class="edu-card"><span class="edu-title">${e.title}</span><span class="edu-date">등록일: ${e.date}</span><button class="del-btn" onclick="deleteEdu('${e.id}')">삭제하기</button></div>`; });
-            listArea.innerHTML = html;
+            renderEduList();
         };
+        function renderEduList() {
+            const listArea = document.getElementById('listArea');
+            const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            const myEduList = totalEduList.filter(edu => edu.dept === myDept);
+            if (myEduList.length === 0) { listArea.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">등록된 교육 내역이 없습니다.</p>'; return; }
+            let html = '';
+            myEduList.forEach(edu => {
+                html += `<div class="edu-card"><span class="edu-title">${edu.title}</span><span class="edu-date">등록일: ${edu.date}</span><div class="btn-group"><button class="del-btn" onclick="deleteEdu('${edu.id}')">삭제하기</button></div></div>`;
+            });
+            listArea.innerHTML = html;
+        }
         function deleteEdu(id) {
             if(!confirm("삭제하시겠습니까?")) return;
-            let list = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            list = list.filter(e => String(e.id) !== String(id));
-            localStorage.setItem('totalEduList', JSON.stringify(list));
-            location.reload();
+            let totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            totalEduList = totalEduList.filter(edu => String(edu.id) !== String(id));
+            localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
+            renderEduList();
         }
     </script>
 </body>
