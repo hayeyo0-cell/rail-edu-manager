@@ -3,78 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 스마트 교육</title>
+    <title>DTRO 스마트 교육 플랫폼</title>
     <style>
-        :root { --dtro-blue: #0072bc; --dtro-sky: #e1f0ff; --text-dark: #333; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f9ff; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
+
+        /* [통일] 상단 헤더 */
+        .top-header {
+            width: 100%; background: white; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
+            box-sizing: border-box;
+        }
+        .header-btn {
+            background: white; border: 1px solid #eaeaea; border-radius: 6px;
+            padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
+        }
+        .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
         
-        /* 헤더 디자인 */
-        .header { width: 100%; background: white; padding: 20px 0; text-align: center; border-bottom: 3px solid var(--dtro-blue); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo-text { font-size: 1.4rem; font-weight: 800; color: var(--dtro-blue); letter-spacing: -1px; }
-        .sub-text { font-size: 0.8rem; color: #666; margin-top: 5px; }
+        .main-container { width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0 40px 0; }
+        .list-wrapper { width: 90%; max-width: 400px; display: flex; flex-direction: column; }
 
-        /* 컨테이너 */
-        .container { width: 90%; max-width: 400px; margin-top: 30px; }
+        /* 환영 문구 카드 (사용자용) */
+        .welcome-card {
+            background: var(--dtro-blue); color: white; border-radius: 16px;
+            padding: 20px; box-shadow: 0 4px 15px rgba(0,114,188,0.2);
+            margin-bottom: 25px; text-align: left;
+        }
+        .welcome-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 5px; }
+        .welcome-desc { font-size: 0.9rem; opacity: 0.9; line-height: 1.4; }
+
+        .page-title { font-size: 1.15rem; font-weight: bold; color: #333; margin-bottom: 15px; display: flex; align-items: center; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
+
+        /* 교육 카드 (사용자용) */
+        .edu-card {
+            background: white; border-radius: 16px; padding: 18px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
+            border: 1px solid #fcfcfc;
+        }
         
-        /* 로그인 카드 */
-        .login-card { background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); text-align: center; }
-        .input-group { margin-bottom: 15px; text-align: left; }
-        label { font-size: 0.9rem; font-weight: bold; color: var(--text-dark); display: block; margin-bottom: 8px; margin-left: 5px; }
-        input { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; font-size: 1rem; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: var(--dtro-blue); outline: none; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .badge { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
+        
+        /* 뱃지 색상 통일 */
+        .badge-general { background: #eef6ff; color: var(--dtro-blue); } 
+        .badge-face { background: #f3e8ff; color: #8e44ad; } 
+        .badge-sim { background: #eef9f1; color: #2ecc71; } 
+        .badge-voice { background: #fff5eb; color: #f39c12; } 
+        .badge-etc { background: #f0f0f0; color: #555; } 
+        
+        .date { font-size: 0.8rem; color: #999; }
+        .edu-title { font-size: 1.05rem; font-weight: bold; color: #222; margin-bottom: 6px; line-height: 1.4; word-break: keep-all; }
+        .edu-deadline { font-size: 0.85rem; color: #ff4d4d; font-weight: bold; margin-bottom: 15px; }
 
-        /* 메인 버튼 */
-        .btn-start { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,114,188,0.3); }
-        .btn-start:active { transform: scale(0.98); }
+        /* 사용자용 하단 버튼 영역 */
+        .card-actions { display: flex; justify-content: flex-end; border-top: 1px dashed #eee; padding-top: 12px; }
+        .btn-start { 
+            background: var(--dtro-blue); color: white; border: none; border-radius: 8px; 
+            padding: 8px 18px; font-size: 0.9rem; cursor: pointer; font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,114,188,0.2); width: 100%;
+        }
 
-        /* 안내 문구 */
-        .info-box { margin-top: 40px; background: var(--dtro-sky); padding: 15px; border-radius: 12px; color: #446a8d; font-size: 0.85rem; line-height: 1.5; }
+        .empty-msg { text-align: center; color: #999; padding: 40px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo-text">DTRO SMART LEARNING</div>
-        <div class="sub-text">대구교통공사와 함께하는 스마트한 세상</div>
+
+    <div class="top-header">
+        <button class="header-btn" onclick="alert('내 정보 화면 준비 중입니다.')">내 정보</button>
+        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
+        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
     </div>
 
-    <div class="container">
-        <div class="login-card">
-            <h2 style="margin-bottom: 25px; color: #222;">본인 확인</h2>
-            <div class="input-group">
-                <label>사번 입력</label>
-                <input type="number" id="userId" placeholder="사번 8자리를 입력하세요" oninput="saveInfo()">
+    <div class="main-container">
+        <div class="list-wrapper">
+            
+            <div class="welcome-card">
+                <div class="welcome-title">기관사님, 안전운행 하십시오! 🚆</div>
+                <div class="welcome-desc">오늘 이수해야 할 교육 및 훈련 목록입니다.<br>운행 전 꼼꼼히 확인해 주세요.</div>
             </div>
-            <div class="input-group" style="margin-bottom: 25px;">
-                <label>성명 입력</label>
-                <input type="text" id="userName" placeholder="이름을 입력하세요" oninput="saveInfo()">
-            </div>
-            <button class="btn-start" onclick="startEdu()">오늘의 교육 시작하기</button>
-        </div>
 
-        <div class="info-box">
-            💡 <b>안내사항</b><br>
-            교육 완료 후 '자필 서명'을 제출해야 정상 이수 처리됩니다. 화면을 닫지 마세요.
+            <div class="page-title">
+                오늘의 필수 교육 목록
+            </div>
+
+            <div id="userEduListArea"></div>
+
+            <div class="empty-msg" id="emptyMessage">
+                현재 예정된 필수 교육이 없습니다.<br>오늘도 안전운행 하십시오!
+            </div>
+
         </div>
     </div>
 
     <script>
-        // 정보 저장 및 페이지 이동 로직은 기존과 동일
-        function saveInfo() {
-            const user = {
-                id: document.getElementById('userId').value,
-                name: document.getElementById('userName').value
-            };
-            localStorage.setItem("loginUser", JSON.stringify(user));
-        }
+        // 화면이 열리면 관리자가 쓴 글을 똑같이 불러옵니다!
+        window.onload = function() {
+            loadUserEdu();
+        };
 
-        function startEdu() {
-            const user = JSON.parse(localStorage.getItem("loginUser"));
-            if(!user.id || !user.name) {
-                alert("사번과 성명을 모두 입력해주세요.");
+        function loadUserEdu() {
+            const listArea = document.getElementById('userEduListArea');
+            const emptyMsg = document.getElementById('emptyMessage');
+            
+            // 스마트폰에 저장된(관리자가 올린) 목록 가져오기
+            let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+
+            if(eduList.length === 0) {
+                emptyMsg.style.display = 'block'; 
+                listArea.innerHTML = '';
                 return;
             }
-            localStorage.setItem('currentEduTitle', "4월 전동차 시뮬레이션 및 고장처치");
-            location.href = "user_timer.html";
+
+            emptyMsg.style.display = 'none';
+            let html = '';
+
+            eduList.forEach((edu, index) => {
+                let badgeClass = 'badge-general';
+                if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
+                else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
+                else if(edu.category === '육성방송 훈련') badgeClass = 'badge-voice';
+                else if(edu.category === '기타교육' || edu.category === '공지사항') badgeClass = 'badge-etc';
+
+                const deadlineText = edu.deadline ? edu.deadline : '기한 없음';
+
+                html += `
+                <div class="edu-card">
+                    <div class="card-header">
+                        <span class="badge ${badgeClass}">${edu.category}</span>
+                        <span class="date">게시일: ${edu.date}</span>
+                    </div>
+                    <div class="edu-title">${edu.title}</div>
+                    
+                    <div class="edu-deadline">⏳ 마감 기한: ${deadlineText} 까지</div>
+
+                    <div class="card-actions">
+                        <button class="btn-start" onclick="enterEducation(${index})">교육 입장하기 →</button>
+                    </div>
+                </div>
+                `;
+            });
+
+            listArea.innerHTML = html;
+        }
+
+        // 교육 입장 버튼 클릭 시 동작할 함수
+        function enterEducation(index) {
+            // 나중에 user_edu_detail.html 같은 세부 화면으로 연결할 겁니다.
+            alert('교육 상세 화면으로 이동합니다! (세부 기능 구현 대기 중)');
         }
     </script>
 </body>
