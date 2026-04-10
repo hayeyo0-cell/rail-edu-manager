@@ -7,50 +7,20 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 상단 헤더: 로고는 크게, 버튼은 '← 메인으로' */
-        .top-nav { 
-            width: 100%; background: white; padding: 12px 15px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            box-sizing: border-box; border-bottom: 1px solid #eee;
-        }
-        .nav-btn { 
-            background: white; border: 1px solid #eaeaea; border-radius: 8px; 
-            padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
-        }
-        .brand-logo { height: 28px; object-fit: contain; }
-
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
+        .brand-logo { height: 26px; object-fit: contain; }
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
-
-        /* 카드 디자인 */
-        .edu-card { 
-            background: white; border-radius: 30px; padding: 30px 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; 
-        }
-
-        .card-title { 
-            font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); 
-            margin-bottom: 25px; display: block;
-        }
-
-        .dept-info-box {
-            background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px;
-            font-size: 0.9rem; margin-bottom: 25px; text-align: center;
-        }
-
-        .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; }
+        .edu-card { background: white; border-radius: 30px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; }
+        .card-title { font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: block; text-align: left; }
+        .dept-info-box { background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 25px; text-align: center; }
+        .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; text-align: left; }
+        select, input, textarea { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         
-        select, input, textarea { 
-            width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; 
-            box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none;
-        }
-        input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
-
-        .save-btn { 
-            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
-            margin-top: 30px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2);
-        }
+        /* 🚨 파일 선택 버튼 스타일 */
+        .file-input-wrapper { margin-top: 10px; background: #fff; border: 1px dashed var(--dtro-blue); padding: 15px; border-radius: 15px; text-align: center; }
+        
+        .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; margin-top: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -64,20 +34,15 @@
     <div class="container">
         <div class="edu-card">
             <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
-            
-            <div class="dept-info-box">
-                📍 현재 관리 소속: <strong id="currentDept" style="margin-left:5px;">경산승무팀</strong>
-            </div>
+            <div class="dept-info-box">📍 현재 관리 소속: <strong id="currentDept">경산승무팀</strong></div>
 
             <label class="input-label">교육 분류</label>
             <select id="eduType">
-                <option value="게시교육">게시교육</option>
-                <option value="대면교육">대면교육</option>
-                <option value="면담교육">면담교육</option>
-                <option value="시뮬레이션">시뮬레이션</option>
-                <option value="육성방송 훈련">육성방송 훈련</option>
-                <option value="기타교육">기타교육</option>
-                <option value="공지사항">공지사항</option>
+                <option>게시교육</option>
+                <option>운전취급</option>
+                <option>사고분석</option>
+                <option>지시사항</option>
+                <option>안전교육</option>
             </select>
 
             <label class="input-label">교육 및 훈련 제목</label>
@@ -89,6 +54,11 @@
             <label class="input-label">상세 지시내용</label>
             <textarea id="eduContent" rows="6" placeholder="상세 내용을 입력하세요"></textarea>
 
+            <label class="input-label">📎 참조 파일 (사진/행로표)</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="eduFile" accept="image/*">
+            </div>
+
             <button class="save-btn" onclick="saveEdu()">설정 저장 및 완료</button>
         </div>
     </div>
@@ -97,6 +67,20 @@
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
         document.getElementById('currentDept').innerText = myDept;
 
+        let selectedFileData = ""; // 파일 데이터를 담을 변수
+
+        // 파일 선택 시 데이터로 읽어오기
+        document.getElementById('eduFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    selectedFileData = event.target.result; // 🚨 이게 fileData가 됩니다!
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
@@ -104,7 +88,7 @@
             const deadline = document.getElementById('eduDeadline').value;
 
             if(!title || !content) {
-                alert("제목과 내용을 모두 입력해 주세요!");
+                alert("제목과 내용을 입력해 주세요!");
                 return;
             }
 
@@ -117,13 +101,14 @@
                 title: title,
                 content: content,
                 deadline: deadline,
+                fileData: selectedFileData, // 🚨 유기적 연결의 핵심!
                 date: new Date().toLocaleDateString()
             };
 
             totalEduList.push(newEdu);
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
 
-            alert("새 교육이 성공적으로 등록되었습니다!");
+            alert("성공적으로 등록되었습니다!");
             location.href = 'admin_main.html';
         }
     </script>
