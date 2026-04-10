@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>교육 내역 관리</title>
+    <style>
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
+        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .container { padding: 20px; }
+        .edu-item { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; }
+        .edu-title { font-weight: bold; color: #333; }
+        .manage-btns button { border: none; border-radius: 8px; padding: 8px 12px; font-size: 0.85rem; cursor: pointer; margin-left: 5px; }
+        .edit-btn { background: #eef6ff; color: var(--dtro-blue); }
+        .del-btn { background: #fff1f1; color: #ff4d4d; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button onclick="history.back()" style="background:none; border:none; font-size:1.3rem;">←</button>
+        <span style="font-weight:bold; margin-left:10px;">등록된 교육 내역</span>
+    </div>
+    <div class="container">
+        <div class="edu-item">
+            <div class="edu-info"><span style="font-size:0.8rem; color:#999;">2026.04.10</span><br><span class="edu-title">안개 구간 서행 운전</span></div>
+            <div class="manage-btns"><button class="edit-btn">수정</button><button class="del-btn">삭제</button></div>
+        </div>
+    </div>
+</body>
+</html>
