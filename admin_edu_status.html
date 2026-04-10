@@ -2,69 +2,30 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이수 현황 - 관리자</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>이수 현황</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; margin: 0; padding: 20px; }
-        .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .back-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; margin-right: 10px; }
-        h2 { font-size: 1.1rem; margin: 0; }
-        .section-title { font-size: 1rem; color: #555; margin: 25px 0 12px; border-left: 4px solid #2ecc71; padding-left: 10px; font-weight: bold; }
-        
-        .status-card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 12px; }
-        .edu-info { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; }
-        .progress-container { width: 100%; background: #eee; height: 10px; border-radius: 5px; overflow: hidden; }
-        .progress-bar { background: #2ecc71; height: 100%; transition: width 0.5s; }
-
-        .table-container { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { background: #f1f1f1; padding: 12px; color: #666; }
-        td { padding: 12px; border-bottom: 1px solid #f9f9f9; text-align: center; }
-        .sign-img { width: 45px; height: 25px; border: 1px solid #eee; cursor: pointer; }
+        :root { --dtro-blue: #0072bc; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fb; margin: 0; padding: 0; }
+        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .container { padding: 20px; }
+        .stat-card { background: white; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .progress-bar { width: 100%; height: 18px; background: #eee; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        .progress-fill { width: 75%; height: 100%; background: var(--dtro-blue); }
     </style>
 </head>
 <body>
     <div class="header">
-        <button class="back-btn" onclick="location.href='admin_main.html'">←</button>
-        <h2>📊 교육 이수 현황</h2>
+        <button onclick="history.back()" style="background:none; border:none; font-size:1.3rem;">←</button>
+        <span style="font-weight:bold; margin-left:10px;">실시간 이수 현황</span>
     </div>
-
-    <div class="section-title">교육별 이수율 (58명 기준)</div>
-    <div id="edu-progress-list"></div>
-
-    <div class="section-title">✅ 실시간 서명 기록</div>
-    <div class="table-container">
-        <table>
-            <thead><tr><th>성명</th><th>교육명</th><th>서명</th></tr></thead>
-            <tbody id="realtime-sign-list"></tbody>
-        </table>
+    <div class="container">
+        <div class="stat-card">
+            <div style="font-size: 0.9rem; color: #666;">전체 이수율</div>
+            <div style="font-size: 2rem; font-weight: bold; color: var(--dtro-blue); margin: 5px 0;">75%</div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+            <div style="font-size: 0.85rem; color: #999;">완료 12명 / 미이수 4명</div>
+        </div>
     </div>
-
-    <script>
-        const adminTeam = localStorage.getItem("loginAdmin");
-        const totalStaff = 58;
-
-        function loadStatusData() {
-            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
-
-            const pList = document.getElementById('edu-progress-list');
-            pList.innerHTML = eduList.map(edu => {
-                const count = completeData.filter(c => c.eduId === edu.id).length;
-                const percent = Math.min(Math.round((count / totalStaff) * 100), 100);
-                return `<div class="status-card">
-                    <div class="edu-info"><b>${edu.title}</b><span>${count}/${totalStaff}명 (${percent}%)</span></div>
-                    <div class="progress-container"><div class="progress-bar" style="width:${percent}%"></div></div>
-                </div>`;
-            }).join('') || "<p style='text-align:center; color:#999;'>진행 중인 교육이 없습니다.</p>";
-
-            const sList = document.getElementById('realtime-sign-list');
-            sList.innerHTML = completeData.slice().reverse().map(item => {
-                const edu = eduList.find(e => e.id === item.eduId);
-                return `<tr><td>${item.userName}</td><td>${edu ? edu.title : '삭제됨'}</td><td><img src="${item.sign}" class="sign-img"></td></tr>`;
-            }).join('') || "<tr><td colspan='3' style='padding:20px; color:#999;'>기록 없음</td></tr>";
-        }
-        loadStatusData();
-    </script>
 </body>
 </html>
