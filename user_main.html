@@ -33,14 +33,14 @@
         .welcome-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 5px; }
         .welcome-desc { font-size: 0.9rem; opacity: 0.9; line-height: 1.4; }
 
-        /* [통일 1] 관리자 화면과 똑같은 섹션 타이틀 적용 */
-        .section-wrap { width: 100%; text-align: left; margin-bottom: 15px; }
+        /* 파란색 통일 타이틀 */
+        .section-wrap { width: 100%; text-align: left; margin-bottom: 12px; }
         .section-title { 
             font-size: 1.15rem; font-weight: bold; color: var(--dtro-blue); 
             border-left: 5px solid var(--dtro-blue); padding-left: 10px; 
         }
 
-        /* 필터 버튼 영역 */
+        /* 필터 버튼 영역 (복구 완료!) */
         .filter-wrapper {
             width: 100%; overflow-x: auto; white-space: nowrap; 
             margin-bottom: 15px; padding-bottom: 5px;
@@ -57,7 +57,7 @@
             background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold;
         }
 
-        /* 교육 전용 카드 */
+        /* 교육 카드 */
         .edu-card {
             background: white; border-radius: 16px; padding: 18px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 15px;
@@ -81,7 +81,7 @@
 
         .empty-msg { text-align: center; color: #999; padding: 30px 0; font-size: 0.95rem; line-height: 1.5; background: white; border-radius: 15px; display: none; margin-bottom: 15px; }
 
-        /* [통일 2] 관리자 화면과 똑같은 메뉴 카드 적용 (하단 이동용) */
+        /* 하단 이동용 메뉴 카드 */
         .menu-card {
             width: 100%; background: white; border-radius: 20px;
             padding: 22px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);
@@ -140,6 +140,7 @@
         let allEduData = []; 
 
         window.onload = function() {
+            // 저장된 교육 목록을 불러옵니다
             allEduData = JSON.parse(localStorage.getItem('myEduList')) || [];
             renderFilters(); 
             renderEduList(); 
@@ -160,4 +161,62 @@
         function changeFilter(selectedCat) {
             currentFilter = selectedCat; 
             renderFilters(); 
-            renderEduList();
+            renderEduList(); 
+        }
+
+        function renderEduList() {
+            const listArea = document.getElementById('userEduListArea');
+            const emptyMsg = document.getElementById('emptyMessage');
+            
+            // 선택된 카테고리에 맞게 필터링
+            const filteredData = allEduData.filter(edu => {
+                if(currentFilter === '전체') return true;
+                return edu.category === currentFilter;
+            });
+
+            // 데이터가 없으면 안내 메시지 표시
+            if(filteredData.length === 0) {
+                emptyMsg.style.display = 'block'; 
+                listArea.innerHTML = '';
+                return;
+            }
+
+            // 데이터가 있으면 목록 그려주기
+            emptyMsg.style.display = 'none';
+            let html = '';
+
+            filteredData.forEach((edu, index) => {
+                let badgeClass = 'badge-general';
+                if(edu.category === '대면교육' || edu.category === '면담교육') badgeClass = 'badge-face';
+                else if(edu.category === '시뮬레이션') badgeClass = 'badge-sim';
+                else if(edu.category === '육성방송 훈련') badgeClass = 'badge-voice';
+                else if(edu.category === '기타교육' || edu.category === '공지사항') badgeClass = 'badge-etc';
+
+                const deadlineText = edu.deadline ? edu.deadline : '기한 없음';
+
+                html += `
+                <div class="edu-card">
+                    <div class="card-header">
+                        <span class="badge ${badgeClass}">${edu.category}</span>
+                        <span class="date">게시일: ${edu.date}</span>
+                    </div>
+                    <div class="edu-title">${edu.title}</div>
+                    
+                    <div class="edu-deadline">⏳ 마감 기한: ${deadlineText} 까지</div>
+
+                    <div class="card-actions">
+                        <button class="btn-start" onclick="enterEducation('${edu.title}')">교육 입장하기 →</button>
+                    </div>
+                </div>
+                `;
+            });
+
+            listArea.innerHTML = html;
+        }
+
+        function enterEducation(title) {
+            alert('[' + title + '] 상세 화면으로 이동합니다! (기능 준비 중)');
+        }
+    </script>
+</body>
+</html>
