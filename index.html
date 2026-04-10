@@ -10,14 +10,23 @@
         .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
         .logo-area { margin-bottom: 25px; }
         .logo-area img { width: 170px; }
-        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 35px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        
+        /* 제목 형광펜 효과 */
+        .main-title { 
+            display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 35px; 
+            background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; 
+        }
+        
+        /* 탭 메뉴 */
         .tab-menu { display: flex; margin-bottom: 30px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; transition: 0.3s; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
         .input-group { text-align: left; margin-bottom: 20px; }
         .input-label { font-size: 0.9rem; font-weight: bold; color: #666; margin-bottom: 8px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         input:focus { border-color: var(--dtro-blue); background: #fff; }
+
         .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,114,188,0.2); }
         .footer-text { margin-top: 25px; font-size: 0.8rem; color: #ccc; }
     </style>
@@ -44,12 +53,12 @@
                 <input type="number" id="adminId" placeholder="관리자 사번 입력">
             </div>
             <div class="input-group">
-                <span id="adminPwLabel" class="input-label">관리자 비밀번호</span>
+                <span id="adminPwLabel" class="input-label">마스터 비밀번호 인증</span>
                 <input type="password" id="adminPw" placeholder="비밀번호 입력">
             </div>
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
             <p id="masterGuide" style="font-size:0.75rem; color:#999; margin-top:15px; display:none;">
-                최초 접속입니다. 마스터 비번(1234)을 입력하세요.
+                최초 설정 전입니다. 마스터 비번(1234)을 입력하세요.
             </p>
         </div>
         
@@ -63,20 +72,19 @@
             checkAdminStatus();
         };
 
-        // 관리자 설정 여부 확인하여 화면 구성
+        // 관리자 설정 여부에 따라 화면을 다르게 보여줌
         function checkAdminStatus() {
             const savedAdminId = localStorage.getItem('adminId');
             const idArea = document.getElementById('adminIdArea');
             const pwLabel = document.getElementById('adminPwLabel');
             const guide = document.getElementById('masterGuide');
 
-            if (savedAdminId) {
-                // 관리자 설정이 이미 된 경우: 사번+비번 모두 보임
+            // 사번 데이터가 확실히 있을 때만 사번창 노출
+            if (savedAdminId && savedAdminId.trim() !== "") {
                 idArea.style.display = 'block';
                 pwLabel.innerText = "관리자 비밀번호";
                 guide.style.display = 'none';
             } else {
-                // 최초 상태: 비번(마스터용) 칸만 보임
                 idArea.style.display = 'none';
                 pwLabel.innerText = "마스터 비밀번호 인증";
                 guide.style.display = 'block';
@@ -114,23 +122,23 @@
             const savedAdminId = localStorage.getItem('adminId');
             const savedAdminPw = localStorage.getItem('adminPw');
 
-            // 1. 마스터 비번 체크
+            // 1. 마스터 비번 체크 (언제나 1234면 설정 페이지로 이동 가능)
             if (inputPw === MASTER_PW) {
                 alert('마스터 인증 성공! 관리자 설정 페이지로 이동합니다.');
                 location.href = 'admin_setting.html';
                 return;
             }
 
-            // 2. 관리자 사번+비번 체크
+            // 2. 관리자 설정이 완료된 후 정식 로그인 체크
             if (savedAdminId && savedAdminPw) {
                 if (String(inputId) === String(savedAdminId) && inputPw === savedAdminPw) {
                     localStorage.setItem('userRole', 'admin');
                     location.href = 'admin_main.html';
                 } else {
-                    alert('정보가 일치하지 않습니다.');
+                    alert('사번 또는 비밀번호가 일치하지 않습니다.');
                 }
             } else {
-                alert('마스터 비밀번호를 입력해주세요.');
+                alert('마스터 비밀번호(1234)를 입력하여 설정을 먼저 완료해주세요.');
             }
         }
     </script>
