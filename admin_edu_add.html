@@ -3,58 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>교육 등록 - DTRO</title>
+    <title>새 교육 등록 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-nav { width: 100%; background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
-        .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
-        /* 🚨 내 로고 크기 지정 */
-        .brand-logo { height: 28px; object-fit: contain; }
-        .container { width: 92%; max-width: 400px; padding: 20px 0; }
-        .card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
-        .section-title { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 20px; display: block; text-align: center; }
-        .input-label { font-size: 0.9rem; font-weight: bold; color: #666; margin: 15px 0 8px 0; display: block; }
-        select, input, textarea { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
-        .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; margin-top: 30px; cursor: pointer; }
+        
+        /* 1. 상단 헤더: 사진 속 디자인 그대로 */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee;
+        }
+        .nav-btn { 
+            background: white; border: 1px solid #eaeaea; border-radius: 8px; 
+            padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
+        }
+        .brand-logo { height: 22px; object-fit: contain; }
+
+        .container { width: 92%; max-width: 420px; padding: 25px 0; }
+
+        /* 2. 카드 디자인: 사진 속 둥근 흰색 카드 */
+        .edu-card { 
+            background: white; border-radius: 30px; padding: 30px 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; 
+        }
+
+        .card-title { 
+            font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); 
+            margin-bottom: 25px; display: block; text-align: left;
+        }
+
+        .dept-info-box {
+            background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px;
+            font-size: 0.9rem; margin-bottom: 25px; display: flex; align-items: center;
+        }
+
+        /* 3. 입력창 스타일: 사진 속 둥글고 깨끗한 스타일 */
+        .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; }
+        
+        select, input, textarea { 
+            width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; 
+            box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s;
+        }
+        input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
+
+        .save-btn { 
+            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
+            margin-top: 30px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2);
+        }
     </style>
 </head>
 <body>
+
     <div class="top-nav">
         <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
-        <img src="logo.png" class="brand-logo" alt="DTRO Logo">
-        <div style="width:70px;"></div>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:75px;"></div>
     </div>
+
     <div class="container">
-        <div class="card">
-            <span class="section-title">✍️ 새 교육 및 훈련 등록</span>
-            <div style="background:#eef6ff; padding:10px; border-radius:8px; font-size:0.85rem; color:var(--dtro-blue); font-weight:bold; margin-bottom:20px; text-align:center;">
-                📍 현재 관리 소속: <span id="currentDept">경산승무팀</span>
+        <div class="edu-card">
+            <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
+            
+            <div class="dept-info-box">
+                📍 현재 관리 소속: <strong id="currentDept" style="margin-left:5px;">경산승무팀</strong>
             </div>
+
+            <label class="input-label">교육 분류</label>
+            <select id="eduType">
+                <option>게시교육</option>
+                <option>안전교육</option>
+            </select>
+
             <label class="input-label">교육 및 훈련 제목</label>
             <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
+
+            <label class="input-label">⌛ 이수 마감 기한</label>
+            <select id="eduDeadline">
+                <option value="">기한 없음</option>
+                <option>오늘까지</option>
+                <option>내일까지</option>
+                <option>이번 주말까지</option>
+            </select>
+
             <label class="input-label">상세 지시내용</label>
-            <textarea id="eduContent" rows="5" placeholder="상세 내용을 입력하세요"></textarea>
-            <button class="save-btn" onclick="saveEdu()">교육 등록 완료</button>
+            <textarea id="eduContent" rows="6" placeholder="상세 내용을 입력하세요"></textarea>
+
+            <button class="save-btn" onclick="saveEdu()">설정 저장 및 완료</button>
         </div>
     </div>
+
     <script>
+        // 소속 정보 불러오기
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
         document.getElementById('currentDept').innerText = myDept;
+
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
-            if(!title || !content) return alert("제목과 내용을 입력해 주세요!");
+            const type = document.getElementById('eduType').value;
+            const deadline = document.getElementById('eduDeadline').value;
+
+            if(!title || !content) {
+                alert("제목과 내용을 모두 입력해 주세요!");
+                return;
+            }
+
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            totalEduList.push({
+            
+            const newEdu = {
                 id: Date.now(),
                 dept: myDept,
-                title,
-                content,
+                type: type,
+                title: title,
+                content: content,
+                deadline: deadline,
                 date: new Date().toLocaleDateString()
-            });
+            };
+
+            totalEduList.push(newEdu);
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
-            alert("교육이 등록되었습니다.");
+
+            alert("새 교육이 성공적으로 등록되었습니다!");
             location.href = 'admin_main.html';
         }
     </script>
