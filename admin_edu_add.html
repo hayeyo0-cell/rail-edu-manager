@@ -9,59 +9,32 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        .top-header {
-            width: 100%; background: white; padding: 12px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
-            box-sizing: border-box;
-        }
-        .back-btn {
-            background: white; border: 1px solid #eaeaea; border-radius: 6px;
-            padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
-        }
+        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
+        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
         .brand-logo { height: 32px; mix-blend-mode: multiply; object-fit: contain; }
         .header-spacer { width: 65px; }
 
         .main-container { width: 100%; display: flex; justify-content: center; padding: 20px 0; }
-        
-        .input-card { 
-            width: 90%; max-width: 400px; background: white; border-radius: 20px; 
-            padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; 
-        }
+        .input-card { width: 90%; max-width: 400px; background: white; border-radius: 20px; padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; }
 
         .card-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: flex; align-items: center; }
         .card-title span { margin-right: 8px; font-size: 1.3rem; }
 
         label { display: block; font-size: 0.95rem; font-weight: bold; color: #555; margin-bottom: 8px; }
-        input[type="text"], input[type="date"], textarea, select { 
-            width: 100%; border: 1px solid #ddd; border-radius: 10px; 
-            padding: 14px 15px; font-size: 1rem; margin-bottom: 20px; 
-            background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s;
-            font-family: 'Noto Sans KR', sans-serif;
-        }
+        input[type="text"], input[type="date"], textarea, select { width: 100%; border: 1px solid #ddd; border-radius: 10px; padding: 14px 15px; font-size: 1rem; margin-bottom: 20px; background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s; font-family: 'Noto Sans KR', sans-serif; }
         input:focus, textarea:focus, select:focus { border-color: var(--dtro-blue); }
         textarea { height: 130px; resize: none; }
 
         select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%23999" d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; }
 
-        .file-wrapper {
-            display: flex; align-items: center; border: 1px solid #ddd; 
-            border-radius: 10px; padding: 10px; margin-bottom: 30px;
-        }
-        .file-btn { 
-            background: #f8f9fa; border: 1px solid #ccc; padding: 8px 15px; 
-            border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-right: 12px; color: #333;
-        }
+        .file-wrapper { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 30px; }
+        .file-btn { background: #f8f9fa; border: 1px solid #ccc; padding: 8px 15px; border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-right: 12px; color: #333; }
         .file-name { font-size: 0.9rem; color: #999; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         input[type="file"] { display: none; }
 
         .dynamic-field { display: none; background: #f4f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e0eeff; }
 
-        .submit-btn { 
-            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
-            border: none; border-radius: 12px; font-size: 1.15rem; font-weight: bold; 
-            cursor: pointer; box-shadow: 0 4px 15px rgba(0,114,188,0.2);
-        }
+        .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.15rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,114,188,0.2); }
     </style>
 </head>
 <body>
@@ -74,10 +47,7 @@
 
     <div class="main-container">
         <div class="input-card">
-            
-            <div class="card-title">
-                <span>✍️</span> 교육 및 훈련 등록
-            </div>
+            <div class="card-title"><span>✍️</span> 교육 및 훈련 등록</div>
 
             <label>교육 분류</label>
             <select id="eduCategory" onchange="toggleFields()">
@@ -122,7 +92,6 @@
             </div>
             
             <button class="submit-btn" onclick="submitForm()">앱에 즉시 게시하기</button>
-
         </div>
     </div>
 
@@ -146,14 +115,10 @@
             simFields.style.display = 'none';
             broadcastFields.style.display = 'none';
 
-            if (category === '시뮬레이션') {
-                simFields.style.display = 'block';
-            } else if (category === '육성방송 훈련') {
-                broadcastFields.style.display = 'block';
-            }
+            if (category === '시뮬레이션') simFields.style.display = 'block';
+            else if (category === '육성방송 훈련') broadcastFields.style.display = 'block';
         }
 
-        // [핵심 보강] 에러 방지 및 꼼꼼한 알림 추가!
         function submitForm() {
             try {
                 const category = document.getElementById('eduCategory').value;
@@ -161,30 +126,34 @@
                 const deadline = document.getElementById('eduDeadline').value;
                 const content = document.getElementById('eduContent').value;
                 
-                // 하나라도 빠지면 정확히 어디가 빠졌는지 알려줍니다.
+                // [추가] 파일 입력창에서 파일 이름 가져오기
+                const fileInput = document.getElementById('fileInput');
+                let attachedFileName = "";
+                if (fileInput.files && fileInput.files.length > 0) {
+                    attachedFileName = fileInput.files[0].name;
+                }
+                
                 if(!title) { alert('제목을 입력해 주세요!'); return; }
                 if(!deadline) { alert('이수 마감 기한을 달력에서 선택해 주세요!'); return; }
                 if(!content) { alert('상세 지시내용을 입력해 주세요!'); return; }
 
-                // 등록한 오늘 날짜 기록
                 const today = new Date();
                 const dateStr = today.getFullYear() + '.' + String(today.getMonth() + 1).padStart(2, '0') + '.' + String(today.getDate()).padStart(2, '0');
 
-                // 데이터 포장
+                // 데이터에 fileName 같이 포장해서 저장
                 const newEdu = {
                     category: category,
                     title: title,
                     deadline: deadline,
                     content: content,
-                    date: dateStr
+                    date: dateStr,
+                    fileName: attachedFileName // <--- 파일 이름 추가!
                 };
 
-                // 스마트폰 메모리에 안전하게 저장
                 let eduList = JSON.parse(localStorage.getItem('myEduList')) || [];
-                eduList.unshift(newEdu); // 최신 글을 맨 위로!
+                eduList.unshift(newEdu); 
                 localStorage.setItem('myEduList', JSON.stringify(eduList));
                 
-                // 성공 알림 후 메인으로 튕겨주기
                 alert('[' + category + '] 등록이 완료되었습니다!');
                 window.location.replace('admin_main.html'); 
                 
