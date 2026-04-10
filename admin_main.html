@@ -5,124 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 관리자 메인</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-gray); }
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* [핵심 수정] 버튼 클릭 간격을 확보한 헤더 구조 */
-        .header { 
-            width: 100%; 
-            background: white; 
-            padding: 15px 0; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            border-bottom: 1px solid #eee;
-            position: sticky; top: 0; z-index: 1000;
+        /* [표준] 슬림 헤더 */
+        .top-header-section { 
+            width: 100%; background-color: var(--bg-gray); padding: 12px 0 8px 0; 
+            display: flex; flex-direction: column; align-items: center; 
+            border-bottom: 2px solid var(--dtro-blue); flex-shrink: 0; 
         }
+        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
+        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
 
-        /* 로고: 중앙 배치하되 버튼 클릭을 방해하지 않도록 설정 */
-        .header-logo-wrap {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            pointer-events: none; /* [중요] 로고 박스가 버튼 터치를 방해하지 않음 */
-        }
-        .header-logo { 
-            height: 36px; 
-            pointer-events: auto; /* 로고 자체는 클릭 가능(필요시) */
+        /* 메인 컨테이너 */
+        .main-container { 
+            flex: 1; width: 100%; display: flex; flex-direction: column; 
+            justify-content: flex-start; align-items: center; padding-top: 30px; 
         }
 
-        /* 양옆 버튼: 클릭 영역 확실히 확보 */
-        .header-btn { 
-            background: #fdfdfd; 
-            border: 1px solid #eaeaea; 
-            padding: 5px 10px; 
-            border-radius: 6px; 
-            font-size: 0.68rem; 
-            color: #888; 
-            cursor: pointer;
-            margin: 0 12px;
-            z-index: 1001; /* 버튼을 로고보다 위로 올림 */
-            position: relative;
-        }
-        .header-btn:active { background: #eee; }
-
-        .container { padding: 20px; max-width: 500px; margin: 0 auto; text-align: center; }
-        
-        .dept-tag { 
-            background: var(--dtro-blue); color: white; 
-            padding: 9px 22px; border-radius: 25px; 
-            display: inline-block; font-weight: bold; font-size: 0.9rem;
-            margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,114,188,0.2);
+        /* 환영 메시지 카드 */
+        .welcome-card {
+            width: 88%; max-width: 400px; background: white; border-radius: 24px;
+            padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center; margin-bottom: 20px;
         }
 
-        .section-title { 
-            font-size: 0.95rem; font-weight: bold; color: var(--dtro-blue); 
-            margin: 20px 0 12px 5px; border-left: 4px solid var(--dtro-blue); 
-            padding-left: 10px; text-align: left;
+        .welcome-text { 
+            font-size: 1.25rem; font-weight: bold; color: #333; margin: 0;
+            line-height: 1.4;
+        }
+        .welcome-text span { color: var(--dtro-blue); }
+
+        /* 관리 메뉴 버튼들 */
+        .menu-grid {
+            width: 88%; max-width: 400px; display: grid;
+            grid-template-columns: 1fr 1fr; gap: 15px;
         }
 
-        .menu-card { 
-            background: white; border-radius: 20px; padding: 22px; margin-bottom: 15px; 
-            display: flex; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
-            cursor: pointer; transition: 0.2s;
+        .menu-item {
+            background: white; border-radius: 18px; padding: 20px 10px;
+            text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.04);
+            cursor: pointer; transition: transform 0.2s; border: 1px solid #f0f0f0;
         }
-        .menu-card:active { transform: scale(0.97); background: #fafafa; }
-        .menu-icon { font-size: 2.2rem; margin-right: 18px; }
-        .menu-info { text-align: left; }
-        .menu-name { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 4px; }
-        .menu-desc { font-size: 0.78rem; color: #888; line-height: 1.4; }
+        .menu-item:active { transform: scale(0.96); }
+        .menu-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+        .menu-name { font-size: 0.95rem; font-weight: bold; color: #444; }
+
+        /* 하단 로그아웃 */
+        .logout-link {
+            margin-top: 40px; font-size: 0.85rem; color: #bbb; text-decoration: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <button class="header-btn" onclick="location.href='admin_settings.html'">관리자 설정</button>
-        
-        <div class="header-logo-wrap">
-            <img src="logo.png" class="header-logo" alt="DTRO">
-        </div>
-        
-        <button class="header-btn" onclick="location.href='index.html'">로그아웃</button>
+    <div class="top-header-section">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <h1 class="main-title">관리자 모드</h1>
     </div>
 
-    <div class="container">
-        <div class="dept-tag">경산승무팀</div>
+    <div class="main-container">
+        <div class="welcome-card">
+            <p class="welcome-text" id="welcomeMsg">
+                <span id="deptName">관리자</span>님 환영합니다
+            </p>
+        </div>
 
-        <div class="section-title">교육 관리</div>
-        <div class="menu-card" onclick="location.href='admin_edu_add.html'">
-            <div class="menu-icon">✍️</div>
-            <div class="menu-info">
-                <div class="menu-name">새 교육 등록하기</div>
-                <div class="menu-desc">오늘의 교육 내용 및 지시사항을 게시합니다.</div>
+        <div class="menu-grid">
+            <div class="menu-item" onclick="location.href='admin_stats.html'">
+                <span class="menu-icon">📊</span>
+                <span class="menu-name">교육 현황</span>
+            </div>
+            <div class="menu-item" onclick="location.href='admin_settings.html'">
+                <span class="menu-icon">⚙️</span>
+                <span class="menu-name">관리자 설정</span>
+            </div>
+            <div class="menu-item" onclick="alert('준비 중인 기능입니다.')">
+                <span class="menu-icon">📋</span>
+                <span class="menu-name">명단 관리</span>
+            </div>
+            <div class="menu-item" onclick="alert('준비 중인 기능입니다.')">
+                <span class="menu-icon">📢</span>
+                <span class="menu-name">공지사항</span>
             </div>
         </div>
 
-        <div class="menu-card" onclick="location.href='admin_edu_list.html'">
-            <div class="menu-icon">📂</div>
-            <div class="menu-info">
-                <div class="menu-name">등록된 교육 내역</div>
-                <div class="menu-desc">게시 중인 교육을 수정하거나 삭제 관리합니다.</div>
-            </div>
-        </div>
-
-        <div class="section-title">이수 현황 및 소통</div>
-        <div class="menu-card" onclick="location.href='admin_status.html'">
-            <div class="menu-icon">📊</div>
-            <div class="menu-info">
-                <div class="menu-name">실시간 이수 현황</div>
-                <div class="menu-desc">현재 12명 완료 / 45명 미이수 상세 보기</div>
-            </div>
-        </div>
-
-        <div class="menu-card" onclick="location.href='admin_notice.html'">
-            <div class="menu-icon">📢</div>
-            <div class="menu-info">
-                <div class="menu-name">공지사항 관리</div>
-                <div class="menu-desc">팀 내 긴급 공지 및 주요 전달사항을 게시합니다.</div>
-            </div>
-        </div>
+        <a href="index.html" class="logout-link" onclick="sessionStorage.clear()">안전하게 로그아웃</a>
     </div>
+
+    <script>
+        // 페이지 로드 시 저장된 소속 정보를 가져와서 문구를 바꿉니다.
+        window.onload = function() {
+            const myDept = localStorage.getItem('adminDept');
+            if (myDept) {
+                document.getElementById('deptName').innerText = myDept + " 관리자";
+            }
+        };
+    </script>
 
 </body>
 </html>
