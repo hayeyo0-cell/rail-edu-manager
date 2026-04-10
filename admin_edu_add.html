@@ -3,40 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>새 교육 등록</title>
+    <title>교육 및 훈련 등록</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
-        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
-        .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #333; padding: 0 10px; }
-        .container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .input-card { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
-        label { display: block; font-weight: bold; font-size: 0.9rem; color: #444; margin-bottom: 8px; }
-        input, textarea { width: 100%; border: 1px solid #e8e8e8; border-radius: 12px; padding: 15px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; outline: none; background: #fafafa; }
-        textarea { height: 180px; resize: none; }
-        .file-upload-box { 
-            border: 2px dashed #ccd6e0; border-radius: 15px; padding: 40px 20px; 
-            text-align: center; color: #888; margin-bottom: 25px; cursor: pointer;
+        :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
+        html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
+        body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
+
+        /* [사진 복원] 상단 헤더 */
+        .top-header {
+            width: 100%; background: white; padding: 12px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
+            box-sizing: border-box;
         }
-        .submit-btn { width: 100%; height: 60px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; }
+        .back-btn {
+            background: white; border: 1px solid #eaeaea; border-radius: 6px;
+            padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer;
+        }
+        .brand-logo { height: 22px; mix-blend-mode: multiply; }
+        .header-spacer { width: 65px; } /* 로고를 정중앙에 두기 위한 투명 박스 */
+
+        /* 메인 영역 */
+        .main-container { width: 100%; display: flex; justify-content: center; padding: 20px 0; }
+        
+        .input-card { 
+            width: 90%; max-width: 400px; background: white; border-radius: 20px; 
+            padding: 25px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); box-sizing: border-box; 
+        }
+
+        /* ✍️ 타이틀 */
+        .card-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: flex; align-items: center; }
+        .card-title span { margin-right: 8px; font-size: 1.3rem; }
+
+        /* 입력 폼 공통 스타일 */
+        label { display: block; font-size: 0.95rem; font-weight: bold; color: #555; margin-bottom: 8px; }
+        input[type="text"], textarea, select { 
+            width: 100%; border: 1px solid #ddd; border-radius: 10px; 
+            padding: 14px 15px; font-size: 1rem; margin-bottom: 20px; 
+            background: #fff; box-sizing: border-box; outline: none; transition: border-color 0.2s;
+        }
+        input:focus, textarea:focus, select:focus { border-color: var(--dtro-blue); }
+        textarea { height: 130px; resize: none; font-family: inherit; }
+
+        /* Select 화살표 커스텀 */
+        select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="%23999" d="M7 10l5 5 5-5z"/></svg>'); background-repeat: no-repeat; background-position: right 15px center; }
+
+        /* 파일 첨부 영역 (사진 속 디자인 완벽 재현) */
+        .file-wrapper {
+            display: flex; align-items: center; border: 1px solid #ddd; 
+            border-radius: 10px; padding: 10px; margin-bottom: 30px;
+        }
+        .file-btn { 
+            background: #f8f9fa; border: 1px solid #ccc; padding: 8px 15px; 
+            border-radius: 6px; font-size: 0.9rem; cursor: pointer; margin-right: 12px; color: #333;
+        }
+        .file-name { font-size: 0.9rem; color: #999; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        input[type="file"] { display: none; }
+
+        /* 동적 필드 (기본 숨김) */
+        .dynamic-field { display: none; background: #f4f8ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #e0eeff; }
+
+        /* 하단 버튼 */
+        .submit-btn { 
+            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 12px; font-size: 1.15rem; font-weight: bold; 
+            cursor: pointer; box-shadow: 0 4px 15px rgba(0,114,188,0.2);
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <button class="back-btn" onclick="history.back()">←</button>
-        <span style="font-weight:bold; margin-left:10px;">새 교육 등록하기</span>
-    </div>
-    <div class="container">
+
+    <div class="top-header">
+        <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
+        <img src="logo.png" class="brand-logo" alt="대구교통공사 DTRO">
+        <div class="header-spacer"></div> </div>
+
+    <div class="main-container">
         <div class="input-card">
-            <label>교육 제목</label>
+            
+            <div class="card-title">
+                <span>✍️</span> 교육 및 훈련 등록
+            </div>
+
+            <label>교육 분류</label>
+            <select id="eduCategory" onchange="toggleFields()">
+                <option value="게시교육">게시교육</option>
+                <option value="시뮬레이션">시뮬레이션 훈련</option>
+                <option value="방송훈련">방송훈련</option>
+            </select>
+            
+            <label>교육 및 훈련 제목</label>
             <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
-            <label>상세 내용 및 지시사항</label>
-            <textarea id="eduContent" placeholder="교육 내용을 상세히 입력하세요."></textarea>
-            <label>관련 자료 및 사진</label>
-            <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">📁 사진 또는 파일 선택</div>
-            <input type="file" id="fileInput" style="display:none;">
-            <button class="submit-btn" onclick="alert('등록되었습니다!'); location.href='admin_main.html'">등록 완료</button>
+
+            <div id="simFields" class="dynamic-field">
+                <label style="color:var(--dtro-blue);">🎮 훈련 시나리오 선택</label>
+                <select id="simScenario" style="margin-bottom:0;">
+                    <option value="">시나리오를 선택하세요</option>
+                    <option value="S1">차량고장 (TCU 통신불량)</option>
+                    <option value="S2">신호장치 장애 (ATC 절연)</option>
+                    <option value="S3">화재 발생 시 대피 유도</option>
+                </select>
+            </div>
+
+            <div id="broadcastFields" class="dynamic-field">
+                <label style="color:var(--dtro-blue);">🎙️ 훈련용 방송 대본</label>
+                <textarea id="broadcastScript" placeholder="기관사가 연습할 방송 대본을 입력하세요." style="height:100px; margin-bottom:0;"></textarea>
+            </div>
+
+            <label>상세 지시내용</label>
+            <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
+            
+            <label>참조 파일 (사진/매뉴얼)</label>
+            <div class="file-wrapper">
+                <button class="file-btn" onclick="document.getElementById('fileInput').click()">파일 선택</button>
+                <span class="file-name" id="fileNameDisplay">선택된 파일 없음</span>
+                <input type="file" id="fileInput" onchange="updateFileName(this)">
+            </div>
+            
+            <button class="submit-btn" onclick="submitForm()">앱에 즉시 게시하기</button>
+
         </div>
     </div>
+
+    <script>
+        // 파일 선택 시 이름 업데이트 함수
+        function updateFileName(input) {
+            const display = document.getElementById('fileNameDisplay');
+            if (input.files && input.files.length > 0) {
+                display.innerText = input.files[0].name;
+                display.style.color = '#333';
+            } else {
+                display.innerText = '선택된 파일 없음';
+                display.style.color = '#999';
+            }
+        }
+
+        // 교육 분류 변경 시 동적 필드 전환 함수
+        function toggleFields() {
+            const category = document.getElementById('eduCategory').value;
+            const simFields = document.getElementById('simFields');
+            const broadcastFields = document.getElementById('broadcastFields');
+
+            // 모두 숨김
+            simFields.style.display = 'none';
+            broadcastFields.style.display = 'none';
+
+            // 선택된 항목만 표시
+            if (category === '시뮬레이션') {
+                simFields.style.display = 'block';
+            } else if (category === '방송훈련') {
+                broadcastFields.style.display = 'block';
+            }
+        }
+
+        // 등록 버튼 함수
+        function submitForm() {
+            const title = document.getElementById('eduTitle').value;
+            const content = document.getElementById('eduContent').value;
+            
+            if(!title || !content) {
+                alert('제목과 내용을 모두 입력해 주세요.');
+                return;
+            }
+            
+            alert('교육 및 훈련 내용이 즉시 게시되었습니다!');
+            location.href = 'admin_main.html';
+        }
+    </script>
 </body>
 </html>
