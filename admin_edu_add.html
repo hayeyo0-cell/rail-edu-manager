@@ -3,158 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 관리자 - 교육 등록</title>
+    <title>새 교육 등록</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f0f2f5; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; color: #333; }
-        
-        /* [핵심 수정] 하단 소속 정보 크기로 상단 로고 키우기 */
-        .header { width: 100%; background: white; padding: 15px 0; /* 세로 여백 늘림 */ display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
-        .header-left { width: 100px; padding-left: 15px; } 
-        /* 로고 크기 및 비율 조정 (밑에 소속 정보 볼륨감) */
-        .slim-logo { height: 35px; /* 기존 26px에서 대폭 키움 */ display: block; margin: 0 auto; }
-        .header-right { width: 100px; padding-right: 15px; text-align: right; }
-        .txt-btn { background: #f8f9fa; border: 1px solid #ddd; padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; color: #666; cursor: pointer; }
-        
-        .container { width: 92%; max-width: 480px; margin: 18px auto; padding-bottom: 40px; }
-        .card { background: white; border-radius: 18px; padding: 22px; box-shadow: 0 5px 18px rgba(0,0,0,0.08); }
-        .page-title { font-size: 1.05rem; font-weight: bold; margin-bottom: 22px; color: var(--dtro-blue); display: flex; align-items: center; justify-content: center; /* 중앙 정렬 */ }
-        .page-title::before { content: '✍️'; margin-right: 8px; }
-
-        .input-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; color: #666; margin-bottom: 7px; }
-        
-        input, select, textarea { 
-            width: 100%; padding: 13px; border: 1px solid #ddd; border-radius: 11px; 
-            box-sizing: border-box; font-size: 0.85rem; background: #fafafa;
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
+        .header { background: white; padding: 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
+        .back-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #333; padding: 0 10px; }
+        .container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .input-card { width: 100%; max-width: 400px; background: white; border-radius: 20px; padding: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); box-sizing: border-box; }
+        label { display: block; font-weight: bold; font-size: 0.9rem; color: #444; margin-bottom: 8px; }
+        input, textarea { width: 100%; border: 1px solid #e8e8e8; border-radius: 12px; padding: 15px; font-size: 1rem; margin-bottom: 20px; box-sizing: border-box; outline: none; background: #fafafa; }
+        textarea { height: 180px; resize: none; }
+        .file-upload-box { 
+            border: 2px dashed #ccd6e0; border-radius: 15px; padding: 40px 20px; 
+            text-align: center; color: #888; margin-bottom: 25px; cursor: pointer;
         }
-        input:focus, select:focus { border-color: var(--dtro-blue); outline: none; background: #fff; }
-        input { height: 48px; }
-        textarea { height: 85px; resize: none; }
-
-        /* 기한 및 훈련 설정 영역 */
-        .sub-setting { background: #eef7ff; border: 1px solid #b3d7ff; padding: 16px; border-radius: 14px; margin-top: 6px; display: none; }
-        .flex-row { display: flex; gap: 7px; margin-top: 6px; }
-        .flex-row div { flex: 1; }
-        .flex-row label { font-size: 0.65rem; color: #0056b3; margin-bottom: 4px; }
-        .flex-row input { background: white !important; height: 40px; text-align: center; }
-
-        .btn-submit { width: 100%; height: 52px; background: var(--dtro-blue); color: white; border: none; border-radius: 14px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 22px; box-shadow: 0 4px 10px rgba(0,114,188,0.2); }
+        .submit-btn { width: 100%; height: 60px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-left"><button class="txt-btn" onclick="location.href='admin_main.html'">이전으로</button></div>
-        <img src="logo.png" class="slim-logo">
-        <div class="header-right"></div>
+        <button class="back-btn" onclick="history.back()">←</button>
+        <span style="font-weight:bold; margin-left:10px;">새 교육 등록하기</span>
     </div>
-
     <div class="container">
-        <div class="card">
-            <div class="page-title">교육 및 훈련 등록</div>
-
-            <div class="input-group">
-                <label>교육 분류</label>
-                <select id="eduCategory" onchange="toggleTrainingMode()">
-                    <option value="게시교육">게시교육</option>
-                    <option value="대면교육">대면교육</option>
-                    <option value="면담교육">면담교육</option>
-                    <option value="시뮬레이션">시뮬레이션</option>
-                    <option value="육성방송 훈련">육성방송 훈련</option>
-                </select>
-            </div>
-
-            <div class="input-group">
-                <label>교육 이수 기한</label>
-                <input type="date" id="eduDeadline">
-            </div>
-
-            <div id="trainingSetting" class="sub-setting">
-                <div id="settingContent"></div>
-            </div>
-
-            <div class="input-group">
-                <label>교육 및 훈련 제목</label>
-                <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
-            </div>
-
-            <div class="input-group">
-                <label>상세 지시내용</label>
-                <textarea id="eduContent" placeholder="상세 내용을 입력하세요."></textarea>
-            </div>
-
-            <div class="input-group">
-                <label>참조 파일 (사진/매뉴얼)</label>
-                <input type="file" id="fileInput">
-            </div>
-
-            <button class="btn-submit" onclick="submitTraining()">앱에 즉시 게시하기</button>
+        <div class="input-card">
+            <label>교육 제목</label>
+            <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
+            <label>상세 내용 및 지시사항</label>
+            <textarea id="eduContent" placeholder="교육 내용을 상세히 입력하세요."></textarea>
+            <label>관련 자료 및 사진</label>
+            <div class="file-upload-box" onclick="document.getElementById('fileInput').click()">📁 사진 또는 파일 선택</div>
+            <input type="file" id="fileInput" style="display:none;">
+            <button class="submit-btn" onclick="alert('등록되었습니다!'); location.href='admin_main.html'">등록 완료</button>
         </div>
     </div>
-
-    <script>
-        // 분류 선택 시 훈련 목표창 제어
-        function toggleTrainingMode() {
-            const category = document.getElementById('eduCategory').value;
-            const settingDiv = document.getElementById('trainingSetting');
-            const content = document.getElementById('settingContent');
-            
-            if (category === "육성방송 훈련") {
-                settingDiv.style.display = "block";
-                content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.75rem;">🎯 육성방송 목표 설정</label>
-                    <div class="flex-row">
-                        <div>
-                            <label>목표 횟수</label>
-                            <input type="number" id="targetCount" value="10">
-                        </div>
-                        <div>
-                            <label>합격 점수</label>
-                            <input type="number" id="targetScore" value="80">
-                        </div>
-                    </div>
-                `;
-            } else if (category === "시뮬레이션") {
-                settingDiv.style.display = "block";
-                content.innerHTML = `
-                    <label style="color:var(--dtro-blue); font-size:0.75rem;">📋 시뮬레이션 목표 (3회/1.5H/60점)</label>
-                    <div class="flex-row">
-                        <div>
-                            <label>목표 횟수</label>
-                            <input type="number" id="simCount" value="3">
-                        </div>
-                        <div>
-                            <label>총 시간(H)</label>
-                            <input type="number" step="0.1" id="simTime" value="1.5">
-                        </div>
-                        <div>
-                            <label>평가 점수</label>
-                            <input type="number" id="simScore" value="60">
-                        </div>
-                    </div>
-                `;
-            } else {
-                settingDiv.style.display = "none";
-                content.innerHTML = "";
-            }
-        }
-
-        function submitTraining() {
-            const title = document.getElementById('eduTitle').value;
-            const deadline = document.getElementById('eduDeadline').value;
-            if(!title) { alert("제목을 입력해주세요."); return; }
-            if(!deadline) { alert("교육 기한을 선택해주세요."); return; }
-            
-            alert("정상 등록되었습니다. 기한: " + deadline);
-            location.href = 'admin_main.html';
-        }
-
-        // 오늘 날짜를 기한 기본값으로 세팅
-        window.onload = function() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('eduDeadline').value = today;
-            toggleTrainingMode();
-        };
-    </script>
 </body>
 </html>
