@@ -19,6 +19,7 @@
         input { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         input:focus { border-color: var(--dtro-blue); background: #fff; }
         .login-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 8px 20px rgba(0,114,188,0.2); }
+        .footer-text { margin-top: 25px; font-size: 0.8rem; color: #ccc; }
     </style>
 </head>
 <body>
@@ -39,10 +40,11 @@
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
             <p style="font-size:0.75rem; color:#999; margin-top:15px;">최초 접속 시 마스터 비번(1234)을 입력하세요.</p>
         </div>
+        <div class="footer-text">© 2026 DTRO Smart Education System</div>
     </div>
 
     <script>
-        const MASTER_PW = "1234"; // 마스터 비번을 1234로 지정
+        const MASTER_PW = "1234"; 
 
         function switchTab(mode) {
             document.getElementById('userTab').className = mode === 'user' ? 'tab-btn active' : 'tab-btn';
@@ -72,9 +74,8 @@
             const inputPw = document.getElementById('adminPw').value;
             const savedAdminPw = localStorage.getItem('adminPw');
 
-            // 마스터 비번 입력 시 강제 설정 페이지 이동
             if (inputPw === MASTER_PW) {
-                alert('마스터 인증 성공! 관리자 설정 페이지로 이동합니다.');
+                alert('마스터 인증 성공! 설정 페이지로 이동합니다.');
                 location.href = 'admin_setting.html';
                 return;
             }
