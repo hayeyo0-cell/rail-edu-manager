@@ -6,132 +6,102 @@
     <title>사용자 메인 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; }
+        .header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .logo { height: 24px; }
+        .user-info { font-size: 0.9rem; color: #555; font-weight: bold; }
         
-        /* 상단 헤더 */
-        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: center; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; position: relative; }
-        .logout-btn { position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #888; cursor: pointer; }
-        .brand-logo { height: 26px; object-fit: contain; }
+        .container { padding: 20px 15px; max-width: 420px; margin: 0 auto; }
+        .section-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .count-badge { background: #ff4d4d; color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; }
 
-        .container { width: 92%; max-width: 420px; padding: 25px 0; }
+        /* 교육 카드 디자인 */
+        .edu-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .edu-info { text-align: left; }
+        .edu-type { font-size: 0.75rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 5px; display: block; }
+        .edu-title { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .edu-date { font-size: 0.8rem; color: #999; }
+        .arrow { color: #ccc; font-size: 1.2rem; }
 
-        /* 섹션 타이틀 */
-        .section-title { font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 4px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
-
-        /* 필터 버튼 */
-        .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding-bottom: 5px; }
-        .filter-btn { padding: 10px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 0.9rem; white-space: nowrap; cursor: pointer; }
-        .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); }
-
-        /* 교육 카드 스타일 */
-        .edu-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; text-align: left; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .badge { padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; background: #f3e5f5; color: #7b1fa2; }
-        .date-label { font-size: 0.85rem; color: #999; }
-        .edu-title { font-weight: bold; font-size: 1.2rem; color: #333; margin-bottom: 10px; display: block; }
-        .deadline-text { font-size: 0.95rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; display: block; }
-        .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,114,188,0.1); }
-
-        /* 🚨 학습 보관함 카드 (사진 속 디자인 복구) */
-        .archive-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); display: flex; align-items: center; cursor: pointer; text-align: left; }
-        .archive-icon { width: 60px; height: 60px; margin-right: 15px; }
-        .archive-info h4 { margin: 0 0 5px 0; font-size: 1.1rem; color: #333; }
-        .archive-info p { margin: 0; font-size: 0.85rem; color: #999; line-height: 1.4; }
+        /* 이수 완료 보관함 스타일 */
+        .archive-section { margin-top: 30px; border-top: 1px solid #eee; pt: 20px; }
+        .completed-card { opacity: 0.6; background: #f9f9f9; }
+        .completed-badge { font-size: 0.7rem; color: #27ae60; border: 1px solid #27ae60; padding: 1px 5px; border-radius: 4px; margin-left: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <img src="logo.png" class="brand-logo" alt="DTRO">
-        <button class="logout-btn" onclick="location.href='index.html'">로그아웃</button>
+    <div class="header">
+        <img src="logo.png" class="logo">
+        <div class="user-info"><span id="userNameDisplay">홍길동</span> 기관사님</div>
     </div>
 
     <div class="container">
-        <div class="section-title">오늘의 필수 교육 목록</div>
-        
-        <div id="categoryFilters" class="filter-container"></div>
-
-        <div id="userEduListArea"></div>
-
-        <div class="section-title">학습 보관함</div>
-        
-        <div class="archive-card" onclick="location.href='user_archive.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/3532/3532053.png" class="archive-icon">
-            <div class="archive-info">
-                <h4>나의 이수 완료 내역</h4>
-                <p>이전에 수강을 완료한 교육 및 훈련<br>목록을 확인합니다.</p>
+        <div class="section-title">
+            📢 미이수 교육 및 지시사항
+            <span id="todoCount" class="count-badge">0</span>
+        </div>
+        <div id="todoList">
             </div>
+
+        <div class="archive-section">
+            <div class="section-title" style="color: #888; font-size: 1rem;">📦 완료된 교육 보관함</div>
+            <div id="doneList">
+                </div>
         </div>
     </div>
 
     <script>
-        let currentFilter = '전체';
-        const userDept = localStorage.getItem('currentUserDept') || "";
+        const loginId = localStorage.getItem('currentUserId');
+        const loginName = localStorage.getItem('currentUserName');
+        document.getElementById('userNameDisplay').innerText = loginName || "기관사";
 
         window.onload = function() {
-            if(!userDept) {
-                alert("로그인 정보가 없습니다.");
-                location.href = 'index.html';
-                return;
-            }
-            cleanupOldData();
-            renderFilters();
-            loadEduData();
+            renderList();
         };
 
-        function cleanupOldData() {
-            let completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            const now = new Date();
-            const freshList = completedList.filter(edu => {
-                if(!edu.completedDate) return true;
-                const cDate = new Date(edu.completedDate.replace(/\./g, '-'));
-                return cDate.getFullYear() === now.getFullYear() && cDate.getMonth() === now.getMonth();
-            });
-            localStorage.setItem('completedEduList', JSON.stringify(freshList));
-        }
-
-        function renderFilters() {
-            const filterDiv = document.getElementById('categoryFilters');
-            const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션', '육성방송 훈련', '기타교육'];
-            let html = '';
-            categories.forEach(cat => {
-                const activeClass = (cat === currentFilter) ? 'active' : '';
-                html += `<button class="filter-btn ${activeClass}" onclick="changeFilter('${cat}')">${cat}</button>`;
-            });
-            filterDiv.innerHTML = html;
-        }
-
-        function changeFilter(cat) {
-            currentFilter = cat;
-            renderFilters();
-            loadEduData();
-        }
-
-        function loadEduData() {
-            const listArea = document.getElementById('userEduListArea');
-            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+        function renderList() {
+            const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            const signData = JSON.parse(localStorage.getItem('signData')) || [];
             
-            let filtered = allEduList.filter(edu => edu.dept === userDept && (currentFilter === '전체' || edu.type === currentFilter));
+            const todoListDiv = document.getElementById('todoList');
+            const doneListDiv = document.getElementById('doneList');
+            const todoCountBadge = document.getElementById('todoCount');
 
-            if(filtered.length === 0) {
-                listArea.innerHTML = '<p style="text-align:center; color:#ccc; padding:40px;">진행 중인 교육이 없습니다.</p>';
-                return;
-            }
+            todoListDiv.innerHTML = "";
+            doneListDiv.innerHTML = "";
 
-            let html = '';
-            filtered.forEach(edu => {
-                html += `
-                <div class="edu-card">
-                    <div class="card-header">
-                        <span class="badge">${edu.type}</span>
-                        <span class="date-label">게시일: ${edu.date}</span>
+            let todoCount = 0;
+
+            totalEduList.forEach(edu => {
+                // 🚨 핵심: 현재 로그인한 사용자가 이 교육에 서명했는지 확인
+                const isCompleted = signData.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(loginId));
+
+                const cardHtml = `
+                    <div class="edu-card ${isCompleted ? 'completed-card' : ''}" onclick="location.href='user_edu_detail.html?id=${edu.id}'">
+                        <div class="edu-info">
+                            <span class="edu-type">${edu.type} ${isCompleted ? '<span class="completed-badge">이수완료</span>' : ''}</span>
+                            <div class="edu-title">${edu.title}</div>
+                            <div class="edu-date">등록일: ${edu.date} / 기한: ${edu.deadline || '없음'}</div>
+                        </div>
+                        <div class="arrow"> > </div>
                     </div>
-                    <span class="edu-title">${edu.title}</span>
-                    <span class="deadline-text">⏳ 마감 기한: ${edu.deadline || '없음'} 까지</span>
-                    <button class="btn-start" onclick="location.href='user_edu_detail.html?id=${edu.id}'">교육 입장하기 →</button>
-                </div>`;
+                `;
+
+                if (isCompleted) {
+                    // 이수 완료된 경우 보관함으로
+                    doneListDiv.innerHTML += cardHtml;
+                } else {
+                    // 미이수된 경우 상단 목록으로
+                    todoListDiv.innerHTML += cardHtml;
+                    todoCount++;
+                }
             });
-            listArea.innerHTML = html;
+
+            todoCountBadge.innerText = todoCount;
+            if(todoCount === 0) {
+                todoListDiv.innerHTML = "<p style='text-align:center; color:#bbb; padding:20px;'>모든 교육을 이수하였습니다. 👍</p>";
+            }
         }
     </script>
 </body>
