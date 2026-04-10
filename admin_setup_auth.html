@@ -3,74 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>관리자 설정 확인</title>
+    <title>관리자 설정 및 인증</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; --success-green: #2ecc71; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
         .settings-card { 
             width: 100%; max-width: 400px; background: white; border-radius: 25px; 
-            padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); box-sizing: border-box; 
+            padding: 35px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); box-sizing: border-box; 
             margin-top: 20px;
         }
         
-        h2 { text-align: center; color: #333; margin-bottom: 30px; font-size: 1.4rem; }
+        h2 { text-align: center; color: #333; margin-bottom: 30px; font-size: 1.4rem; letter-spacing: -0.5px; }
         
         .section-title { 
             font-size: 1rem; font-weight: bold; color: var(--dtro-blue); 
             border-left: 4px solid var(--dtro-blue); padding-left: 10px; margin: 25px 0 15px 0; 
         }
         
-        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 5px; display: block; padding-left: 5px; }
+        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         
         select, input { 
-            width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #eee; 
-            border-radius: 12px; box-sizing: border-box; font-size: 0.95rem; outline: none; background: #fafafa; 
+            width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid #eee; 
+            border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.2s;
         }
-        input:focus { border-color: var(--dtro-blue); background: #fff; }
+        input:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.05); }
         
-        .check-msg { font-size: 0.75rem; margin-bottom: 15px; display: none; padding-left: 5px; }
+        .check-msg { font-size: 0.75rem; margin-bottom: 15px; display: none; padding-left: 5px; font-weight: 500; }
         .error { color: var(--error-red); }
-        .success { color: #2ecc71; }
+        .success { color: var(--success-green); }
 
         .save-btn { 
             width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
             border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; 
-            cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,114,188,0.2);
+            cursor: pointer; margin-top: 25px; box-shadow: 0 8px 20px rgba(0,114,188,0.15);
         }
+        .save-btn:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
+
     <div class="settings-card">
-        <h2>🛠️ 관리자 설정</h2>
+        <h2>🛠️ 관리자 초기 설정</h2>
         
-        <div class="section-title">소속 지정</div>
+        <div class="section-title">소속 팀 지정</div>
+        <span class="input-label">운영 소속</span>
         <select id="setDept">
-            <option value="">소속을 선택하세요</option>
             <option value="경산승무팀">경산승무팀</option>
             <option value="안심승무팀">안심승무팀</option>
             <option value="월배승무팀">월배승무팀</option>
             <option value="문양승무팀">문양승무팀</option>
         </select>
 
-        <div class="section-title">관리자 계정 설정</div>
-        <span class="input-label">관리자 사번</span>
-        <input type="number" id="setAdminId" placeholder="사번 입력 (예: 20050552)">
+        <div class="section-title">관리자 계정 생성</div>
+        <span class="input-label">관리자 사번 (로그인 ID)</span>
+        <input type="number" id="setAdminId" placeholder="사번 8자리 입력">
         
-        <span class="input-label">관리자 새 비밀번호</span>
-        <input type="password" id="setAdminPw" placeholder="비밀번호 입력">
-        <input type="password" id="confirmAdminPw" placeholder="비밀번호 확인" oninput="validatePw()">
+        <span class="input-label">관리자 비밀번호</span>
+        <input type="password" id="setAdminPw" placeholder="비밀번호 설정">
+        <input type="password" id="confirmAdminPw" placeholder="비밀번호 한 번 더 입력" oninput="validatePw()">
         <div id="pwCheckMsg" class="check-msg"></div>
 
-        <div class="section-title">팀원용 공용 비번 설정</div>
-        <span class="input-label">공용 비밀번호 (팀원 로그인용)</span>
-        <input type="password" id="setTeamPw" placeholder="공용 비밀번호 입력">
+        <div class="section-title">팀원 공용 설정</div>
+        <span class="input-label">팀원용 접속 비밀번호</span>
+        <input type="password" id="setTeamPw" placeholder="팀원들이 쓸 공용 비번">
 
         <button class="save-btn" onclick="saveSettings()">설정 저장 및 완료</button>
     </div>
 
     <script>
-        // 비밀번호 실시간 일치 확인 로직
+        // 비밀번호 실시간 체크
         function validatePw() {
             const pw = document.getElementById('setAdminPw').value;
             const confirm = document.getElementById('confirmAdminPw').value;
@@ -98,7 +100,7 @@
             const teamPw = document.getElementById('setTeamPw').value;
 
             if(!dept || !id || !pw || !teamPw) {
-                alert('모든 항목을 입력해 주세요!');
+                alert('빈칸을 모두 채워주세요!');
                 return;
             }
 
@@ -107,12 +109,10 @@
                 return;
             }
 
-            const finalConfirm = confirm(
-                `📍 소속: ${dept}\n🆔 사번: ${id}\n\n위 정보로 관리자를 등록하시겠습니까?`
-            );
+            const isOk = confirm(`확인해 주세요!\n\n📍 소속: ${dept}\n🆔 사번: ${id}\n\n이 정보로 설정을 저장할까요?`);
 
-            if(finalConfirm) {
-                // 저장 전 기존 데이터 싹 비우기
+            if(isOk) {
+                // 기존 데이터 초기화 후 새 데이터 저장
                 localStorage.clear();
                 
                 localStorage.setItem('userDept', dept);
@@ -120,7 +120,9 @@
                 localStorage.setItem('adminPw', pw);
                 localStorage.setItem('teamPw', teamPw);
 
-                alert('설정이 완료되었습니다!\n이제 정식 관리자 계정으로 로그인하세요.');
+                alert('설정이 완료되었습니다!\n로그인 화면에서 사번과 비번으로 접속하세요.');
+                
+                // 로그인 메인(index.html)으로 복귀
                 location.href = 'index.html';
             }
         }
