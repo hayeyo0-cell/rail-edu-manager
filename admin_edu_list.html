@@ -8,12 +8,12 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 메인 페이지와 동일하게 패딩 조절 (10px -> 12px) */
+        /* 🚨 로고 공간 확보를 위해 패딩 12px로 수정 */
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         
         .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기 수정: 28px -> 42px (통일감 유지) */
+        /* 🚨 로고 크기 28px -> 42px로 상향 */
         .brand-logo { height: 42px; object-fit: contain; }
         
         .container { width: 92%; max-width: 400px; padding: 20px 0; }
@@ -28,7 +28,7 @@
     <div class="top-nav">
         <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO Logo">
-        <div style="width:75px;"></div> 
+        <div style="width:75px;"></div>
     </div>
     <div class="container" id="listArea">
         </div>
