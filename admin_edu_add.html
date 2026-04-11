@@ -8,7 +8,7 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 상단 헤더: 로고 및 메인으로 버튼 */
+        /* 🚨 상단 헤더: 패딩 및 로고 크기 수정 (42px) */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -18,7 +18,9 @@
             background: white; border: 1px solid #eaeaea; border-radius: 8px; 
             padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
         }
-        .brand-logo { height: 26px; object-fit: contain; }
+        
+        /* 🚨 로고 크기 26px -> 42px로 상향 */
+        .brand-logo { height: 42px; object-fit: contain; }
 
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
 
@@ -132,7 +134,7 @@
             const newEdu = {
                 id: Date.now(),
                 dept: myDept,
-                category: type, // user_main.html 필터링과 이름 맞춤
+                category: type,
                 type: type,
                 title: title,
                 content: content,
