@@ -8,7 +8,7 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 헤더 디자인: 로고 크기에 맞춰 패딩 및 정렬 수정 */
+        /* 헤더 디자인: 로고 42px 및 중앙 정렬 유지 */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: center; align-items: center; 
@@ -18,17 +18,19 @@
             position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; 
             border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #888; cursor: pointer; font-weight: bold;
         }
-        
-        /* 🚨 로고 크기: 22px -> 42px로 대폭 상향 */
         .brand-logo { height: 42px; object-fit: contain; }
 
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
 
         .section-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 5px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
 
-        /* 필터 버튼 */
-        .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding-bottom: 5px; }
-        .filter-btn { padding: 10px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 0.9rem; white-space: nowrap; cursor: pointer; }
+        /* 🚨 필터 버튼 디자인 수정: 글씨 크기 줄임 */
+        .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
+        .filter-btn { 
+            padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; 
+            background: white; font-size: 0.82rem; /* 글씨 크기 하향 */
+            white-space: nowrap; cursor: pointer; color: #666; transition: 0.2s;
+        }
         .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
 
         /* 교육 카드 */
