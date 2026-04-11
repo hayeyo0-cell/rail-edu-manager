@@ -58,6 +58,8 @@
         <div class="section-title">관리자 계정 생성</div>
         <span class="input-label">관리자 사번 (로그인 ID)</span>
         <input type="number" id="setAdminId" placeholder="사번 8자리 입력">
+        <input type="number" id="confirmAdminId" placeholder="사번 한 번 더 입력" oninput="validateId()">
+        <div id="idCheckMsg" class="check-msg"></div>
         
         <span class="input-label">관리자 비밀번호</span>
         <input type="password" id="setAdminPw" placeholder="비밀번호 설정">
@@ -67,62 +69,76 @@
         <div class="section-title">팀원 공용 설정</div>
         <span class="input-label">팀원용 접속 비밀번호</span>
         <input type="password" id="setTeamPw" placeholder="팀원들이 쓸 공용 비번">
+        <input type="password" id="confirmTeamPw" placeholder="공용 비번 한 번 더 입력" oninput="validateTeamPw()">
+        <div id="teamPwCheckMsg" class="check-msg"></div>
 
         <button class="save-btn" onclick="saveSettings()">설정 저장 및 완료</button>
     </div>
 
     <script>
+        // 사번 실시간 체크
+        function validateId() {
+            const id = document.getElementById('setAdminId').value;
+            const confirm = document.getElementById('confirmAdminId').value;
+            const msg = document.getElementById('idCheckMsg');
+            if (confirm.length > 0) {
+                msg.style.display = 'block';
+                if (id === confirm) { msg.innerText = "✓ 사번이 일치합니다."; msg.className = "check-msg success"; }
+                else { msg.innerText = "✗ 사번이 일치하지 않습니다."; msg.className = "check-msg error"; }
+            } else { msg.style.display = 'none'; }
+        }
+
         // 비밀번호 실시간 체크
         function validatePw() {
             const pw = document.getElementById('setAdminPw').value;
             const confirm = document.getElementById('confirmAdminPw').value;
             const msg = document.getElementById('pwCheckMsg');
-
             if (confirm.length > 0) {
                 msg.style.display = 'block';
-                if (pw === confirm) {
-                    msg.innerText = "✓ 비밀번호가 일치합니다.";
-                    msg.className = "check-msg success";
-                } else {
-                    msg.innerText = "✗ 비밀번호가 일치하지 않습니다.";
-                    msg.className = "check-msg error";
-                }
-            } else {
-                msg.style.display = 'none';
-            }
+                if (pw === confirm) { msg.innerText = "✓ 비밀번호가 일치합니다."; msg.className = "check-msg success"; }
+                else { msg.innerText = "✗ 비밀번호가 일치하지 않습니다."; msg.className = "check-msg error"; }
+            } else { msg.style.display = 'none'; }
+        }
+
+        // 팀원 비번 실시간 체크
+        function validateTeamPw() {
+            const pw = document.getElementById('setTeamPw').value;
+            const confirm = document.getElementById('confirmTeamPw').value;
+            const msg = document.getElementById('teamPwCheckMsg');
+            if (confirm.length > 0) {
+                msg.style.display = 'block';
+                if (pw === confirm) { msg.innerText = "✓ 공용 비번이 일치합니다."; msg.className = "check-msg success"; }
+                else { msg.innerText = "✗ 공용 비번이 일치하지 않습니다."; msg.className = "check-msg error"; }
+            } else { msg.style.display = 'none'; }
         }
 
         function saveSettings() {
             const dept = document.getElementById('setDept').value;
             const id = document.getElementById('setAdminId').value;
+            const confirmId = document.getElementById('confirmAdminId').value;
             const pw = document.getElementById('setAdminPw').value;
             const confirmPw = document.getElementById('confirmAdminPw').value;
             const teamPw = document.getElementById('setTeamPw').value;
+            const confirmTeamPw = document.getElementById('confirmTeamPw').value;
 
-            if(!dept || !id || !pw || !teamPw) {
+            if(!dept || !id || !pw || !teamPw || !confirmId || !confirmPw || !confirmTeamPw) {
                 alert('빈칸을 모두 채워주세요!');
                 return;
             }
 
-            if(pw !== confirmPw) {
-                alert('비밀번호 확인이 일치하지 않습니다.');
-                return;
-            }
+            if(id !== confirmId) { alert('사번 확인이 일치하지 않습니다.'); return; }
+            if(pw !== confirmPw) { alert('비밀번호 확인이 일치하지 않습니다.'); return; }
+            if(teamPw !== confirmTeamPw) { alert('팀원 공용 비번 확인이 일치하지 않습니다.'); return; }
 
             const isOk = confirm(`확인해 주세요!\n\n📍 소속: ${dept}\n🆔 사번: ${id}\n\n이 정보로 설정을 저장할까요?`);
 
             if(isOk) {
-                // 기존 데이터 초기화 후 새 데이터 저장
                 localStorage.clear();
-                
                 localStorage.setItem('userDept', dept);
                 localStorage.setItem('adminId', id);
                 localStorage.setItem('adminPw', pw);
                 localStorage.setItem('teamPw', teamPw);
-
                 alert('설정이 완료되었습니다!\n로그인 화면에서 사번과 비번으로 접속하세요.');
-                
-                // 로그인 메인(index.html)으로 복귀
                 location.href = 'index.html';
             }
         }
