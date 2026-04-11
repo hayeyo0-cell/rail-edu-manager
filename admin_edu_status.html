@@ -9,9 +9,12 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
+        /* 🚨 다른 페이지와 동일하게 패딩 12px 및 로고 크기 42px 적용 */
         .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
-        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; }
-        .brand-logo { height: 32px; mix-blend-mode: multiply; }
+        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
+        
+        /* 🚨 로고 크기 32px -> 42px로 상향 */
+        .brand-logo { height: 42px; object-fit: contain; }
 
         .main-container { width: 92%; max-width: 500px; padding: 20px 0; }
         
@@ -48,14 +51,13 @@
     <div class="top-header">
         <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
-        <div style="width:65px;"></div>
+        <div style="width:75px;"></div>
     </div>
 
     <div class="main-container">
         <div class="select-card">
             <div style="font-weight:bold; margin-bottom:10px; font-size:0.9rem; color:#555;">현황을 확인할 교육 선택</div>
-            <select id="eduSelect" onchange="updateStats()">
-                </select>
+            <select id="eduSelect" onchange="updateStats()"></select>
         </div>
 
         <div class="stats-summary">
@@ -84,8 +86,7 @@
             <button class="tab-btn" id="tabDone" onclick="switchTab('done')">이수 완료자</button>
         </div>
 
-        <div class="list-card" id="listArea">
-            </div>
+        <div class="list-card" id="listArea"></div>
     </div>
 
     <script>
@@ -96,10 +97,9 @@
             loadEduOptions();
         };
 
-        // 관리자가 본인 팀에 등록한 교육 목록 불러오기
         function loadEduOptions() {
             const eduSelect = document.getElementById('eduSelect');
-            const allEduList = JSON.parse(localStorage.getItem('myEduList')) || [];
+            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || []; // 🚨 totalEduList로 명칭 통일
             const myEduList = allEduList.filter(edu => edu.dept === adminDept);
 
             if (myEduList.length === 0) {
@@ -127,24 +127,18 @@
 
             document.getElementById('selectedEduTitle').innerText = selectedTitle;
 
-            // 1. 소속 전체 명단 가져오기
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             const myDeptUsers = totalUserList.filter(u => u.dept === adminDept);
-
-            // 2. 전체 완료 데이터 가져오기
             const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             
-            // 3. 현재 선택된 교육을 완료한 사람만 필터링 (사번 기준)
             const doneUsersInDept = myDeptUsers.filter(user => {
                 return completedList.some(done => done.title === selectedTitle && done.empId === user.id);
             });
 
-            // 4. 미이수자 필터링
             const yetUsersInDept = myDeptUsers.filter(user => {
                 return !doneUsersInDept.some(done => done.id === user.id);
             });
 
-            // 5. 화면 수치 업데이트
             const total = myDeptUsers.length;
             const done = doneUsersInDept.length;
             const yet = yetUsersInDept.length;
@@ -155,7 +149,6 @@
             document.getElementById('yetCount').innerText = yet;
             document.getElementById('progressBar').style.width = percent + "%";
 
-            // 6. 명단 출력
             renderList(currentTab === 'done' ? doneUsersInDept : yetUsersInDept);
         }
 
