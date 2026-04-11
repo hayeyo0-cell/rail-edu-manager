@@ -7,10 +7,15 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-nav { width: 100%; background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        
+        /* 🚨 상단바 패딩을 살짝 조절하여 로고 공간 확보 */
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        
         .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; }
-        /* 🚨 깃허브에 올린 logo.png를 불러오도록 수정 */
-        .brand-logo { height: 28px; object-fit: contain; }
+        
+        /* 🚨 로고 크기 수정: 28px -> 42px (경산승무팀 배지보다 크게 설정) */
+        .brand-logo { height: 42px; object-fit: contain; }
+        
         .dept-badge { background: var(--dtro-blue); color: white; padding: 8px 25px; border-radius: 30px; font-weight: bold; margin: 30px 0 20px 0; box-shadow: 0 4px 10px rgba(0,114,188,0.1); }
         .welcome-text { font-size: 1.15rem; font-weight: bold; color: #333; margin-bottom: 30px; }
         .container { width: 92%; max-width: 400px; padding-bottom: 40px; }
