@@ -9,20 +9,22 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 🚨 다른 페이지와 동일하게 패딩 12px 및 로고 크기 42px 적용 */
-        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; }
+        /* 🚨 상단 헤더: 다른 페이지와 동일하게 패딩 12px 및 높이 조정 */
+        .top-header { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; box-sizing: border-box; 
+        }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기 32px -> 42px로 상향 */
-        .brand-logo { height: 42px; object-fit: contain; }
+        /* 🚨 로고 크기 수정: 42px로 통일 */
+        .brand-logo { height: 42px; object-fit: contain; mix-blend-mode: multiply; }
 
         .main-container { width: 92%; max-width: 500px; padding: 20px 0; }
         
-        /* 교육 선택 셀렉트 박스 */
         .select-card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 20px; }
         select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; outline: none; background: #fff; }
 
-        /* 통계 요약 카드 */
         .stats-summary { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; text-align: center; }
         .progress-container { background: #eee; border-radius: 10px; height: 20px; width: 100%; margin: 15px 0; overflow: hidden; }
         .progress-bar { background: var(--dtro-blue); height: 100%; width: 0%; transition: width 0.5s ease; }
@@ -31,12 +33,10 @@
         .stat-value { font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); }
         .stat-label { font-size: 0.8rem; color: #888; }
 
-        /* 명단 탭 */
         .tab-menu { display: flex; margin-bottom: 15px; background: #e0e0e0; border-radius: 10px; padding: 4px; }
         .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 7px; cursor: pointer; font-size: 0.9rem; font-weight: bold; color: #666; background: none; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-        /* 명단 리스트 */
         .list-card { background: white; border-radius: 15px; padding: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
         .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f9f9f9; }
         .user-name { font-weight: bold; }
@@ -99,7 +99,7 @@
 
         function loadEduOptions() {
             const eduSelect = document.getElementById('eduSelect');
-            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || []; // 🚨 totalEduList로 명칭 통일
+            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const myEduList = allEduList.filter(edu => edu.dept === adminDept);
 
             if (myEduList.length === 0) {
