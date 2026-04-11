@@ -8,17 +8,15 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 상단바 패딩 12px 및 정렬 통일 */
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기 상향: 24px -> 42px */
+        /* 로고 크기 42px 유지 */
         .brand-logo { height: 42px; object-fit: contain; }
 
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
         .section-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 20px; text-align: left; width: 100%; }
 
-        /* 기관사님 원본 디자인 유지 */
         .archive-item { 
             background: white; border-radius: 20px; padding: 20px; 
             margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); 
@@ -26,4 +24,72 @@
         }
         .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .comp-badge { font-size: 0.75rem; color: #27ae60; font-weight: bold; background: #e8f5e9; padding: 3px 8px; border-radius: 5px; }
-        .item-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom:
+        .item-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .empty-msg { text-align: center; color: #bbb; padding: 60px 0; font-size: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <button class="nav-btn" onclick="location.href='user_main.html'">← 메인으로</button>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:75px;"></div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">📦 나의 이수 완료 내역</div>
+        <div id="archiveList"></div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            // 🚨 [수정 포인트] 사용자 메인과 동일한 'currentUserId' 키를 사용합니다.
+            const myId = localStorage.getItem('currentUserId');
+            
+            if(!myId) { 
+                alert("로그인 정보가 없습니다.");
+                location.href = 'index.html'; 
+                return; 
+            }
+            
+            const archiveListDiv = document.getElementById('archiveList');
+            
+            // 데이터 불러오기
+            const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            
+            // 🚨 [핵심 수정] 상세페이지(서명 로직)에서 저장할 때 썼던 userId와 매칭 확인
+            // userId가 숫자형일지 문자열일지 모르니 String으로 감싸서 비교합니다.
+            const myCompleted = completedList.filter(c => String(c.userId) === String(myId));
+
+            if (myCompleted.length === 0) {
+                archiveListDiv.innerHTML = '<div class="empty-msg">🎉 아직 이수 완료한 내역이 없습니다.</div>';
+                return;
+            }
+
+            let html = '';
+            // 최신순 정렬
+            myCompleted.reverse().forEach(item => {
+                // 교육 ID로 원본 교육 정보를 찾습니다.
+                const edu = totalEduList.find(e => String(e.id) === String(item.eduId));
+                
+                // 만약 교육 정보가 삭제되었더라도 이수 기록은 보여주기 위해 예외 처리
+                const title = edu ? edu.title : "삭제된 교육 과정";
+                const info = edu ? `${edu.dept} | ${edu.type}` : "상세 정보 없음";
+
+                html += `
+                    <div class="archive-item">
+                        <div class="item-header">
+                            <span class="comp-badge">이수 완료</span>
+                            <span style="font-size:0.8rem; color:#999;">완료일: ${item.completedDate || '기록없음'}</span>
+                        </div>
+                        <div class="item-title">${title}</div>
+                        <div style="font-size:0.85rem; color:#666;">${info}</div>
+                    </div>
+                `;
+            });
+            archiveListDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
