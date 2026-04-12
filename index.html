@@ -27,12 +27,15 @@
 
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
         .input-group { text-align: left; margin-bottom: 15px; }
         .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
+        
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
@@ -69,8 +72,12 @@
     </div>
 
     <script>
-        // 🚨 네비게이션 상태 추적 변수 (자석 현상 방지 핵심)
         let isMoving = false;
+
+        // 🚨 뒤로가기 방어막 주입 함수
+        function pushState() {
+            window.history.pushState(null, null, window.location.href);
+        }
 
         window.onload = function() {
             const splash = document.getElementById('splashScreen');
@@ -90,20 +97,25 @@
                 }, 1500);
             }
 
-            // 초기 방어막 주입
-            window.history.pushState(null, null, window.location.href);
+            // 🚨 앱 실행 즉시 뒤로가기 못하게 가둠
+            pushState();
         };
 
-        // 뒤로가기 제어 (이동 중이 아닐 때만 작동)
+        // 🚨 뒤로가기 시도시 자석처럼 다시 현재 페이지로 주입
         window.onpopstate = function() {
             if (isMoving) return; 
-            window.history.pushState(null, null, window.location.href);
+            pushState();
+            alert("앱을 종료하려면 하단의 '시스템 종료' 버튼을 이용해 주세요.");
         };
 
+        // 🚨 시스템 종료 (강제 종료 트리거)
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
-                window.close();
-                setTimeout(() => { alert("브라우저의 탭 닫기를 이용해 종료해 주세요."); }, 300);
+                // 대부분의 모바일 브라우저에서 탭을 닫는 가장 확실한 방법
+                window.open('about:blank', '_self').close();
+                setTimeout(() => {
+                    alert("브라우저의 탭 닫기(X) 버튼을 눌러 종료해 주세요.");
+                }, 300);
             }
         }
 
@@ -120,7 +132,6 @@
             }
         }
 
-        // 🚨 사용자 로그인 (방어 로직과의 충돌을 완전히 피함)
         function userLogin() {
             const inputId = document.getElementById('userId').value;
             const inputPw = document.getElementById('userPw').value;
@@ -135,11 +146,9 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
 
-            // ✅ 이동 프로세스 시작
-            isMoving = true;           // 1. 이동 모드 활성화 (감시 카메라 무시)
-            window.onpopstate = null;  // 2. 방어 함수 완전 제거
+            isMoving = true;           
+            window.onpopstate = null;  
             
-            // 3. 0.1초 뒤에 이동 (브라우저가 히스토리 갱신 시간을 갖도록 함)
             setTimeout(() => {
                 window.location.replace('user_main.html');
             }, 100);
@@ -163,9 +172,8 @@
                 return; 
             }
             
-            // 실패 시 복구
             isMoving = false;
-            window.history.pushState(null, null, window.location.href);
+            pushState();
             alert("정보가 틀렸습니다.");
         }
     </script>
