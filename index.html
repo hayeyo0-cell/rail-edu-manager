@@ -14,7 +14,6 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 스플래시 화면 */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
@@ -24,7 +23,6 @@
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
-        /* 로그인 카드 */
         .login-card { 
             width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
             border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
@@ -72,6 +70,11 @@
     </div>
 
     <script>
+        // 🚨 뒤로가기 시 이탈을 방지하고 현재 페이지를 유지하는 방어 로직
+        function lockHistory() {
+            window.history.pushState(null, null, window.location.href);
+        }
+
         window.onload = function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
@@ -91,13 +94,14 @@
                 }, 1500);
             }
             
-            // 🚨 [핵심] 역주행 방지 로직
-            // 현재 주소를 히스토리에 하나 쌓고, 뒤로가기 시 강제로 앞으로 튕겨냅니다.
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                // 사용자가 뒤로가기를 누르는 순간, 다시 앞으로 한 칸 이동시켜 홈에 가둡니다.
-                window.history.go(1);
-            };
+            // 🚨 진입 시점에 히스토리 잠금
+            lockHistory();
+        };
+
+        // 🚨 뒤로가기 버튼 클릭 시 이벤트
+        window.onpopstate = function() {
+            alert("앱을 종료하시려면 브라우저의 탭 닫기(X)를 이용해 주세요.");
+            lockHistory(); // 다시 기록을 쌓아 이전 페이지 역주행 방지
         };
 
         function switchTab(mode) {
@@ -111,9 +115,12 @@
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
+            if(!id || !pw) return alert("사번과 비밀번호를 입력하세요.");
+
             const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
             const sPw = localStorage.getItem('teamPw') || "1234";
             const user = list.find(u => String(u.id) === String(id));
+
             if (!user) return alert("명단에 없는 사번입니다.");
             if (pw !== sPw) return alert("비밀번호가 틀렸습니다.");
             
@@ -121,7 +128,7 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 로그인 시 기록을 남기지 않고 이동 (이후 뒤로가기 방지용)
+            // 🚨 로그인 성공 시 자연스럽게 이동 (이제 로그인 잘 됩니다!)
             location.href = 'user_main.html';
         }
 
