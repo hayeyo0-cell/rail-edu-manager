@@ -8,7 +8,6 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="승무교육">
 
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
@@ -73,8 +72,11 @@
     </div>
 
     <script>
-        // 히스토리 방어막 함수
-        function initHistory() {
+        // 🚨 뒤로가기를 막는 방어 로직 (로그인 이동 중에는 작동 안 하도록 수정)
+        let isLoggingIn = false;
+
+        function protectBack() {
+            if (isLoggingIn) return; // 로그인 중이면 방어 안 함
             window.history.pushState(null, null, window.location.href);
         }
 
@@ -95,21 +97,20 @@
                     }, 500);
                 }, 1500);
             }
-            initHistory();
+            
+            // 초기 방어막 가동
+            protectBack();
         };
 
-        // 🚨 뒤로가기 방어 (감시 모드)
+        // 뒤로가기 시도 시 자석처럼 현재 페이지로 고정
         window.onpopstate = function() {
-            initHistory();
+            protectBack();
         };
 
-        // 앱 종료 기능
         function exitApp() {
             if(confirm("앱을 종료하시겠습니까?")) {
                 window.close();
-                setTimeout(() => {
-                    alert("보안 정책상 브라우저의 '탭 닫기(X)'를 눌러 종료해 주세요.");
-                }, 300);
+                setTimeout(() => { alert("브라우저의 탭 닫기(X)를 눌러 종료해 주세요."); }, 300);
             }
         }
 
@@ -121,11 +122,10 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
         }
 
-        // 🚨 사용자 로그인 (감시를 완전히 끄고 이동)
+        // 🚨 사용자 로그인 (방어 로직 완전 무력화 후 이동)
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
-            
             if(!id || !pw) return alert("사번과 비밀번호를 입력하세요.");
 
             const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
@@ -139,14 +139,14 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 🚨 [필살기] 이동하는 순간 방어막 감지를 완전히 끕니다.
-            window.onpopstate = null;
+            // 🚨 핵심: 방어벽 해제 선언!
+            isLoggingIn = true;
+            window.onpopstate = null; 
             
-            // 🚨 깜빡임 방지를 위해 replace로 즉시 교체 이동
-            location.replace('user_main.html');
+            // 🚨 브라우저 자석 현상 탈출을 위해 location.href 사용
+            location.href = 'user_main.html';
         }
 
-        // 관리자 로그인도 동일하게 수정
         function adminLogin() {
             const id = document.getElementById('adminId').value;
             const pw = document.getElementById('adminPw').value;
@@ -154,8 +154,9 @@
             const sPw = localStorage.getItem('adminPw');
             
             if ( (sId && String(id) === String(sId) && pw === sPw) || (pw === "1234") ) {
-                window.onpopstate = null; // 감시 해제
-                location.replace( (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html' );
+                isLoggingIn = true;
+                window.onpopstate = null;
+                location.href = (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
                 return;
             }
             alert("정보가 틀렸습니다.");
