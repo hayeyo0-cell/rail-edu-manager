@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 스마트 교육 플랫폼</title>
     
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="shortcut icon" href="icon.png">
-    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="icon.png"> <link rel="icon" type="image/png" href="icon.png"> <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="승무교육">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
@@ -78,44 +77,42 @@
     </div>
 
     <script>
-        // 🚨 [핵심] 페이지 로드 시 즉시 가두기 로직 실행
+        // 🚨 [가장 강력한 뒤로가기 방어] 
+        function preventBack() {
+            window.history.pushState(null, null, window.location.href);
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
-            let isTransitioned = false;
-
-            function transitionToLogin() {
-                if (isTransitioned) return;
-                isTransitioned = true;
-
-                if (sessionStorage.getItem('isSplashShown')) {
-                    splash.style.display = 'none';
-                    card.classList.add('show');
-                } else {
+            
+            // 1. 스플래시 화면 제어
+            if (sessionStorage.getItem('isSplashShown')) {
+                splash.style.display = 'none';
+                card.classList.add('show');
+            } else {
+                setTimeout(() => {
+                    splash.style.opacity = '0';
                     setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => {
-                            splash.style.display = 'none';
-                            card.classList.add('show');
-                            sessionStorage.setItem('isSplashShown', 'true');
-                        }, 500);
-                    }, 1500);
-                }
+                        splash.style.display = 'none';
+                        card.classList.add('show');
+                        sessionStorage.setItem('isSplashShown', 'true');
+                    }, 500);
+                }, 1500);
             }
 
-            transitionToLogin();
-            setTimeout(transitionToLogin, 3000); // 3초 안전장치
-
-            // 🚨 [중요] 히스토리를 2개 쌓아서 뒤로가기 시 앱 이탈을 방지합니다.
-            window.history.pushState(null, null, window.location.href);
-            window.history.pushState(null, null, window.location.href);
+            // 2. 히스토리 강제 설정 (접속 즉시)
+            preventBack();
         });
 
-        // 🚨 뒤로가기 클릭 시 무조건 현재 페이지로 복귀
+        // 사용자가 뒤로가기를 누르면 즉시 현재 주소로 대체하여 탈출 차단
         window.onpopstate = function() {
-            window.history.pushState(null, null, window.location.href);
-            // 안내를 원하시면 alert을 넣을 수 있습니다.
+            preventBack();
+            location.replace(window.location.href);
         };
+
+        // 화면 클릭 시마다 히스토리 리필
+        document.body.onclick = function() { preventBack(); };
 
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
@@ -132,9 +129,9 @@
             document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
             if(!isUser) {
-                const savedId = localStorage.getItem('adminId');
-                document.getElementById('adminIdArea').style.display = savedId ? 'block' : 'none';
-                document.getElementById('pwLabel').innerText = savedId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
+                const sId = localStorage.getItem('adminId');
+                document.getElementById('adminIdArea').style.display = sId ? 'block' : 'none';
+                document.getElementById('pwLabel').innerText = sId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
             }
         }
 
@@ -142,10 +139,10 @@
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
             const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const savedPw = localStorage.getItem('teamPw') || "1234";
+            const sPw = localStorage.getItem('teamPw') || "1234";
             const user = list.find(u => String(u.id) === String(id));
             if (!user) return alert("명단에 없는 사번입니다.");
-            if (pw !== savedPw) return alert("비밀번호가 틀렸습니다.");
+            if (pw !== sPw) return alert("비밀번호가 틀렸습니다.");
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
