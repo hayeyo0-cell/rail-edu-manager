@@ -3,15 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>관리자 설정 및 인증</title>
+    <title>관리자 설정 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; --success-green: #2ecc71; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
+        /* 🚨 상단 헤더: 로고 42px 통일 */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: center; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee; position: relative; margin-bottom: 10px;
+        }
+        .brand-logo { height: 42px; object-fit: contain; }
+
         .settings-card { 
-            width: 100%; max-width: 400px; background: white; border-radius: 25px; 
+            width: 92%; max-width: 400px; background: white; border-radius: 25px; 
             padding: 35px 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); box-sizing: border-box; 
-            margin-top: 20px;
+            margin-top: 20px; margin-bottom: 40px;
         }
         
         h2 { text-align: center; color: #333; margin-bottom: 30px; font-size: 1.4rem; letter-spacing: -0.5px; }
@@ -43,8 +51,12 @@
 </head>
 <body>
 
+    <div class="top-nav">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+    </div>
+
     <div class="settings-card">
-        <h2>🛠️ 관리자 초기 설정</h2>
+        <h2>🛠️ 관리자 설정 및 인증</h2>
         
         <div class="section-title">소속 팀 지정</div>
         <span class="input-label">운영 소속</span>
@@ -57,8 +69,8 @@
 
         <div class="section-title">관리자 계정 생성</div>
         <span class="input-label">관리자 사번 (로그인 ID)</span>
-        <input type="number" id="setAdminId" placeholder="사번 8자리 입력">
-        <input type="number" id="confirmAdminId" placeholder="사번 한 번 더 입력" oninput="validateId()">
+        <input type="number" id="setAdminId" placeholder="사번 8자리 입력" inputmode="numeric">
+        <input type="number" id="confirmAdminId" placeholder="사번 한 번 더 입력" oninput="validateId()" inputmode="numeric">
         <div id="idCheckMsg" class="check-msg"></div>
         
         <span class="input-label">관리자 비밀번호</span>
@@ -76,6 +88,21 @@
     </div>
 
     <script>
+        // 🚨 [보안] 설정 페이지 뒤로가기 절대 차단
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+            window.onpopstate = function() {
+                lockHistory();
+                alert("보안을 위해 설정을 완료해 주세요.");
+            };
+            document.body.onclick = lockHistory;
+        })();
+
         // 사번 실시간 체크
         function validateId() {
             const id = document.getElementById('setAdminId').value;
@@ -133,13 +160,17 @@
             const isOk = confirm(`확인해 주세요!\n\n📍 소속: ${dept}\n🆔 사번: ${id}\n\n이 정보로 설정을 저장할까요?`);
 
             if(isOk) {
+                // 기존 데이터 초기화 (초기 설정이므로)
                 localStorage.clear();
                 localStorage.setItem('userDept', dept);
                 localStorage.setItem('adminId', id);
                 localStorage.setItem('adminPw', pw);
                 localStorage.setItem('teamPw', teamPw);
-                alert('설정이 완료되었습니다!\n로그인 화면에서 사번과 비번으로 접속하세요.');
-                location.href = 'index.html';
+                
+                alert('설정이 완료되었습니다!\n로그인 화면에서 관리자 사번으로 접속하세요.');
+                
+                // 🚨 replace를 사용하여 뒤로가기 기록 삭제
+                window.location.replace('index.html');
             }
         }
     </script>
