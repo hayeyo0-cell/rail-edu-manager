@@ -76,7 +76,7 @@
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
 
-            // 1. 스플래시 제어 (세션당 1회)
+            // 1. 스플래시 로직
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -91,16 +91,13 @@
                 }, 1500);
             }
             
-            // 🚨 [핵심] 히스토리 강제 초기화
-            // 현재 페이지를 히스토리의 '시작점'으로 덮어씌워 이전 페이지로의 이동을 차단합니다.
+            // 🚨 [핵심] 역주행 방지 로직
+            // 현재 주소를 히스토리에 하나 쌓고, 뒤로가기 시 강제로 앞으로 튕겨냅니다.
             window.history.pushState(null, null, window.location.href);
-            window.history.replaceState(null, null, window.location.pathname);
-        };
-
-        // 뒤로가기 이벤트 감지 (차단용)
-        window.onpopstate = function() {
-            // 갈 곳이 없으므로 현재 페이지를 유지하거나 앱 종료 유도
-            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                // 사용자가 뒤로가기를 누르는 순간, 다시 앞으로 한 칸 이동시켜 홈에 가둡니다.
+                window.history.go(1);
+            };
         };
 
         function switchTab(mode) {
@@ -124,7 +121,7 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 로그인 시 히스토리에 흔적을 남기지 않고 이동
+            // 로그인 시 기록을 남기지 않고 이동 (이후 뒤로가기 방지용)
             location.href = 'user_main.html';
         }
 
