@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>교육 상세 - DTRO</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
@@ -16,16 +17,17 @@
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; }
         .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
         
-        /* 📎 첨부 파일 영역 보안 강화 */
+        /* 📎 첨부 파일 학습 영역 */
         .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
         .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
         
-        /* 이미지 미리보기: 우클릭/길게 누르기 방지 */
-        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; pointer-events: none; -webkit-touch-callout: none; }
+        /* 이미지 미리보기 */
+        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; pointer-events: none; }
         
-        /* 🚨 PDF 미리보기 영역 (Iframe) */
-        .pdf-preview { width: 100%; height: 450px; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; background: #fafafa; }
-        
+        /* 🚨 PDF 미리보기 (캔버스 방식) */
+        #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; overflow: hidden; background: #fafafa; }
+        #pdfCanvas { width: 100%; height: auto; }
+
         .sig-card { display: none; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
         .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .clear-btn { background: #f1f1f1; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: bold; }
@@ -48,11 +50,10 @@
             <span id="displayTitle" class="edu-title">제목</span>
             <div id="displayContent" class="edu-content">내용을 불러오는 중...</div>
             <div class="file-section">
-                <span class="file-label">📎 첨부 파일 학습 (보안상 다운로드 불가)</span>
-                
+                <span class="file-label">📎 첨부 파일 학습 (다운로드 불가)</span>
                 <img id="imageViewer" class="img-preview" oncontextmenu="return false;">
                 
-                <iframe id="pdfViewer" class="pdf-preview"></iframe>
+                <div id="pdfWrapper"><canvas id="pdfCanvas"></canvas></div>
                 
                 <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
             </div>
@@ -71,14 +72,13 @@
     </div>
 
     <script>
-        // 뒤로가기 차단 로직 (뫼비우스형 유지)
+        // 뒤로가기 차단 (유지)
         (function() {
             for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.location.replace('user_main.html');
-            };
-            document.body.onclick = function() { window.history.pushState(null, null, window.location.href); };
+            window.onpopstate = function() { window.location.replace('user_main.html'); };
         })();
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
@@ -87,12 +87,9 @@
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const edu = list.find(e => String(e.id) === String(eduId));
-            
             if(edu) {
                 document.getElementById('displayTitle').innerText = edu.title;
                 document.getElementById('displayContent').innerText = edu.content;
-                
-                // 🚨 undefined 방지: category 데이터가 없으면 type으로 대체
                 document.getElementById('displayType').innerText = edu.category || edu.type || "일반교육";
                 
                 if(edu.signatureType === "필요") {
@@ -100,29 +97,45 @@
                     document.getElementById('sigCardArea').style.display = 'block';
                     document.getElementById('mainSubmitBtn').innerText = "✅ 서명 완료 및 제출";
                     initCanvas();
-                } else {
-                    document.getElementById('mainSubmitBtn').innerText = "✅ 학습 완료 제출";
                 }
 
                 if(edu.fileData) {
                     document.getElementById('noFileText').style.display = 'none';
-                    const fileData = edu.fileData;
-
-                    if(fileData.startsWith('data:image/')) {
-                        // 이미지인 경우
+                    if(edu.fileData.startsWith('data:image/')) {
                         const img = document.getElementById('imageViewer');
-                        img.src = fileData;
+                        img.src = edu.fileData;
                         img.style.display = 'block';
-                    } else if(fileData.startsWith('data:application/pdf')) {
-                        // 🚨 PDF인 경우 뷰어 활성화
-                        const pdf = document.getElementById('pdfViewer');
-                        // 툴바 숨기기(#toolbar=0) 시도
-                        pdf.src = fileData + "#toolbar=0";
-                        pdf.style.display = 'block';
+                    } else if(edu.fileData.startsWith('data:application/pdf')) {
+                        // 🚨 PDF 렌더링 시작
+                        renderPDF(edu.fileData);
                     }
                 }
             }
         };
+
+        // 🚨 PDF를 캔버스에 그리는 함수
+        async function renderPDF(dataUrl) {
+            try {
+                const loadingTask = pdfjsLib.getDocument(dataUrl);
+                const pdf = await loadingTask.promise;
+                const page = await pdf.getPage(1); // 1페이지만 출력
+                
+                const canvas = document.getElementById('pdfCanvas');
+                const context = canvas.getContext('2d');
+                const viewport = page.getViewport({ scale: 2.0 }); // 고해상도 설정
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = { canvasContext: context, viewport: viewport };
+                await page.render(renderContext).promise;
+                document.getElementById('pdfWrapper').style.display = 'block';
+            } catch (e) {
+                console.error("PDF 렌더링 실패:", e);
+                document.getElementById('noFileText').innerText = "PDF 미리보기를 불러올 수 없습니다.";
+                document.getElementById('noFileText').style.display = 'block';
+            }
+        }
 
         let canvas, ctx, drawing = false;
         function initCanvas() {
@@ -139,54 +152,21 @@
             }, { passive: false });
         }
 
-        function clearCanvas() {
-            if(ctx) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.beginPath();
-            }
-        }
+        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.beginPath(); }
 
         function submitEdu() {
-            const confirmMsg = isSignatureRequired ? "서명을 완료하고 제출하시겠습니까?" : "학습을 완료하시겠습니까?";
-            if(!confirm(confirmMsg)) return;
-            
-            const userId = localStorage.getItem('currentUserId');
-            const userName = localStorage.getItem('currentUserName');
-            const eduTitle = document.getElementById('displayTitle').innerText;
+            if(!confirm("이수를 완료하시겠습니까?")) return;
             const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
-
-            const sendData = {
-                id: userId,
-                name: userName,
-                title: eduTitle,
-                signature: signatureData,
-                date: new Date().toLocaleString()
-            };
-
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec';
-
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(sendData)
-            })
+            const sendData = { id: localStorage.getItem('currentUserId'), name: localStorage.getItem('currentUserName'), title: document.getElementById('displayTitle').innerText, signature: signatureData, date: new Date().toLocaleString() };
+            fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sendData) })
             .then(() => {
-                let completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-                completedEduList.push({ 
-                    eduId: eduId, 
-                    userId: userId, 
-                    completedDate: new Date().toLocaleDateString() 
-                });
-                localStorage.setItem('completedEduList', JSON.stringify(completedEduList));
-                
-                alert("구글 시트 전송 및 이수가 완료되었습니다.");
+                let completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
+                completed.push({ eduId: eduId, userId: localStorage.getItem('currentUserId'), completedDate: new Date().toLocaleDateString() });
+                localStorage.setItem('completedEduList', JSON.stringify(completed));
+                alert("이수가 완료되었습니다.");
                 window.location.replace('user_main.html');
             })
-            .catch(error => {
-                alert("전송 중 오류가 발생했습니다.");
-            });
+            .catch(() => alert("전송 실패"));
         }
     </script>
 </body>
