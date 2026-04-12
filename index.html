@@ -38,6 +38,9 @@
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; margin-bottom: 10px; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        /* 🚨 추가된 앱 종료 버튼 스타일 */
+        .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -67,10 +70,12 @@
             <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
+
+        <button class="exit-btn" onclick="exitApp()">앱 종료</button>
     </div>
 
     <script>
-        // 🚨 뒤로가기 방어 로직 (현재 페이지 고정)
+        // 🚨 히스토리 방어 로직 (로그인 이동과 충돌하지 않도록 개선)
         function initHistory() {
             window.history.pushState(null, null, window.location.href);
         }
@@ -79,7 +84,6 @@
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
 
-            // 1. 스플래시 로직
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -93,16 +97,23 @@
                     }, 500);
                 }, 1500);
             }
-            
-            // 🚨 진입 시점에 히스토리 한 칸 쌓아두기
             initHistory();
         };
 
-        // 🚨 뒤로가기 버튼 클릭 시 안내창 띄우고 다시 고정
+        // 🚨 뒤로가기 시 이탈 방지
         window.onpopstate = function() {
-            alert("앱을 종료하려면 브라우저의 탭 닫기(X)를 이용해 주세요.");
             initHistory();
         };
+
+        // 🚨 앱 종료 기능
+        function exitApp() {
+            if(confirm("앱을 종료하시겠습니까?")) {
+                window.close();
+                setTimeout(() => {
+                    alert("브라우저의 탭 닫기(X)를 눌러 종료해 주세요.");
+                }, 300);
+            }
+        }
 
         function switchTab(mode) {
             const isUser = (mode === 'user');
@@ -112,6 +123,7 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
         }
 
+        // 🚨 로그인 기능 (이제 정상적으로 작동합니다!)
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
@@ -129,7 +141,7 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 로그인 시 히스토리에 흔적을 남기지 않고 이동하여 뒤로가기 핑퐁 방지
+            // 🚨 간섭 없이 즉시 이동
             location.href = 'user_main.html';
         }
 
