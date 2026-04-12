@@ -72,12 +72,12 @@
     </div>
 
     <script>
-        // 🚨 뒤로가기를 막는 방어 로직 (로그인 이동 중에는 작동 안 하도록 수정)
-        let isLoggingIn = false;
-
-        function protectBack() {
-            if (isLoggingIn) return; // 로그인 중이면 방어 안 함
+        // 🚨 뒤로가기 방어 (로그인 이동과 겹치지 않게 0.5초 뒤에 가동)
+        function setDefense() {
             window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, null, window.location.href);
+            };
         }
 
         window.onload = function() {
@@ -87,6 +87,7 @@
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
+                setTimeout(setDefense, 500); // 🚨 핵심: 약간 늦게 방어벽을 칩니다.
             } else {
                 setTimeout(() => {
                     splash.style.opacity = '0';
@@ -94,22 +95,15 @@
                         splash.style.display = 'none';
                         card.classList.add('show');
                         sessionStorage.setItem('isSplashShown', 'true');
+                        setTimeout(setDefense, 500); // 🚨 핵심: 늦게 방어벽 가동
                     }, 500);
                 }, 1500);
             }
-            
-            // 초기 방어막 가동
-            protectBack();
-        };
-
-        // 뒤로가기 시도 시 자석처럼 현재 페이지로 고정
-        window.onpopstate = function() {
-            protectBack();
         };
 
         function exitApp() {
             if(confirm("앱을 종료하시겠습니까?")) {
-                window.close();
+                window.open('about:blank', '_self').close();
                 setTimeout(() => { alert("브라우저의 탭 닫기(X)를 눌러 종료해 주세요."); }, 300);
             }
         }
@@ -122,7 +116,7 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
         }
 
-        // 🚨 사용자 로그인 (방어 로직 완전 무력화 후 이동)
+        // 🚨 사용자 로그인 (방어 로직이 눈치채기 전에 순간이동)
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
@@ -139,11 +133,8 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 🚨 핵심: 방어벽 해제 선언!
-            isLoggingIn = true;
+            // 🚨 [필살기] 모든 방어 로직 해제 후 즉시 이동
             window.onpopstate = null; 
-            
-            // 🚨 브라우저 자석 현상 탈출을 위해 location.href 사용
             location.href = 'user_main.html';
         }
 
@@ -154,7 +145,6 @@
             const sPw = localStorage.getItem('adminPw');
             
             if ( (sId && String(id) === String(sId) && pw === sPw) || (pw === "1234") ) {
-                isLoggingIn = true;
                 window.onpopstate = null;
                 location.href = (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
                 return;
