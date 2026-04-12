@@ -25,7 +25,7 @@
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="goBackMain()">← 메인으로</button>
+        <button class="nav-btn" onclick="confirmGoMain()">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -40,8 +40,6 @@
                 <option value="게시교육">게시교육</option>
                 <option value="안전교육">안전교육</option>
                 <option value="운전취급">운전취급</option>
-                <option value="지시사항">지시사항</option>
-                <option value="시뮬레이션">시뮬레이션</option>
                 <option value="육성방송 훈련">육성방송 훈련</option>
             </select>
 
@@ -64,26 +62,27 @@
     </div>
 
     <script>
-        // 🚨 [필승 전략] 브라우저 히스토리를 현재 페이지로 계속 덮어쓰기
+        // 🚨 [신의 한 수] 뒤로가기를 누르면 '가짜 페이지'를 거쳐 무조건 메인으로 튕기게 함
         (function() {
-            // 페이지 로드 시 현재 상태를 히스토리에 강제로 박음
+            // 1. 현재 주소를 히스토리에 한 번 더 쌓음
             history.pushState(null, null, location.href);
 
+            // 2. 뒤로가기 이벤트가 발생하면?
             window.onpopstate = function() {
-                // 사용자가 뒤로가기를 누르는 순간! 다시 현재 페이지를 히스토리에 박음 (무한 루프)
-                history.pushState(null, null, location.href);
-                
-                // 그 다음 사용자에게 물어봄
-                if(confirm("작성 중인 내용이 저장되지 않습니다.\n관리자 메인으로 돌아갈까요?")) {
+                // 사용자가 뒤로가기를 눌렀을 때, 확인창을 띄우고
+                // 확인을 누르든 취소를 누르든 '로그인 화면'으로는 절대 못 가게 길을 막음
+                if (confirm("작성 중인 내용이 사라집니다. 관리자 메인으로 돌아갈까요?")) {
                     location.replace('admin_main.html');
+                } else {
+                    // 취소를 누르면 다시 현재 페이지를 히스토리에 박아서 뒤로가기 버튼을 무력화
+                    history.pushState(null, null, location.href);
                 }
             };
         })();
 
-        function goBackMain() {
-            if(confirm("작성 중인 내용이 저장되지 않습니다. 메인으로 갈까요?")) {
-                location.replace('admin_main.html');
-            }
+        // 버튼 클릭 시 이동
+        function confirmGoMain() {
+            if(confirm("메인으로 돌아갈까요?")) location.replace('admin_main.html');
         }
 
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
@@ -102,7 +101,7 @@
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
-            if(!title || !content) { alert("내용을 모두 입력해 주세요!"); return; }
+            if(!title || !content) { alert("내용을 입력해주세요."); return; }
 
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             totalEduList.push({
