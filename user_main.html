@@ -6,158 +6,136 @@
     <title>DTRO 스마트 교육 플랫폼</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        
-        /* 🚨 스플래시 화면 (기본적으로 보임) */
-        #splashScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: white; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
-        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
-        .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 15px; -webkit-tap-highlight-color: transparent; }
 
-        /* 로그인 카드 (기본적으로 숨김) */
-        .login-card { 
-            width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
-            border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
-            text-align: center; display: none; /* 스크립트에서 show 처리 */
-        }
-        .login-card.show { display: block; animation: fadeIn 0.5s; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* 상단 헤더 */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 20px; }
+        .logo-img { height: 22px; }
+        .logout-btn { background: white; border: 1px solid #eee; padding: 8px 18px; border-radius: 12px; font-size: 0.85rem; font-weight: bold; color: #666; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
 
-        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
-        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
-        .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
-        .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .input-group { text-align: left; margin-bottom: 15px; }
-        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
-        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
-        .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
+        /* 섹션 타이틀 (파란색 세로선) */
+        .section-header { display: flex; align-items: center; margin: 25px 0 15px 5px; }
+        .section-bar { width: 4px; height: 18px; background: var(--dtro-blue); border-radius: 2px; margin-right: 10px; }
+        .section-title { font-size: 1.25rem; font-weight: bold; color: #222; }
+
+        /* 탭 메뉴 (가로 스크롤 가능) */
+        .tab-scroll { display: flex; gap: 10px; overflow-x: auto; padding: 5px; margin-bottom: 20px; -ms-overflow-style: none; scrollbar-width: none; }
+        .tab-scroll::-webkit-scrollbar { display: none; }
+        .tab-item { white-space: nowrap; padding: 10px 24px; background: white; border: 1px solid #eee; border-radius: 25px; color: #666; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        .tab-item.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0, 114, 188, 0.2); }
+
+        /* 교육 카드 디자인 (PDF 미리보기) */
+        .course-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.03); }
+        .thumb-area { width: 100%; height: 160px; background: #f0f0f0; overflow: hidden; position: relative; }
+        .thumb-img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-badge { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.6); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; backdrop-filter: blur(4px); }
+        
+        .course-info { padding: 20px; text-align: left; }
+        .course-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 6px; }
+        .course-date { font-size: 0.85rem; color: #999; margin-bottom: 15px; }
+        .start-btn { width: 100%; padding: 14px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+
+        /* 학습 보관함 카드 */
+        .storage-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.04); margin-bottom: 40px; display: flex; align-items: center; gap: 20px; }
+        .storage-icon-box { width: 70px; height: 70px; background: #f1f7ff; border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+        .storage-icon { width: 40px; height: 40px; }
+        .storage-text h3 { margin: 0; font-size: 1.15rem; color: #333; margin-bottom: 5px; }
+        .storage-text p { margin: 0; font-size: 0.9rem; color: #888; line-height: 1.4; }
+
+        /* 빈 상태 알림 */
+        .empty-box { background: white; border-radius: 25px; padding: 50px 20px; text-align: center; color: #bbb; box-shadow: 0 5px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="splashScreen">
-        <img src="logo.png" class="splash-logo" alt="DTRO">
-        <div class="splash-text">스마트 교육 플랫폼</div>
+    <div class="header">
+        <img src="logo.png" class="logo-img" alt="DTRO">
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
     </div>
 
-    <div class="login-card" id="loginCard">
-        <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
-        <div class="main-title">스마트 교육 플랫폼</div>
-        
-        <div class="tab-menu">
-            <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
-            <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
-        </div>
+    <div class="section-header">
+        <div class="section-bar"></div>
+        <div class="section-title">오늘의 필수 교육 목록</div>
+    </div>
 
-        <div id="userForm">
-            <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력" inputmode="numeric"></div>
-            <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
-            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
-        </div>
+    <div class="tab-scroll">
+        <div class="tab-item active">전체</div>
+        <div class="tab-item">공지사항</div>
+        <div class="tab-item">게시교육</div>
+        <div class="tab-item">대면교육</div>
+    </div>
 
-        <div id="adminForm" style="display: none;">
-            <div id="adminIdArea" class="input-group" style="display:none;"><span class="input-label">관리자 사번</span><input type="number" id="adminId" placeholder="사번 입력" inputmode="numeric"></div>
-            <div class="input-group"><span id="pwLabel" class="input-label">마스터 인증(1234)</span><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
-            <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
-        </div>
+    <div id="courseListArea">
+        <div class="empty-box">🎉 현재 이수할 교육이 없습니다.</div>
+    </div>
 
-        <button class="exit-btn" onclick="exitApp()">시스템 종료</button>
+    <div class="section-header">
+        <div class="section-bar"></div>
+        <div class="section-title">학습 보관함</div>
+    </div>
+
+    <div class="storage-card" onclick="alert('이수 내역 페이지로 이동합니다.')">
+        <div class="storage-icon-box">
+            <img src="storage_icon.png" class="storage-icon" alt="아이콘">
+        </div>
+        <div class="storage-text">
+            <h3>나의 이수 완료 내역</h3>
+            <p>이전에 수강을 완료한 교육 및 훈련 목록을 확인합니다.</p>
+        </div>
     </div>
 
     <script>
-        // 🚨 스플래시 및 히스토리 최종 제어
+        // 1. 페이지 로드 시 실행
         window.onload = function() {
-            const splash = document.getElementById('splashScreen');
-            const card = document.getElementById('loginCard');
+            const userName = localStorage.getItem('currentUserName');
             
-            // 1. 세션 체크 (새로고침 시 스플래시 스킵)
-            if (sessionStorage.getItem('isSplashShown')) {
-                splash.style.display = 'none';
-                card.classList.add('show');
-            } else {
-                // 2. 1.5초 후 화면 전환
-                setTimeout(() => {
-                    splash.style.opacity = '0';
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                        card.classList.add('show');
-                        sessionStorage.setItem('isSplashShown', 'true');
-                    }, 500); // 페이드아웃 애니메이션 시간
-                }, 1500);
+            // 로그인 체크
+            if (!userName) {
+                location.replace('index.html');
+                return;
             }
 
-            // 3. 뒤로가기 방지용 히스토리 주입
+            // 🚨 유저 메인 전용 뒤로가기 방어막 (로그인 튕김 방지용)
             window.history.pushState(null, null, window.location.href);
+            
+            // 2. 낮에 작업한 데이터 렌더링 함수 실행
+            renderCourses();
         };
 
-        // 뒤로가기 클릭 시 (앱 이탈 방지)
+        // 뒤로가기 시 가두기
         window.onpopstate = function() {
             window.history.pushState(null, null, window.location.href);
-            // 필요 시 "종료 버튼을 이용해 주세요" 알림 추가 가능
         };
 
-        // 앱 종료
-        function exitApp() {
-            if(confirm("시스템을 종료하시겠습니까?")) {
-                window.open('', '_self', ''); 
-                window.close();
-                alert("브라우저의 탭 닫기를 이용해 종료해 주세요.");
+        // 🚨 낮에 고생해서 만든 PDF 리스트 그리기 로직 복구
+        function renderCourses() {
+            const area = document.getElementById('courseListArea');
+            const data = JSON.parse(localStorage.getItem('educationList')) || [];
+
+            if (data.length > 0) {
+                area.innerHTML = data.map(item => `
+                    <div class="course-card">
+                        <div class="thumb-area">
+                            <img src="${item.thumbnail || 'default_thumb.png'}" class="thumb-img">
+                            <div class="preview-badge">행로표 미리보기</div>
+                        </div>
+                        <div class="course-info">
+                            <div class="course-title">${item.title}</div>
+                            <div class="course-date">작성일: ${item.date} | 작성자: ${item.author}</div>
+                            <button class="start-btn" onclick="location.href='viewer.html?file=${item.pdfUrl}'">교육 수강하기 →</button>
+                        </div>
+                    </div>
+                `).join('');
             }
         }
 
-        function switchTab(mode) {
-            const isUser = (mode === 'user');
-            document.getElementById('userTab').classList.toggle('active', isUser);
-            document.getElementById('adminTab').classList.toggle('active', !isUser);
-            document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
-            document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
-            if(!isUser) checkAdminStatus();
-        }
-
-        function checkAdminStatus() {
-            const savedId = localStorage.getItem('adminId');
-            document.getElementById('adminIdArea').style.display = savedId ? 'block' : 'none';
-            document.getElementById('pwLabel').innerText = savedId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
-        }
-
-        function userLogin() {
-            const inputId = document.getElementById('userId').value;
-            const inputPw = document.getElementById('userPw').value;
-            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const savedTeamPw = localStorage.getItem('teamPw') || "1234";
-            const user = totalUserList.find(u => String(u.id) === String(inputId));
-            
-            if (!user) return alert("명단에 없는 사번입니다.");
-            if (inputPw !== savedTeamPw) return alert("비밀번호가 틀렸습니다.");
-            
-            localStorage.setItem('currentUserDept', user.dept);
-            localStorage.setItem('currentUserName', user.name);
-            localStorage.setItem('currentUserId', user.id);
-            location.replace('user_main.html');
-        }
-
-        function adminLogin() {
-            const inputId = document.getElementById('adminId').value;
-            const inputPw = document.getElementById('adminPw').value;
-            const savedId = localStorage.getItem('adminId');
-            const savedPw = localStorage.getItem('adminPw');
-            
-            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
-                location.replace('admin_main.html'); 
-                return; 
+        function logout() {
+            if(confirm("로그아웃 하시겠습니까?")) {
+                localStorage.removeItem('currentUserId');
+                localStorage.removeItem('currentUserName');
+                window.onpopstate = null;
+                location.replace('index.html');
             }
-            if (inputPw === "1234") { 
-                location.replace('admin_setup_auth.html'); 
-                return; 
-            }
-            alert("정보가 틀렸습니다.");
         }
     </script>
 </body>
