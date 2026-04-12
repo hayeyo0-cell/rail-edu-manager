@@ -73,7 +73,7 @@
     </div>
 
     <script>
-        // 히스토리 방어막 생성 함수
+        // 히스토리 방어막 함수
         function initHistory() {
             window.history.pushState(null, null, window.location.href);
         }
@@ -82,7 +82,6 @@
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
 
-            // 1. 스플래시 로직 (세션당 1회)
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -96,11 +95,10 @@
                     }, 500);
                 }, 1500);
             }
-            // 진입 시 방어막 활성화
             initHistory();
         };
 
-        // 🚨 뒤로가기 시 이탈 방지
+        // 🚨 뒤로가기 방어 (감시 모드)
         window.onpopstate = function() {
             initHistory();
         };
@@ -123,7 +121,7 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
         }
 
-        // 🚨 사용자 로그인 (방해 로직 일시 해제 적용)
+        // 🚨 사용자 로그인 (감시를 완전히 끄고 이동)
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
@@ -141,12 +139,14 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 🚨 핵심: 이동 직전에 방어막 감지를 꺼버려야 충돌이 없습니다!
+            // 🚨 [필살기] 이동하는 순간 방어막 감지를 완전히 끕니다.
             window.onpopstate = null;
-            location.href = 'user_main.html';
+            
+            // 🚨 깜빡임 방지를 위해 replace로 즉시 교체 이동
+            location.replace('user_main.html');
         }
 
-        // 관리자 로그인도 동일하게 처리
+        // 관리자 로그인도 동일하게 수정
         function adminLogin() {
             const id = document.getElementById('adminId').value;
             const pw = document.getElementById('adminPw').value;
@@ -154,8 +154,8 @@
             const sPw = localStorage.getItem('adminPw');
             
             if ( (sId && String(id) === String(sId) && pw === sPw) || (pw === "1234") ) {
-                window.onpopstate = null; // 방어막 해제
-                location.href = (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
+                window.onpopstate = null; // 감시 해제
+                location.replace( (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html' );
                 return;
             }
             alert("정보가 틀렸습니다.");
