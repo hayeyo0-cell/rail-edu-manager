@@ -5,91 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>새 교육 등록 - DTRO</title>
     <style>
-        /* 🚨 껍데기 설정: 화면에 꽉 차게 고정 */
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #f8f9fb; }
-        .wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* 헤더는 고정 */
+        /* 상단 헤더: 로고 42px 및 버튼 디자인 유지 */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
-            box-sizing: border-box; border-bottom: 1px solid #eee; flex-shrink: 0;
+            box-sizing: border-box; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
         }
-        .nav-btn { background: white; border: 1px solid #eee; border-radius: 8px; padding: 8px 15px; font-weight: bold; cursor: pointer; }
-        .brand-logo { height: 42px; }
+        .nav-btn { 
+            background: white; border: 1px solid #eaeaea; border-radius: 8px; 
+            padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
+        }
+        .brand-logo { height: 42px; object-fit: contain; }
 
-        /* 컨텐츠 영역 */
-        .content-area { flex: 1; width: 100%; display: flex; justify-content: center; overflow-y: auto; padding: 20px 0; }
-        .edu-card { width: 92%; max-width: 420px; background: white; border-radius: 30px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); height: fit-content; }
+        .container { width: 92%; max-width: 420px; padding: 25px 0; padding-bottom: 60px; }
+
+        /* 기관사님의 기존 카드 디자인 복구 */
+        .edu-card { 
+            background: white; border-radius: 30px; padding: 30px 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; 
+        }
+        .card-title { font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: block; text-align: left; }
+        .dept-info-box { background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 25px; text-align: center; }
+
+        .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; text-align: left; }
         
-        /* 입력 폼 스타일 */
-        .card-title { font-size: 1.4rem; font-weight: bold; color: #0072bc; margin-bottom: 20px; display: block; }
-        input, textarea, select { width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; background: #fafafa; font-size: 1rem; }
-        .save-btn { width: 100%; padding: 18px; background: #0072bc; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        select, input, textarea { 
+            width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; 
+            box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s;
+        }
+        input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
+
+        /* 파일 첨부 디자인 복구 */
+        .file-section { margin-top: 15px; text-align: left; }
+        .file-input-box { 
+            width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; 
+            background: #fff; box-sizing: border-box; font-size: 0.9rem; color: #666; 
+        }
+
+        .save-btn { 
+            width: 100%; padding: 18px; background: var(--dtro-blue); color: white; 
+            border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; 
+            margin-top: 35px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2);
+        }
     </style>
 </head>
 <body>
 
-    <div class="wrapper">
-        <div class="top-nav">
-            <button class="nav-btn" onclick="askGoMain()">← 메인으로</button>
-            <img src="logo.png" class="brand-logo" alt="DTRO">
-            <div style="width:75px;"></div>
-        </div>
+    <div class="top-nav">
+        <button class="nav-btn" onclick="goBackConfirm()">← 메인으로</button>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:75px;"></div>
+    </div>
 
-        <div class="content-area">
-            <div class="edu-card">
-                <span class="card-title">✍️ 새 교육 등록</span>
-                <select id="eduType">
-                    <option value="게시교육">게시교육</option>
-                    <option value="안전교육">안전교육</option>
-                </select>
-                <input type="text" id="eduTitle" placeholder="제목 입력">
-                <textarea id="eduContent" rows="8" placeholder="상세 내용 입력"></textarea>
-                <button class="save-btn" onclick="saveEdu()">✅ 등록 완료</button>
+    <div class="container">
+        <div class="edu-card">
+            <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
+            <div class="dept-info-box">📍 현재 소속: <strong id="currentDept">경산승무팀</strong></div>
+
+            <label class="input-label">교육 분류</label>
+            <select id="eduType">
+                <option value="게시교육">게시교육</option>
+                <option value="안전교육">안전교육</option>
+                <option value="운전취급">운전취급</option>
+                <option value="지시사항">지시사항</option>
+                <option value="시뮬레이션">시뮬레이션</option>
+                <option value="육성방송 훈련">육성방송 훈련</option>
+            </select>
+
+            <label class="input-label">교육 및 훈련 제목</label>
+            <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
+
+            <label class="input-label">⌛ 이수 마감 기한</label>
+            <input type="date" id="eduDeadline">
+
+            <label class="input-label">상세 지시내용</label>
+            <textarea id="eduContent" rows="7" placeholder="상세 내용을 입력하세요"></textarea>
+
+            <label class="input-label">📎 파일 첨부</label>
+            <div class="file-section">
+                <input type="file" id="eduFile" class="file-input-box">
             </div>
+
+            <button class="save-btn" onclick="saveEdu()">설정 저장 및 완료</button>
         </div>
     </div>
 
     <script>
-        // 🚨 [물리적 차단] 껍데기에서 히스토리를 무한 도배
-        // 사용자가 뒤로가기를 누르면 이 껍데기 안에서만 헛바퀴를 돕니다.
+        // 🚨 [핵심 보안] 뒤로가기 제어 로직 (디자인 유지하면서 보안만 추가)
         (function() {
-            function preventBack() {
-                window.history.pushState(null, null, window.location.href);
+            function flood() {
+                for(let i = 0; i < 20; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
             }
-            // 0.1초마다 강제로 히스토리를 심어버립니다. (가장 지독한 방법)
-            setInterval(preventBack, 100);
-            
+            flood();
+
             window.onpopstate = function() {
-                // 뒤로가기 시 무조건 팝업
-                if(confirm("작성 중인 내용이 사라집니다. 메인으로 갈까요?")) {
-                    location.replace('admin_main.html');
+                flood();
+                if(confirm("작성 중인 내용이 저장되지 않을 수 있습니다.\n관리자 메인으로 돌아갈까요?")) {
+                    window.location.replace('admin_main.html');
                 }
             };
+            // 터치하거나 클릭할 때마다 보안 장치 리필
+            document.addEventListener('touchstart', flood);
+            document.addEventListener('click', flood);
         })();
 
-        function askGoMain() {
-            if(confirm("메인으로 돌아갈까요?")) location.replace('admin_main.html');
+        function goBackConfirm() {
+            if(confirm("작성 중인 내용이 저장되지 않습니다. 메인으로 갈까요?")) {
+                window.location.replace('admin_main.html');
+            }
         }
 
+        // 소속 세팅
+        const myDept = localStorage.getItem('userDept') || "경산승무팀";
+        document.getElementById('currentDept').innerText = myDept;
+
+        // 파일 처리 로직 (복구)
+        let selectedFileData = ""; 
+        document.getElementById('eduFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) { selectedFileData = event.target.result; };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 저장 로직 (복구)
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
-            if(!title || !content) { alert("내용을 입력해주세요."); return; }
+            const deadline = document.getElementById('eduDeadline').value;
+            const type = document.getElementById('eduType').value;
+
+            if(!title || !content) { alert("제목과 내용을 모두 입력해 주세요!"); return; }
 
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             totalEduList.push({
                 id: Date.now(),
-                dept: localStorage.getItem('userDept'),
+                dept: myDept,
+                category: type,
                 title: title,
                 content: content,
+                deadline: deadline,
+                fileData: selectedFileData,
                 date: new Date().toLocaleDateString()
             });
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
 
-            alert("등록되었습니다!");
-            location.replace('admin_main.html');
+            alert("성공적으로 등록되었습니다!");
+            window.location.replace('admin_main.html');
         }
     </script>
 </body>
