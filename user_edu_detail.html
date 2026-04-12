@@ -26,7 +26,7 @@
         .clear-btn { background: #f1f1f1; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: bold; }
         .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; touch-action: none; }
         canvas { width: 100%; height: 100%; }
-        
+
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
     </style>
@@ -58,13 +58,12 @@
             <div class="sig-canvas-area"><canvas id="sigCanvas"></canvas></div>
         </div>
     </div>
-
     <div class="bottom-bar">
-        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 이수 완료 제출</button>
+        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 서명 완료 및 제출</button>
     </div>
 
     <script>
-        // 🚨 뒤로가기 절대 차단 로직 (유지)
+        // 🚨 뒤로가기 차단 로직 (기관사님 기존 로직 유지)
         (function() {
             for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
             window.onpopstate = function() {
@@ -75,18 +74,17 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
-        let isSignatureRequired = false;
+        let isSignatureRequired = false; // 서명 필요 여부 체크용
 
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const edu = list.find(e => String(e.id) === String(eduId));
-            
             if(edu) {
                 document.getElementById('displayTitle').innerText = edu.title;
                 document.getElementById('displayContent').innerText = edu.content;
-                document.getElementById('displayType').innerText = edu.category || edu.type;
+                document.getElementById('displayType').innerText = edu.type;
                 
-                // 🚨 서명 필요 여부 확인
+                // 🚨 관리자 설정값(signatureType)에 따라 서명란 노출 여부 결정
                 if(edu.signatureType === "필요") {
                     isSignatureRequired = true;
                     document.getElementById('sigCardArea').style.display = 'block';
@@ -116,7 +114,6 @@
             canvas = document.getElementById('sigCanvas'); ctx = canvas.getContext('2d');
             canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
             ctx.strokeStyle = "#222"; ctx.lineWidth = 3; ctx.lineCap = "round";
-            
             canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); e.preventDefault(); });
             canvas.addEventListener("touchend", () => { drawing = false; });
             canvas.addEventListener("touchmove", (e) => {
@@ -127,23 +124,23 @@
             }, { passive: false });
         }
 
-        // 🚨 서명 싹 지우기 함수
+        // 🚨 서명란 초기화 함수 (새로고침)
         function clearCanvas() {
             if(ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.beginPath(); // 경로 초기화
+                ctx.beginPath();
             }
         }
 
         function submitEdu() {
-            const btnText = isSignatureRequired ? "서명 제출" : "읽음 확인";
-            if(!confirm(`${btnText}하시겠습니까?`)) return;
+            const confirmMsg = isSignatureRequired ? "서명을 완료하고 제출하시겠습니까?" : "읽음 확인을 완료하시겠습니까?";
+            if(!confirm(confirmMsg)) return;
             
             const userId = localStorage.getItem('currentUserId');
             const userName = localStorage.getItem('currentUserName');
             const eduTitle = document.getElementById('displayTitle').innerText;
             
-            // 서명 데이터 (필요 없을 시 빈 값)
+            // 서명이 필요한 경우에만 캔버스 데이터 추출, 아니면 "N/A"
             const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
 
             const sendData = {
@@ -156,7 +153,6 @@
 
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec';
 
-            // 구글 시트 전송
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -173,11 +169,12 @@
                 });
                 localStorage.setItem('completedEduList', JSON.stringify(completedEduList));
                 
-                alert("이수가 완료되었습니다.");
+                alert("구글 시트 전송 및 이수가 완료되었습니다.");
                 window.location.replace('user_main.html');
             })
             .catch(error => {
-                alert("전송 중 오류가 발생했습니다. 네트워크를 확인하세요.");
+                console.error('Error!', error.message);
+                alert("시트 전송 중 오류가 발생했습니다. 네트워크를 확인하세요.");
             });
         }
     </script>
