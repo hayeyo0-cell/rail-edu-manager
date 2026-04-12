@@ -8,6 +8,7 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="승무교육">
 
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
@@ -23,6 +24,7 @@
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
+        /* 로그인 카드 */
         .login-card { 
             width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
             border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
@@ -32,7 +34,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; }
-        .main-title { font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; }
+        .main-title { font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; display: inline-block; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -63,29 +65,34 @@
         </div>
 
         <div id="adminForm" style="display: none;">
-            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric">
+            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric" id="adminIdInput">
             <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
     </div>
 
     <script>
-        // 🚨 핵심: 현재 페이지를 히스토리의 '끝'으로 고정합니다.
-        // 뒤로가기를 누르면 브라우저의 이전 기록으로 자연스럽게 넘어갑니다.
         window.onload = function() {
-            // 주소창에 쌓인 불필요한 해시나 기록을 청소하고 현재를 시작점으로 잡습니다.
-            window.history.replaceState(null, null, window.location.pathname);
+            const splash = document.getElementById('splashScreen');
+            const card = document.getElementById('loginCard');
 
-            setTimeout(() => {
-                const splash = document.getElementById('splashScreen');
-                const card = document.getElementById('loginCard');
-                
-                splash.style.opacity = '0';
+            // 🚨 핵심: 스플래시 한 번만 보기 로직
+            if (sessionStorage.getItem('isSplashShown')) {
+                splash.style.display = 'none';
+                card.classList.add('show');
+            } else {
                 setTimeout(() => {
-                    splash.style.display = 'none';
-                    card.classList.add('show');
-                }, 500);
-            }, 1500);
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        card.classList.add('show');
+                        sessionStorage.setItem('isSplashShown', 'true');
+                    }, 500);
+                }, 1500);
+            }
+            
+            // 뒤로가기 시 자연스러운 이탈을 위해 히스토리 정리
+            window.history.replaceState(null, null, window.location.pathname);
         };
 
         function switchTab(mode) {
@@ -108,8 +115,6 @@
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
-            
-            // 로그인 성공 시 메인 화면으로 이동
             location.href = 'user_main.html';
         }
 
