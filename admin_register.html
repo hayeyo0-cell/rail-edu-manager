@@ -7,15 +7,25 @@
     <style>
         :root { --dtro-blue: #0072bc; --dtro-sky: #f4f9ff; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--dtro-sky); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        .register-card { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; }
+        
+        /* 🚨 상단 로고 바 추가 */
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: center; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; position: fixed; top: 0; z-index: 1000; }
+        .brand-logo { height: 42px; object-fit: contain; }
+
+        .register-card { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; margin-top: 60px; }
         label { font-size: 0.9rem; font-weight: bold; display: block; text-align: left; margin-top: 15px; color: #333; }
-        input, select { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .btn-reg { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 20px; }
+        input, select { width: 100%; padding: 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; outline: none; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--dtro-blue); }
+        .btn-reg { width: 100%; padding: 15px; background: var(--dtro-blue); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,114,188,0.2); }
     </style>
 </head>
 <body>
+    <div class="top-nav">
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+    </div>
+
     <div class="register-card">
-        <h2 style="color:var(--dtro-blue);">신규 담당자 지정</h2>
+        <h2 style="color:var(--dtro-blue); margin-top: 10px;">신규 담당자 지정</h2>
         <p style="font-size:0.85rem; color:#666;">관리자로 사용할 정보를 입력하세요.</p>
         
         <label>관리 소속 기지</label>
@@ -37,6 +47,23 @@
     </div>
 
     <script>
+        // 🚨 [보안] 뒤로가기 절대 방지 로직
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+
+            window.onpopstate = function() {
+                lockHistory();
+                alert("관리자 등록 절차를 완료해 주세요.");
+            };
+
+            document.body.onclick = function() { lockHistory(); };
+        })();
+
         function saveAdmin() {
             const team = document.getElementById('regTeam').value;
             const id = document.getElementById('regId').value;
@@ -44,11 +71,21 @@
             
             if(team && id.length === 8 && pw !== "") {
                 const adminData = { team: team, id: id, pw: pw };
+                
+                // 기존에 쓰시던 로직 유지
                 localStorage.setItem("assignedAdmin", JSON.stringify(adminData));
+                
+                // 시스템 뿌리 설정과 동기화 (필요시)
+                localStorage.setItem('userDept', team + "승무팀");
+                localStorage.setItem('adminId', id);
+                localStorage.setItem('adminPw', pw);
+
                 alert("[" + team + "] 기지 관리자로 등록되었습니다!\n이제 설정하신 사번으로 로그인하세요.");
+                
+                // 🚨 replace를 사용하여 히스토리 삭제 후 이동
                 location.replace("index.html");
             } else {
-                alert("모든 항목을 정확히 입력/선택해 주세요.");
+                alert("모든 항목을 정확히 입력/선택해 주세요. (사번은 8자리)");
             }
         }
     </script>
