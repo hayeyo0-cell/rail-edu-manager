@@ -8,19 +8,19 @@
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="승무교육">
 
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
+        /* 스플래시 화면 */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 9999;
             transition: opacity 0.5s ease;
         }
-        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
         .login-card { 
@@ -31,14 +31,13 @@
         .login-card.show { display: block; animation: fadeIn 0.5s forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
-        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; }
+        .main-title { font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; }
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; margin-bottom: 10px; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -68,23 +67,19 @@
             <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
-
-        <button class="exit-btn" onclick="exitApp()">앱 종료</button>
     </div>
 
     <script>
-        // 🚨 히스토리를 강제로 하나 더 쌓아둡니다.
-        function pushDefense() {
-            window.history.pushState(null, null, window.location.href);
-        }
-
+        // 🚨 핵심: 현재 페이지를 히스토리의 '끝'으로 고정합니다.
+        // 뒤로가기를 누르면 브라우저의 이전 기록으로 자연스럽게 넘어갑니다.
         window.onload = function() {
-            const splash = document.getElementById('splashScreen');
-            const card = document.getElementById('loginCard');
+            // 주소창에 쌓인 불필요한 해시나 기록을 청소하고 현재를 시작점으로 잡습니다.
+            window.history.replaceState(null, null, window.location.pathname);
 
-            // 1.5초 후 스플래시 제거 및 방어막 활성화
             setTimeout(() => {
-                pushDefense(); // 히스토리 하나 쌓기
+                const splash = document.getElementById('splashScreen');
+                const card = document.getElementById('loginCard');
+                
                 splash.style.opacity = '0';
                 setTimeout(() => {
                     splash.style.display = 'none';
@@ -92,23 +87,6 @@
                 }, 500);
             }, 1500);
         };
-
-        // 🚨 뒤로가기 클릭 시 핵심 로직
-        window.onpopstate = function() {
-            // 알림창을 띄워 브라우저 흐름을 일시 정지시킵니다.
-            alert("앱 종료는 하단의 '앱 종료' 버튼을 이용해 주세요.");
-            
-            // 🚨 새로고침(location.replace) 대신, 한 칸 뒤로 간 히스토리를 다시 앞으로 한 칸 툭 칩니다.
-            // 이렇게 하면 화면이 리부팅되지 않고 그대로 멈춰 있습니다.
-            window.history.forward();
-        };
-
-        function exitApp() {
-            if(confirm("앱을 종료하시겠습니까?")) {
-                window.close();
-                setTimeout(() => { alert("보안 정책상 브라우저의 '탭 닫기(X)' 버튼을 직접 눌러 종료해 주세요."); }, 300);
-            }
-        }
 
         function switchTab(mode) {
             const isUser = (mode === 'user');
@@ -126,10 +104,13 @@
             const user = list.find(u => String(u.id) === String(id));
             if (!user) return alert("명단에 없는 사번입니다.");
             if (pw !== sPw) return alert("비밀번호가 틀렸습니다.");
+            
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
-            location.replace('user_main.html');
+            
+            // 로그인 성공 시 메인 화면으로 이동
+            location.href = 'user_main.html';
         }
 
         function adminLogin() {
@@ -137,8 +118,8 @@
             const pw = document.getElementById('adminPw').value;
             const sId = localStorage.getItem('adminId');
             const sPw = localStorage.getItem('adminPw');
-            if (sId && String(id) === String(sId) && pw === sPw) { location.replace('admin_main.html'); return; }
-            if (pw === "1234") { location.replace('admin_setup_auth.html'); return; }
+            if (sId && String(id) === String(sId) && pw === sPw) { location.href = 'admin_main.html'; return; }
+            if (pw === "1234") { location.href = 'admin_setup_auth.html'; return; }
             alert("정보가 틀렸습니다.");
         }
     </script>
