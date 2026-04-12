@@ -3,186 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>사용자 메인 - DTRO</title>
+    <title>DTRO 스마트 교육 플랫폼</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
-        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        .top-nav { 
-            width: 100%; background: white; padding: 12px 15px; 
-            display: flex; justify-content: center; align-items: center; 
-            box-sizing: border-bottom: 1px solid #eee; position: relative; 
+        /* 🚨 스플래시 로고 화면 스타일 */
+        #splashScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: white; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s;
         }
-        .logout-btn { 
-            position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; 
-            border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #888; cursor: pointer; font-weight: bold;
-        }
-        .brand-logo { height: 42px; object-fit: contain; }
+        .splash-logo { width: 200px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
-        .container { width: 92%; max-width: 420px; padding: 25px 0; }
-
-        .section-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 5px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
-
-        .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
-        .filter-btn { 
-            padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; 
-            background: white; font-size: 0.82rem; 
-            white-space: nowrap; cursor: pointer; color: #666; transition: 0.2s;
-        }
-        .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
-
-        .edu-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .badge { padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: #f3e5f5; color: #7b1fa2; }
+        /* 로그인 카드 디자인 유지 */
+        .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; opacity: 0; transition: opacity 0.5s ease-in; }
+        .login-card.show { opacity: 1; }
         
-        /* 🚨 추가: D-Day 배지 스타일 */
-        .dday-badge { padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; background: #fff0f0; color: #ff4d4d; border: 1px solid #ffcccc; }
+        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
+        .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
+        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
+        .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        .date-label { font-size: 0.85rem; color: #999; }
-        .edu-title { font-weight: bold; font-size: 1.25rem; color: #333; margin-bottom: 10px; display: block; line-height: 1.4; }
-        .deadline-text { font-size: 1rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; display: block; }
-        .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; cursor: pointer; }
-
-        .archive-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); display: flex; align-items: center; cursor: pointer; text-align: left; margin-top: 10px; }
-        .archive-icon { width: 75px; height: 75px; margin-right: 15px; object-fit: contain; }
-        .archive-info h4 { margin: 0 0 8px 0; font-size: 1.25rem; color: #333; font-weight: bold; }
-        .archive-info p { margin: 0; font-size: 1rem; color: #888; line-height: 1.5; }
-
-        .empty-box { text-align:center; color:#ccc; padding:40px; background:white; border-radius:25px; margin-bottom:20px; box-shadow: 0 8px 20px rgba(0,0,0,0.02); }
+        /* 앱 종료 버튼 (세련되게 하단 배치) */
+        .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <img src="logo.png" class="brand-logo" alt="DTRO Logo">
-        <button class="logout-btn" onclick="location.href='index.html'">로그아웃</button>
+    <div id="splashScreen">
+        <img src="logo.png" class="splash-logo" alt="DTRO">
+        <div class="splash-text">스마트 교육 플랫폼</div>
     </div>
 
-    <div class="container">
-        <div class="section-title">오늘의 필수 교육 목록</div>
-        <div id="categoryFilters" class="filter-container"></div>
-        <div id="userEduListArea"></div>
-
-        <div class="section-title">학습 보관함</div>
-        <div class="archive-card" onclick="location.href='user_archive.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/3532/3532053.png" class="archive-icon" alt="Archive">
-            <div class="archive-info">
-                <h4>나의 이수 완료 내역</h4>
-                <p>이전에 수강을 완료한 교육 및 훈련<br>목록을 확인합니다.</p>
-            </div>
+    <div class="login-card" id="loginCard">
+        <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
+        <div class="main-title">스마트 교육 플랫폼</div>
+        
+        <div class="tab-menu">
+            <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
+            <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
         </div>
+
+        <div id="userForm">
+            <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력" inputmode="numeric"></div>
+            <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
+            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
+        </div>
+
+        <div id="adminForm" style="display: none;">
+            <div id="adminIdArea" class="input-group" style="display:none;"><span class="input-label">관리자 사번</span><input type="number" id="adminId" placeholder="사번 입력" inputmode="numeric"></div>
+            <div class="input-group"><span id="pwLabel" class="input-label">마스터 인증(1234)</span><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
+            <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
+        </div>
+
+        <button class="exit-btn" onclick="exitApp()">시스템 종료</button>
     </div>
 
     <script>
-        function preventBack() { window.history.pushState(null, null, window.location.href); }
-
-        let currentFilter = '전체';
-        const userDept = localStorage.getItem('currentUserDept') || "";
-        const userId = localStorage.getItem('currentUserId');
-
+        // 🚨 스플래시 로직: 뒤로가기 시 반복 방지 (sessionStorage 활용)
         window.onload = function() {
-            if(!userId) { location.href = 'index.html'; return; }
-            preventBack();
-            renderFilters();
-            loadEduData();
-            
-            // 🚨 [핵심] 접속 시 마감 임박 알림 체크
-            checkDeadlineAlert();
+            const splash = document.getElementById('splashScreen');
+            const card = document.getElementById('loginCard');
+            const isSplashShown = sessionStorage.getItem('isSplashShown');
+
+            if (isSplashShown) {
+                // 이미 봤다면 바로 노출
+                splash.style.display = 'none'; 
+                card.classList.add('show');
+            } else {
+                // 처음이면 1.5초 보여줌
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    splash.style.visibility = 'hidden';
+                    card.classList.add('show');
+                    sessionStorage.setItem('isSplashShown', 'true');
+                }, 1500);
+            }
         };
 
-        window.onpopstate = function() {
-            preventBack();
-            location.replace(window.location.href);
-        };
+        // 앱 종료
+        function exitApp() {
+            if(confirm("시스템을 종료하시겠습니까?")) {
+                window.open('', '_self', ''); 
+                window.close();
+                alert("브라우저의 탭 닫기를 이용해 종료해 주세요.");
+            }
+        }
 
+        // 뒤로가기 절대 방어
+        function preventBack() { window.history.pushState(null, null, window.location.href); }
+        preventBack();
+        window.onpopstate = function() { preventBack(); location.replace(window.location.href); };
         document.body.onclick = function() { preventBack(); };
 
-        // 🚨 [로직] 마감 기한 계산 및 알림창 띄우기
-        function checkDeadlineAlert() {
-            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            const today = new Date().setHours(0, 0, 0, 0);
+        // 탭 전환
+        function switchTab(mode) {
+            const isUser = (mode === 'user');
+            document.getElementById('userTab').classList.toggle('active', isUser);
+            document.getElementById('adminTab').classList.toggle('active', !isUser);
+            document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
+            document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
+            if(!isUser) checkAdminStatus();
+        }
+
+        function checkAdminStatus() {
+            const savedId = localStorage.getItem('adminId');
+            document.getElementById('adminIdArea').style.display = savedId ? 'block' : 'none';
+            document.getElementById('pwLabel').innerText = savedId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
+        }
+
+        function userLogin() {
+            const inputId = document.getElementById('userId').value;
+            const inputPw = document.getElementById('userPw').value;
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const savedTeamPw = localStorage.getItem('teamPw') || "1234";
+            const user = totalUserList.find(u => String(u.id) === String(inputId));
             
-            let urgentList = [];
-
-            allEduList.forEach(edu => {
-                // 내 소속 교육인지 + 아직 이수 전인지 확인
-                const isMyEdu = edu.dept === userDept;
-                const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
-                
-                if (isMyEdu && !isDone && edu.deadline) {
-                    const targetDate = new Date(edu.deadline).setHours(0, 0, 0, 0);
-                    const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-
-                    // 🚨 마감이 3일 이내로 남았거나 이미 지난 경우
-                    if (diffDays <= 3) {
-                        const status = diffDays < 0 ? "기한 만료" : (diffDays === 0 ? "오늘 마감" : `D-${diffDays}`);
-                        urgentList.push(`• ${edu.title} (${status})`);
-                    }
-                }
-            });
-
-            if (urgentList.length > 0) {
-                alert(`⚠️ 마감 임박 교육 알림\n\n현재 미이수 상태인 교육이 ${urgentList.length}건 있습니다.\n\n${urgentList.join('\n')}\n\n서둘러 이수해 주시기 바랍니다!`);
-            }
-        }
-
-        function renderFilters() {
-            const filterDiv = document.getElementById('categoryFilters');
-            const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션', '육성방송 훈련', '기타교육'];
-            filterDiv.innerHTML = categories.map(cat => 
-                `<button class="filter-btn ${cat === currentFilter ? 'active' : ''}" onclick="changeFilter('${cat}')">${cat}</button>`
-            ).join('');
-        }
-
-        function changeFilter(cat) {
-            currentFilter = cat;
-            renderFilters();
-            loadEduData();
-        }
-
-        function loadEduData() {
-            const listArea = document.getElementById('userEduListArea');
-            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            const today = new Date().setHours(0, 0, 0, 0);
+            if (!user) return alert("명단에 없는 사번입니다.");
+            if (inputPw !== savedTeamPw) return alert("비밀번호가 틀렸습니다.");
             
-            let filtered = allEduList.filter(edu => {
-                const isMyDept = edu.dept === userDept;
-                const isNotDone = !completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
-                const isCategoryMatch = (currentFilter === '전체' || edu.type === currentFilter || edu.category === currentFilter);
-                return isMyDept && isNotDone && isCategoryMatch;
-            });
+            localStorage.setItem('currentUserDept', user.dept);
+            localStorage.setItem('currentUserName', user.name);
+            localStorage.setItem('currentUserId', user.id);
+            location.replace('user_main.html');
+        }
 
-            if(filtered.length === 0) {
-                listArea.innerHTML = '<div class="empty-box">🎉 현재 이수할 교육이 없습니다.</div>';
-                return;
+        function adminLogin() {
+            const inputId = document.getElementById('adminId').value;
+            const inputPw = document.getElementById('adminPw').value;
+            const savedId = localStorage.getItem('adminId');
+            const savedPw = localStorage.getItem('adminPw');
+            
+            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
+                location.replace('admin_main.html'); 
+                return; 
             }
-
-            listArea.innerHTML = filtered.map(edu => {
-                // 🚨 D-Day 배지 생성 로직
-                let ddayBadge = "";
-                if(edu.deadline) {
-                    const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
-                    const diff = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-                    const statusText = diff < 0 ? "기한만료" : (diff === 0 ? "D-Day" : `D-${diff}`);
-                    ddayBadge = `<span class="dday-badge">${statusText}</span>`;
-                }
-
-                return `
-                <div class="edu-card">
-                    <div class="card-header">
-                        <div>
-                            <span class="badge">${edu.type || edu.category || '교육'}</span>
-                            ${ddayBadge}
-                        </div>
-                        <span class="date-label">게시일: ${edu.date}</span>
-                    </div>
-                    <span class="edu-title">${edu.title}</span>
-                    <span class="deadline-text">⏳ 마감 기한: ${edu.deadline || '상시'} 까지</span>
-                    <button class="btn-start" onclick="location.href='user_edu_detail.html?id=${edu.id}'">교육 입장하기 →</button>
-                </div>`;
-            }).join('');
+            if (inputPw === "1234") { 
+                location.replace('admin_setup_auth.html'); 
+                return; 
+            }
+            alert("정보가 틀렸습니다.");
         }
     </script>
 </body>
