@@ -79,9 +79,12 @@
     </div>
 
     <script>
-        // 🚨 [깜빡임 없는 강력 방어 로직]
+        // 🚨 [진짜 최종] 연속 뒤로가기 절대 방어 (히스토리 폭탄)
         function preventBack() {
-            window.history.pushState(null, null, window.location.href);
+            // 한 번 클릭에 10개의 가짜 기록을 쌓아 광클해도 이탈하지 못하게 합니다.
+            for(let i=0; i<10; i++) {
+                window.history.pushState(null, null, window.location.href);
+            }
         }
 
         document.addEventListener("DOMContentLoaded", function() {
@@ -89,7 +92,6 @@
             const card = document.getElementById('loginCard');
             let isTransitioned = false;
 
-            // 1. 스플래시 제어
             function transitionToLogin() {
                 if (isTransitioned) return;
                 isTransitioned = true;
@@ -110,19 +112,18 @@
             }
 
             transitionToLogin();
-            setTimeout(transitionToLogin, 3000); // 3초 안전장치
+            setTimeout(transitionToLogin, 3000); 
 
-            // 2. 진입 즉시 히스토리 중첩 (깜빡임 방지 핵심)
-            preventBack();
+            // 진입 즉시 폭탄 투하
             preventBack();
         });
 
-        // 3. 뒤로가기 누르면 주소만 다시 앞으로 밀기 (새로고침 없음)
+        // 뒤로가기 감지 시 다시 10개 리필 (새로고침 없이 조용히)
         window.onpopstate = function() {
             preventBack();
         };
 
-        // 4. 화면 클릭 시마다 히스토리 무한 리필
+        // 화면 어디든 터치하면 기록을 계속 보충 (방어막 강화)
         document.body.onclick = function() {
             preventBack();
         };
