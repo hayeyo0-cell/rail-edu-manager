@@ -70,8 +70,8 @@
     </div>
 
     <script>
-        // 🚨 뒤로가기 시 이탈을 방지하고 현재 페이지를 유지하는 방어 로직
-        function lockHistory() {
+        // 🚨 뒤로가기 방어 로직 (현재 페이지 고정)
+        function initHistory() {
             window.history.pushState(null, null, window.location.href);
         }
 
@@ -94,14 +94,14 @@
                 }, 1500);
             }
             
-            // 🚨 진입 시점에 히스토리 잠금
-            lockHistory();
+            // 🚨 진입 시점에 히스토리 한 칸 쌓아두기
+            initHistory();
         };
 
-        // 🚨 뒤로가기 버튼 클릭 시 이벤트
+        // 🚨 뒤로가기 버튼 클릭 시 안내창 띄우고 다시 고정
         window.onpopstate = function() {
-            alert("앱을 종료하시려면 브라우저의 탭 닫기(X)를 이용해 주세요.");
-            lockHistory(); // 다시 기록을 쌓아 이전 페이지 역주행 방지
+            alert("앱을 종료하려면 브라우저의 탭 닫기(X)를 이용해 주세요.");
+            initHistory();
         };
 
         function switchTab(mode) {
@@ -115,6 +115,7 @@
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
+            
             if(!id || !pw) return alert("사번과 비밀번호를 입력하세요.");
 
             const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
@@ -128,7 +129,7 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 🚨 로그인 성공 시 자연스럽게 이동 (이제 로그인 잘 됩니다!)
+            // 로그인 시 히스토리에 흔적을 남기지 않고 이동하여 뒤로가기 핑퐁 방지
             location.href = 'user_main.html';
         }
 
