@@ -8,12 +8,8 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 상단바 패딩 12px 및 정렬 통일 */
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
-        
         .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
-        
-        /* 🚨 로고 크기 42px 고정 */
         .brand-logo { height: 42px; object-fit: contain; }
         
         .dept-badge { background: var(--dtro-blue); color: white; padding: 8px 25px; border-radius: 30px; font-weight: bold; margin: 30px 0 20px 0; box-shadow: 0 4px 10px rgba(0,114,188,0.1); }
@@ -55,10 +51,32 @@
             <div class="menu-info"><span class="menu-title">실시간 이수 현황</span><span class="menu-desc">팀원별 사인 내역 및 이수율 확인</span></div>
         </div>
     </div>
+
     <script>
+        // 🚨 [보안] 관리자 메인 뒤로가기 방지 로직
+        function preventBack() {
+            window.history.pushState(null, null, window.location.href);
+        }
+
         window.onload = function() {
+            // 소속 정보 표시
             const dept = localStorage.getItem('userDept') || "경산승무팀";
             document.getElementById('deptBadge').innerText = dept;
+
+            // 히스토리 방어막 생성
+            preventBack();
+        };
+
+        // 뒤로가기 감지 시 다시 현재 페이지로 고정
+        window.onpopstate = function() {
+            preventBack();
+            // 메인에서 뒤로가기 시 로그인 페이지로 가는 것을 막기 위해 현재 페이지 유지
+            location.replace(window.location.href);
+        };
+
+        // 화면 클릭 시 방어막 리필 (보안 강화)
+        document.body.onclick = function() {
+            preventBack();
         };
     </script>
 </body>
