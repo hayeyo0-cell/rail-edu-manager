@@ -9,30 +9,30 @@
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="승무교육">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 스플래시 화면 */
+        /* 스플래시 화면 (클릭 유도) */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.5s ease;
+            cursor: pointer;
         }
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
+        .tap-msg { font-size: 0.9rem; color: #999; margin-top: 15px; animation: blink 1.5s infinite; }
+        
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* 로그인 카드 (초기 숨김) */
         .login-card { 
             width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
             border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
             text-align: center; display: none; 
         }
         .login-card.show { display: block; animation: fadeIn 0.5s forwards; }
-        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
@@ -44,14 +44,17 @@
         .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        /* 하단 앱 종료 버튼 */
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
-<body>
+<body onclick="activateDefense()">
 
-    <div id="splashScreen">
+    <div id="splashScreen" onclick="transitionToLogin()">
         <img src="logo.png" class="splash-logo" alt="DTRO">
         <div class="splash-text">스마트 교육 플랫폼</div>
+        <div class="tap-msg" id="tapMsg">화면을 터치하여 시작하세요</div>
     </div>
 
     <div class="login-card" id="loginCard">
@@ -75,66 +78,59 @@
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
 
-        <button class="exit-btn" onclick="exitApp()">시스템 종료</button>
+        <button class="exit-btn" onclick="exitApp()">앱 종료</button>
     </div>
 
     <script>
-        // 🚨 [필살기] 가짜 주소를 무한 생성하여 브라우저의 탈출 지능을 마비시킵니다.
-        function preventBack() {
+        let isDefenseActive = false;
+
+        // 히스토리 폭탄 함수
+        function activateDefense() {
             const currentPath = window.location.pathname;
-            // 주소 뒤에 고유 번호(#+시간값)를 붙인 기록을 15개 쌓습니다.
-            for (let i = 0; i < 15; i++) {
-                window.history.pushState(null, null, currentPath + "#" + Date.now() + i);
+            for (let i = 0; i < 20; i++) {
+                window.history.pushState(null, null, currentPath + "#app" + Date.now() + i);
             }
+            isDefenseActive = true;
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+        // 스플래시 클릭 시 로그인 화면으로 전환
+        function transitionToLogin() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
-            let isTransitioned = false;
+            
+            // 클릭과 동시에 방어막 활성화
+            activateDefense();
 
-            function transitionToLogin() {
-                if (isTransitioned) return;
-                isTransitioned = true;
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+                card.classList.add('show');
+                sessionStorage.setItem('isSplashShown', 'true');
+            }, 500);
+        }
 
-                if (sessionStorage.getItem('isSplashShown')) {
-                    splash.style.display = 'none';
-                    card.classList.add('show');
-                } else {
-                    setTimeout(() => {
-                        splash.style.opacity = '0';
-                        setTimeout(() => {
-                            splash.style.display = 'none';
-                            card.classList.add('show');
-                            sessionStorage.setItem('isSplashShown', 'true');
-                        }, 500);
-                    }, 1500);
-                }
+        // 페이지 로드 시 세션 체크
+        window.onload = function() {
+            if (sessionStorage.getItem('isSplashShown')) {
+                document.getElementById('splashScreen').style.display = 'none';
+                document.getElementById('loginCard').classList.add('show');
+                activateDefense();
             }
+        };
 
-            transitionToLogin();
-            setTimeout(transitionToLogin, 3000); 
-
-            // 진입 시 가짜 주소 폭탄 투하
-            preventBack();
-        });
-
-        // 뒤로가기 클릭 시 다시 가짜 주소 리필 + 강제 전진
+        // 뒤로가기 시 가두기 + 알림
         window.onpopstate = function() {
-            preventBack();
+            activateDefense();
+            alert("앱 종료는 하단의 '앱 종료' 버튼을 이용해 주세요.");
             window.history.forward();
         };
 
-        // 화면 터치 시 방어막 상시 재생성
-        document.body.onclick = function() {
-            preventBack();
-        };
-
         function exitApp() {
-            if(confirm("시스템을 종료하시겠습니까?")) {
-                window.open('', '_self', ''); 
+            if(confirm("앱을 종료하시겠습니까?")) {
                 window.close();
-                alert("브라우저의 탭 닫기를 이용해 종료해 주세요.");
+                setTimeout(() => {
+                    alert("브라우저의 탭 닫기 버튼을 눌러 종료해 주세요.");
+                }, 300);
             }
         }
 
