@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>실시간 이수 현황</title>
+    <title>실시간 이수 현황 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 🚨 헤더 스타일: 패딩 12px 유지 및 정렬 최적화 */
+        /* 🚨 상단 헤더: 다른 페이지와 동일하게 패딩 12px 및 높이 고정 */
         .top-header { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -17,14 +17,14 @@
         }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기: 42px로 강제 고정 및 중앙 정렬 밸런스 */
+        /* 🚨 로고 크기 강제 고정: 42px로 통일 */
         .brand-logo { 
             height: 42px !important; 
             width: auto !important;
             object-fit: contain; 
             mix-blend-mode: multiply; 
         }
-        /* 로고를 정가운데로 밀어주기 위한 빈 박스 */
+        /* 로고를 정중앙에 배치하기 위한 공간 확보 */
         .nav-spacer { width: 75px; }
 
         .main-container { width: 92%; max-width: 500px; padding: 20px 0; }
@@ -180,3 +180,8 @@
                 </div>
                 `;
             });
+            listArea.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
