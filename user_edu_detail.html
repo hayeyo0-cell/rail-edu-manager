@@ -15,12 +15,17 @@
         .edu-badge { display: inline-block; padding: 4px 10px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; }
         .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
+        
+        /* 📎 첨부 파일 영역 보안 강화 */
         .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
         .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
-        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; }
-        .download-link { display: none; width: 100%; padding: 15px; background: #f0f4f8; color: var(--dtro-blue); border-radius: 12px; text-decoration: none; text-align: center; font-weight: bold; font-size: 0.9rem; border: 1px solid #d0e0f0; }
         
-        /* 🚨 서명 영역 카드 (기본 숨김) */
+        /* 이미지 미리보기: 우클릭/길게 누르기 방지 */
+        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; pointer-events: none; -webkit-touch-callout: none; }
+        
+        /* 🚨 PDF 미리보기 영역 (Iframe) */
+        .pdf-preview { width: 100%; height: 450px; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; background: #fafafa; }
+        
         .sig-card { display: none; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
         .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .clear-btn { background: #f1f1f1; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: bold; }
@@ -43,9 +48,12 @@
             <span id="displayTitle" class="edu-title">제목</span>
             <div id="displayContent" class="edu-content">내용을 불러오는 중...</div>
             <div class="file-section">
-                <span class="file-label">📎 첨부 파일 확인</span>
-                <img id="imageViewer" class="img-preview">
-                <a id="fileDownload" class="download-link" download="첨부파일">📂 파일 다운로드 / 열기</a>
+                <span class="file-label">📎 첨부 파일 학습 (보안상 다운로드 불가)</span>
+                
+                <img id="imageViewer" class="img-preview" oncontextmenu="return false;">
+                
+                <iframe id="pdfViewer" class="pdf-preview"></iframe>
+                
                 <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
             </div>
         </div>
@@ -59,11 +67,11 @@
         </div>
     </div>
     <div class="bottom-bar">
-        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 서명 완료 및 제출</button>
+        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 학습 완료 제출</button>
     </div>
 
     <script>
-        // 🚨 뒤로가기 차단 로직 (기관사님 기존 로직 유지)
+        // 뒤로가기 차단 로직 (뫼비우스형 유지)
         (function() {
             for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
             window.onpopstate = function() {
@@ -74,36 +82,43 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
-        let isSignatureRequired = false; // 서명 필요 여부 체크용
+        let isSignatureRequired = false;
 
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const edu = list.find(e => String(e.id) === String(eduId));
+            
             if(edu) {
                 document.getElementById('displayTitle').innerText = edu.title;
                 document.getElementById('displayContent').innerText = edu.content;
-                document.getElementById('displayType').innerText = edu.type;
                 
-                // 🚨 관리자 설정값(signatureType)에 따라 서명란 노출 여부 결정
+                // 🚨 undefined 방지: category 데이터가 없으면 type으로 대체
+                document.getElementById('displayType').innerText = edu.category || edu.type || "일반교육";
+                
                 if(edu.signatureType === "필요") {
                     isSignatureRequired = true;
                     document.getElementById('sigCardArea').style.display = 'block';
                     document.getElementById('mainSubmitBtn').innerText = "✅ 서명 완료 및 제출";
                     initCanvas();
                 } else {
-                    document.getElementById('mainSubmitBtn').innerText = "✅ 읽음 확인 및 완료";
+                    document.getElementById('mainSubmitBtn').innerText = "✅ 학습 완료 제출";
                 }
 
                 if(edu.fileData) {
                     document.getElementById('noFileText').style.display = 'none';
-                    if(edu.fileData.startsWith('data:image/')) {
+                    const fileData = edu.fileData;
+
+                    if(fileData.startsWith('data:image/')) {
+                        // 이미지인 경우
                         const img = document.getElementById('imageViewer');
-                        img.src = edu.fileData;
+                        img.src = fileData;
                         img.style.display = 'block';
-                    } else {
-                        const link = document.getElementById('fileDownload');
-                        link.href = edu.fileData;
-                        link.style.display = 'block';
+                    } else if(fileData.startsWith('data:application/pdf')) {
+                        // 🚨 PDF인 경우 뷰어 활성화
+                        const pdf = document.getElementById('pdfViewer');
+                        // 툴바 숨기기(#toolbar=0) 시도
+                        pdf.src = fileData + "#toolbar=0";
+                        pdf.style.display = 'block';
                     }
                 }
             }
@@ -124,7 +139,6 @@
             }, { passive: false });
         }
 
-        // 🚨 서명란 초기화 함수 (새로고침)
         function clearCanvas() {
             if(ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -133,14 +147,12 @@
         }
 
         function submitEdu() {
-            const confirmMsg = isSignatureRequired ? "서명을 완료하고 제출하시겠습니까?" : "읽음 확인을 완료하시겠습니까?";
+            const confirmMsg = isSignatureRequired ? "서명을 완료하고 제출하시겠습니까?" : "학습을 완료하시겠습니까?";
             if(!confirm(confirmMsg)) return;
             
             const userId = localStorage.getItem('currentUserId');
             const userName = localStorage.getItem('currentUserName');
             const eduTitle = document.getElementById('displayTitle').innerText;
-            
-            // 서명이 필요한 경우에만 캔버스 데이터 추출, 아니면 "N/A"
             const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
 
             const sendData = {
@@ -173,8 +185,7 @@
                 window.location.replace('user_main.html');
             })
             .catch(error => {
-                console.error('Error!', error.message);
-                alert("시트 전송 중 오류가 발생했습니다. 네트워크를 확인하세요.");
+                alert("전송 중 오류가 발생했습니다.");
             });
         }
     </script>
