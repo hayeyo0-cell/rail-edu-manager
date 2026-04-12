@@ -9,6 +9,7 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
+        /* 헤더 스타일: 42px 로고 및 정렬 고정 */
         .top-header { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -16,7 +17,6 @@
         }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 CSS에서도 한번 더 강력하게 정의 */
         .brand-logo { object-fit: contain !important; mix-blend-mode: multiply !important; }
         .nav-spacer { width: 75px; }
 
@@ -48,7 +48,7 @@
 <body>
 
     <div class="top-header">
-        <button class="back-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
+        <button class="back-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO" style="height: 42px !important; width: auto !important; max-height: 42px !important;">
         <div class="nav-spacer"></div>
     </div>
@@ -89,6 +89,25 @@
     </div>
 
     <script>
+        // 🚨 [보안] 뒤로가기 방지 및 관리자 메인 리다이렉트 로직
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+
+            window.onpopstate = function() {
+                lockHistory();
+                // 뒤로가기 시 로그인창 탈출 방지 -> 관리자 메인으로 강제 복귀
+                window.location.replace('admin_main.html');
+            };
+
+            // 화면 클릭 시 방어막 무한 리필
+            document.body.onclick = function() { lockHistory(); };
+        })();
+
         const adminDept = localStorage.getItem('userDept') || "경산승무팀";
         let currentTab = 'yet';
 
