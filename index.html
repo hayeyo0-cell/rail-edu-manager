@@ -4,32 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 스마트 교육 플랫폼</title>
-    
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-    <meta name="mobile-web-app-capable" content="yes">
-
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        
-        #splashScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: white; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.5s ease;
-        }
+        #splashScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.5s ease; }
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
-
-        .login-card { 
-            width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
-            border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
-            text-align: center; display: none; 
-        }
+        .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; display: none; }
         .login-card.show { display: block; animation: fadeIn 0.5s forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; }
         .main-title { font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; display: inline-block; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
@@ -50,36 +33,25 @@
     <div class="login-card" id="loginCard">
         <div class="logo-area"><img src="logo.png" alt="DTRO"></div>
         <div class="main-title">스마트 교육 플랫폼</div>
-        
         <div class="tab-menu">
             <button id="userTab" class="tab-btn active" onclick="switchTab('user')">사용자 로그인</button>
             <button id="adminTab" class="tab-btn" onclick="switchTab('admin')">관리자 모드</button>
         </div>
-
         <div id="userForm">
             <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric">
             <input type="password" id="userPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
         </div>
-
         <div id="adminForm" style="display: none;">
             <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric">
             <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
-
         <button class="exit-btn" onclick="exitApp()">앱 종료</button>
     </div>
 
     <script>
-        // 🚨 뒤로가기 방어 (로그인 이동과 겹치지 않게 0.5초 뒤에 가동)
-        function setDefense() {
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, null, window.location.href);
-            };
-        }
-
+        // 🚨 방어막을 미리 치지 않습니다! (로그인 방해 원인 제거)
         window.onload = function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
@@ -87,7 +59,6 @@
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
-                setTimeout(setDefense, 500); // 🚨 핵심: 약간 늦게 방어벽을 칩니다.
             } else {
                 setTimeout(() => {
                     splash.style.opacity = '0';
@@ -95,16 +66,23 @@
                         splash.style.display = 'none';
                         card.classList.add('show');
                         sessionStorage.setItem('isSplashShown', 'true');
-                        setTimeout(setDefense, 500); // 🚨 핵심: 늦게 방어벽 가동
                     }, 500);
                 }, 1500);
             }
         };
 
+        // 🚨 뒤로가기를 딱 "한 번" 눌렀을 때만 작동하는 방어막
+        // 이렇게 하면 로그인 버튼(앞으로 가기)은 전혀 방해받지 않습니다.
+        window.addEventListener('popstate', function() {
+            alert("앱을 종료하려면 하단의 '앱 종료' 버튼을 눌러주세요.");
+            // 뒤로 가려고 하면 강제로 다시 현재 페이지 주소를 히스토리에 넣어 가둡니다.
+            window.history.pushState(null, null, window.location.href);
+        });
+
         function exitApp() {
             if(confirm("앱을 종료하시겠습니까?")) {
-                window.open('about:blank', '_self').close();
-                setTimeout(() => { alert("브라우저의 탭 닫기(X)를 눌러 종료해 주세요."); }, 300);
+                window.close();
+                setTimeout(() => { alert("브라우저 탭 닫기(X)를 이용해 주세요."); }, 300);
             }
         }
 
@@ -116,7 +94,7 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
         }
 
-        // 🚨 사용자 로그인 (방어 로직이 눈치채기 전에 순간이동)
+        // 🚨 사용자 로그인 (방해물이 없으므로 무조건 성공)
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
@@ -133,8 +111,7 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 🚨 [필살기] 모든 방어 로직 해제 후 즉시 이동
-            window.onpopstate = null; 
+            // 🚨 이제 시원하게 넘어갑니다!
             location.href = 'user_main.html';
         }
 
@@ -143,9 +120,7 @@
             const pw = document.getElementById('adminPw').value;
             const sId = localStorage.getItem('adminId');
             const sPw = localStorage.getItem('adminPw');
-            
             if ( (sId && String(id) === String(sId) && pw === sPw) || (pw === "1234") ) {
-                window.onpopstate = null;
                 location.href = (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
                 return;
             }
