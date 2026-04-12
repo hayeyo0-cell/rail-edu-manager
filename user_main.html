@@ -24,11 +24,11 @@
 
         .section-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 5px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
 
-        /* 🚨 필터 버튼 디자인 수정: 글씨 크기 줄임 */
+        /* 필터 버튼 디자인 */
         .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
         .filter-btn { 
             padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; 
-            background: white; font-size: 0.82rem; /* 글씨 크기 하향 */
+            background: white; font-size: 0.82rem; 
             white-space: nowrap; cursor: pointer; color: #666; transition: 0.2s;
         }
         .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
@@ -54,7 +54,7 @@
 <body>
 
     <div class="top-nav">
-        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <img src="logo.png" class="brand-logo" alt="DTRO Logo">
         <button class="logout-btn" onclick="location.href='index.html'">로그아웃</button>
     </div>
 
@@ -75,14 +75,34 @@
     </div>
 
     <script>
+        // 🚨 [보안] 사용자 메인 뒤로가기 절대 방지
+        function preventBack() {
+            window.history.pushState(null, null, window.location.href);
+        }
+
         let currentFilter = '전체';
         const userDept = localStorage.getItem('currentUserDept') || "";
         const userId = localStorage.getItem('currentUserId');
 
         window.onload = function() {
             if(!userId) { location.href = 'index.html'; return; }
+            
+            // 히스토리 방어막 생성
+            preventBack();
+            
             renderFilters();
             loadEduData();
+        };
+
+        // 뒤로가기 감지 시 현재 주소로 강제 고정
+        window.onpopstate = function() {
+            preventBack();
+            location.replace(window.location.href);
+        };
+
+        // 화면 클릭 시 방어막 리필
+        document.body.onclick = function() {
+            preventBack();
         };
 
         function renderFilters() {
