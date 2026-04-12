@@ -9,7 +9,6 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 헤더 스타일 통일 */
         .top-header { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -17,8 +16,8 @@
         }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 혹시 몰라 CSS에도 클래스를 남겨두지만, 아래 HTML에서 직접 크기를 제어합니다. */
-        .brand-logo { object-fit: contain; mix-blend-mode: multiply; }
+        /* 🚨 CSS에서도 한번 더 강력하게 정의 */
+        .brand-logo { object-fit: contain !important; mix-blend-mode: multiply !important; }
         .nav-spacer { width: 75px; }
 
         .main-container { width: 92%; max-width: 500px; padding: 20px 0; }
@@ -50,7 +49,7 @@
 
     <div class="top-header">
         <button class="back-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
-        <img src="logo.png" class="brand-logo" alt="DTRO" style="height: 42px !important; width: auto !important;">
+        <img src="logo.png" class="brand-logo" alt="DTRO" style="height: 42px !important; width: auto !important; max-height: 42px !important;">
         <div class="nav-spacer"></div>
     </div>
 
