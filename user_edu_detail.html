@@ -19,9 +19,14 @@
         .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
         .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; }
         .download-link { display: none; width: 100%; padding: 15px; background: #f0f4f8; color: var(--dtro-blue); border-radius: 12px; text-decoration: none; text-align: center; font-weight: bold; font-size: 0.9rem; border: 1px solid #d0e0f0; }
-        .sig-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
-        .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; margin-top: 10px; touch-action: none; }
+        
+        /* 🚨 서명 영역 카드 (기본 숨김) */
+        .sig-card { display: none; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
+        .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .clear-btn { background: #f1f1f1; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: bold; }
+        .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; touch-action: none; }
         canvas { width: 100%; height: 100%; }
+        
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
     </style>
@@ -44,47 +49,53 @@
                 <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
             </div>
         </div>
-        <div class="sig-card">
-            <p style="font-weight:bold; margin:0;">✒️ 본인 확인 서명</p>
+
+        <div class="sig-card" id="sigCardArea">
+            <div class="sig-header">
+                <p style="font-weight:bold; margin:0;">✒️ 본인 확인 서명</p>
+                <button class="clear-btn" onclick="clearCanvas()">🔄 다시 쓰기</button>
+            </div>
             <div class="sig-canvas-area"><canvas id="sigCanvas"></canvas></div>
         </div>
     </div>
+
     <div class="bottom-bar">
-        <button class="submit-btn" onclick="submitEdu()">✅ 서명 완료 및 제출</button>
+        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 이수 완료 제출</button>
     </div>
 
     <script>
-        // 🚨 [최종 병기] 뒤로가기 절대 차단 로직
+        // 🚨 뒤로가기 절대 차단 로직 (유지)
         (function() {
-            // 1. 히스토리 스택을 10번 도배하여 뒤로가기 '광클' 방어
-            for(let i = 0; i < 10; i++) {
-                window.history.pushState(null, null, window.location.href);
-            }
-
-            // 2. 뒤로가기 신호 감지 시 즉시 메인으로 강제 리다이렉트
+            for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
             window.onpopstate = function() {
-                for(let i = 0; i < 10; i++) {
-                    window.history.pushState(null, null, window.location.href);
-                }
                 window.location.replace('user_main.html');
             };
-            
-            // 3. 화면 터치/클릭 시 방어막 무한 리필
-            document.body.onclick = function() {
-                window.history.pushState(null, null, window.location.href);
-            };
+            document.body.onclick = function() { window.history.pushState(null, null, window.location.href); };
         })();
 
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
+        let isSignatureRequired = false;
 
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const edu = list.find(e => String(e.id) === String(eduId));
+            
             if(edu) {
                 document.getElementById('displayTitle').innerText = edu.title;
                 document.getElementById('displayContent').innerText = edu.content;
-                document.getElementById('displayType').innerText = edu.type;
+                document.getElementById('displayType').innerText = edu.category || edu.type;
+                
+                // 🚨 서명 필요 여부 확인
+                if(edu.signatureType === "필요") {
+                    isSignatureRequired = true;
+                    document.getElementById('sigCardArea').style.display = 'block';
+                    document.getElementById('mainSubmitBtn').innerText = "✅ 서명 완료 및 제출";
+                    initCanvas();
+                } else {
+                    document.getElementById('mainSubmitBtn').innerText = "✅ 읽음 확인 및 완료";
+                }
+
                 if(edu.fileData) {
                     document.getElementById('noFileText').style.display = 'none';
                     if(edu.fileData.startsWith('data:image/')) {
@@ -98,7 +109,6 @@
                     }
                 }
             }
-            initCanvas();
         };
 
         let canvas, ctx, drawing = false;
@@ -106,6 +116,7 @@
             canvas = document.getElementById('sigCanvas'); ctx = canvas.getContext('2d');
             canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
             ctx.strokeStyle = "#222"; ctx.lineWidth = 3; ctx.lineCap = "round";
+            
             canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); e.preventDefault(); });
             canvas.addEventListener("touchend", () => { drawing = false; });
             canvas.addEventListener("touchmove", (e) => {
@@ -113,16 +124,27 @@
                 const touch = e.touches[0]; const rect = canvas.getBoundingClientRect();
                 ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top); ctx.stroke();
                 e.preventDefault();
-            });
+            }, { passive: false });
+        }
+
+        // 🚨 서명 싹 지우기 함수
+        function clearCanvas() {
+            if(ctx) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath(); // 경로 초기화
+            }
         }
 
         function submitEdu() {
-            if(!confirm("제출하시겠습니까? 구글 시트로 정보가 전송됩니다.")) return;
+            const btnText = isSignatureRequired ? "서명 제출" : "읽음 확인";
+            if(!confirm(`${btnText}하시겠습니까?`)) return;
             
             const userId = localStorage.getItem('currentUserId');
             const userName = localStorage.getItem('currentUserName');
             const eduTitle = document.getElementById('displayTitle').innerText;
-            const signatureData = canvas.toDataURL(); 
+            
+            // 서명 데이터 (필요 없을 시 빈 값)
+            const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
 
             const sendData = {
                 id: userId,
@@ -134,6 +156,7 @@
 
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec';
 
+            // 구글 시트 전송
             fetch(scriptURL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -150,12 +173,11 @@
                 });
                 localStorage.setItem('completedEduList', JSON.stringify(completedEduList));
                 
-                alert("구글 시트 전송 및 이수가 완료되었습니다.");
+                alert("이수가 완료되었습니다.");
                 window.location.replace('user_main.html');
             })
             .catch(error => {
-                console.error('Error!', error.message);
-                alert("시트 전송 중 오류가 발생했습니다. 네트워크를 확인하세요.");
+                alert("전송 중 오류가 발생했습니다. 네트워크를 확인하세요.");
             });
         }
     </script>
