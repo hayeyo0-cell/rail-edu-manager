@@ -8,12 +8,12 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 상단바 패딩을 살짝 조절하여 로고 공간 확보 */
+        /* 🚨 상단바 패딩 12px 및 정렬 통일 */
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         
-        .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; }
+        .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기 수정: 28px -> 42px (경산승무팀 배지보다 크게 설정) */
+        /* 🚨 로고 크기 42px 고정 */
         .brand-logo { height: 42px; object-fit: contain; }
         
         .dept-badge { background: var(--dtro-blue); color: white; padding: 8px 25px; border-radius: 30px; font-weight: bold; margin: 30px 0 20px 0; box-shadow: 0 4px 10px rgba(0,114,188,0.1); }
@@ -50,7 +50,7 @@
             <div class="menu-info"><span class="menu-title">등록된 교육 내역</span><span class="menu-desc">게시 중인 교육 관리 및 삭제</span></div>
         </div>
         <div class="section-title">📊 이수 현황</div>
-        <div class="menu-card" onclick="location.href='admin_status.html'">
+        <div class="menu-card" onclick="location.href='admin_edu_status.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3408/3408545.png" class="menu-icon">
             <div class="menu-info"><span class="menu-title">실시간 이수 현황</span><span class="menu-desc">팀원별 사인 내역 및 이수율 확인</span></div>
         </div>
