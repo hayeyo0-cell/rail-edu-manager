@@ -23,7 +23,7 @@
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="handleManualBack()">← 메인으로</button>
+        <button class="nav-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -31,55 +31,48 @@
     <div class="container">
         <div class="edu-card">
             <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
-            <div class="dept-info-box">📍 소속: <strong id="currentDept">경산승무팀</strong></div>
+            <div class="dept-info-box">📍 현재 소속: <strong id="currentDept">경산승무팀</strong></div>
 
             <label class="input-label">교육 분류</label>
             <select id="eduType">
                 <option value="게시교육">게시교육</option>
                 <option value="안전교육">안전교육</option>
-                <option value="시뮬레이션">시뮬레이션</option>
                 <option value="육성방송 훈련">육성방송 훈련</option>
             </select>
 
-            <label class="input-label">교육 및 훈련 제목</label>
-            <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
+            <label class="input-label">제목</label>
+            <input type="text" id="eduTitle" placeholder="제목 입력">
 
-            <label class="input-label">상세 지시내용</label>
-            <textarea id="eduContent" rows="7" placeholder="상세 내용을 입력하세요"></textarea>
+            <label class="input-label">상세 내용</label>
+            <textarea id="eduContent" rows="7" placeholder="상세 내용 입력"></textarea>
 
             <label class="input-label">📎 파일 첨부</label>
-            <input type="file" id="eduFile" style="margin-top:10px; width:100%;">
+            <input type="file" id="eduFile" style="margin-top:10px;">
 
-            <button class="save-btn" onclick="saveEdu()">설정 저장 및 완료</button>
+            <button class="save-btn" onclick="saveEdu()">✅ 등록 완료</button>
         </div>
     </div>
 
     <script>
-        // 🚨 [트랩 방어] 브라우저가 뒤로 가려고 하면 무조건 '메인'으로 강제 소환
+        // 🚨 [끝장 보안] 뒤로가기 시 무조건 메인으로 강제 워프하는 로직
         (function() {
-            // 1. 현재 페이지 뒤에 메인 페이지를 숨겨둡니다.
-            window.history.pushState(null, null, 'admin_main.html');
-            // 2. 그 위에 다시 현재 페이지를 덮어씌웁니다.
-            window.history.pushState(null, null, window.location.href);
+            // 1. 현재 히스토리 바로 뒤에 '메인 페이지' 주소를 심어버림
+            window.history.pushState({page: 'main'}, null, 'admin_main.html');
+            // 2. 다시 현재 페이지 주소로 덮어쓰기
+            window.history.pushState({page: 'reg'}, null, window.location.href);
 
-            window.onpopstate = function() {
-                // 뒤로가기 버튼을 누르는 순간 숨겨둔 'admin_main.html'이 호출되도록 유도
-                if(confirm("작성 중인 내용이 저장되지 않습니다. 관리자 메인으로 돌아갈까요?")) {
-                    window.location.replace('admin_main.html');
-                } else {
-                    // 취소하면 다시 트랩 설치
-                    window.history.pushState(null, null, window.location.href);
-                }
+            window.onpopstate = function(event) {
+                // 뒤로가기를 누르면 무조건 'admin_main.html'로 튕겨나가게 만듦
+                // replace를 사용하므로 '로그인창'으로 돌아가는 기록 자체가 삭제됨
+                location.replace('admin_main.html');
             };
         })();
 
-        function handleManualBack() {
-            if(confirm("메인으로 돌아갈까요?")) window.location.replace('admin_main.html');
-        }
-
+        // 소속 정보 불러오기
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
         document.getElementById('currentDept').innerText = myDept;
 
+        // 파일 처리 로직
         let selectedFileData = ""; 
         document.getElementById('eduFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -90,10 +83,11 @@
             }
         });
 
+        // 저장 로직
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
-            if(!title || !content) { alert("제목과 내용을 모두 입력해 주세요!"); return; }
+            if(!title || !content) { alert("제목과 내용을 입력해주세요."); return; }
 
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             totalEduList.push({
@@ -108,6 +102,7 @@
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
 
             alert("등록되었습니다!");
+            // 🚨 저장 후 이동 시에도 replace 사용
             window.location.replace('admin_main.html');
         }
     </script>
