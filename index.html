@@ -14,7 +14,7 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 스플래시 로고 화면 */
+        /* 스플래시 화면 */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
@@ -24,7 +24,7 @@
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
-        /* 로그인 카드 디자인 */
+        /* 로그인 카드 (초기 숨김) */
         .login-card { 
             width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
             border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
@@ -39,11 +39,9 @@
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
         .input-group { text-align: left; margin-bottom: 15px; }
         .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
-        
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
@@ -80,15 +78,17 @@
     </div>
 
     <script>
+        // 🚨 [핵심] 페이지 로드 시 즉시 가두기 로직 실행
         document.addEventListener("DOMContentLoaded", function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
-            let isDone = false;
+            let isTransitioned = false;
 
-            function showMain() {
-                if(isDone) return;
-                isDone = true;
-                if(sessionStorage.getItem('isSplashShown')) {
+            function transitionToLogin() {
+                if (isTransitioned) return;
+                isTransitioned = true;
+
+                if (sessionStorage.getItem('isSplashShown')) {
                     splash.style.display = 'none';
                     card.classList.add('show');
                 } else {
@@ -102,13 +102,20 @@
                     }, 1500);
                 }
             }
-            showMain();
-            setTimeout(showMain, 3000); // 3초 안전장치
 
+            transitionToLogin();
+            setTimeout(transitionToLogin, 3000); // 3초 안전장치
+
+            // 🚨 [중요] 히스토리를 2개 쌓아서 뒤로가기 시 앱 이탈을 방지합니다.
+            window.history.pushState(null, null, window.location.href);
             window.history.pushState(null, null, window.location.href);
         });
 
-        window.onpopstate = function() { window.history.pushState(null, null, window.location.href); };
+        // 🚨 뒤로가기 클릭 시 무조건 현재 페이지로 복귀
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+            // 안내를 원하시면 alert을 넣을 수 있습니다.
+        };
 
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
@@ -132,15 +139,13 @@
         }
 
         function userLogin() {
-            const inputId = document.getElementById('userId').value;
-            const inputPw = document.getElementById('userPw').value;
-            const userList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const teamPw = localStorage.getItem('teamPw') || "1234";
-            const user = userList.find(u => String(u.id) === String(inputId));
-            
+            const id = document.getElementById('userId').value;
+            const pw = document.getElementById('userPw').value;
+            const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const savedPw = localStorage.getItem('teamPw') || "1234";
+            const user = list.find(u => String(u.id) === String(id));
             if (!user) return alert("명단에 없는 사번입니다.");
-            if (inputPw !== teamPw) return alert("비밀번호가 틀렸습니다.");
-            
+            if (pw !== savedPw) return alert("비밀번호가 틀렸습니다.");
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
@@ -148,15 +153,12 @@
         }
 
         function adminLogin() {
-            const inputId = document.getElementById('adminId').value;
-            const inputPw = document.getElementById('adminPw').value;
-            const savedId = localStorage.getItem('adminId');
-            const savedPw = localStorage.getItem('adminPw');
-            
-            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
-                location.replace('admin_main.html'); return; 
-            }
-            if (inputPw === "1234") { location.replace('admin_setup_auth.html'); return; }
+            const id = document.getElementById('adminId').value;
+            const pw = document.getElementById('adminPw').value;
+            const sId = localStorage.getItem('adminId');
+            const sPw = localStorage.getItem('adminPw');
+            if (sId && String(id) === String(sId) && pw === sPw) { location.replace('admin_main.html'); return; }
+            if (pw === "1234") { location.replace('admin_setup_auth.html'); return; }
             alert("정보가 틀렸습니다.");
         }
     </script>
