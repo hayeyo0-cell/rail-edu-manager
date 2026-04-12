@@ -7,32 +7,25 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
-
         .container { width: 92%; max-width: 420px; padding: 25px 0; padding-bottom: 60px; }
-
-        /* 📋 기관사님 전용 카드 디자인 */
         .edu-card { background: white; border-radius: 30px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; }
         .card-title { font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: block; text-align: left; }
         .dept-info-box { background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 25px; text-align: center; }
-
         .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; text-align: left; }
         select, input, textarea { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s; }
         input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
-
         .file-section { margin-top: 15px; text-align: left; }
         .file-input-box { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; background: #fff; box-sizing: border-box; font-size: 0.9rem; color: #666; }
-
         .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; margin-top: 35px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2); }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="askBeforeGo()">← 메인으로</button>
+        <button class="nav-btn" onclick="goBackMain()">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -46,8 +39,8 @@
             <select id="eduType">
                 <option value="게시교육">게시교육</option>
                 <option value="안전교육">안전교육</option>
-                <option value="육성방송 훈련">육성방송 훈련</option>
                 <option value="시뮬레이션">시뮬레이션</option>
+                <option value="육성방송 훈련">육성방송 훈련</option>
             </select>
 
             <label class="input-label">제목</label>
@@ -69,28 +62,29 @@
     </div>
 
     <script>
-        // 🚨 [철갑 보안] 뒤로가기를 누르면 '가짜 벽'에 부딪히게 하는 로직
+        // 🚨 [종결 보안] 앱 닫힘 방지 및 메인 리다이렉트
         (function() {
-            // 현재 주소를 히스토리에 50번 박습니다 (광클 방지)
-            function lock() {
-                for(let i=0; i<50; i++) history.pushState(null, null, location.href);
+            // 1. 현재 히스토리 스택에 'admin_main.html'을 하나 깔아줍니다.
+            // 이렇게 하면 뒤로 가더라도 앱 밖으로 안 나가고 메인으로 갑니다.
+            if (window.history.length <= 2) {
+                window.history.pushState(null, null, 'admin_main.html');
+                window.history.pushState(null, null, window.location.href);
             }
-            lock();
 
             window.onpopstate = function() {
-                lock(); // 뒤로가기 누르자마자 다시 50번 박음
-                if(confirm("작성 중인 내용이 저장되지 않습니다.\n관리자 메인으로 돌아갈까요?")) {
-                    location.replace('admin_main.html');
+                // 뒤로가기를 누르면 'admin_main.html'로 가기 전에 확인을 받습니다.
+                if (confirm("작성 중인 내용이 저장되지 않습니다.\n관리자 메인으로 돌아갈까요?")) {
+                    window.location.replace('admin_main.html');
+                } else {
+                    // 취소하면 다시 현재 페이지를 히스토리에 박아서 닫힘을 방지합니다.
+                    window.history.pushState(null, null, window.location.href);
                 }
             };
-
-            // 사용자가 화면을 터치할 때마다 보안 장치 무한 리필
-            document.addEventListener('touchstart', lock);
         })();
 
-        function askBeforeGo() {
+        function goBackMain() {
             if(confirm("작성 중인 내용이 사라집니다. 메인으로 갈까요?")) {
-                location.replace('admin_main.html');
+                window.location.replace('admin_main.html');
             }
         }
 
@@ -110,7 +104,7 @@
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
-            if(!title || !content) { alert("제목과 내용을 모두 입력해 주세요!"); return; }
+            if(!title || !content) { alert("내용을 입력해주세요!"); return; }
 
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             totalEduList.push({
@@ -126,7 +120,7 @@
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
 
             alert("등록되었습니다!");
-            location.replace('admin_main.html');
+            window.location.replace('admin_main.html');
         }
     </script>
 </body>
