@@ -3,43 +3,52 @@
     --dtro-blue: #0072bc; 
     --dtro-sky: #f4f9ff; 
     --dtro-dark: #1a1a1a; 
-    --gray-bg: #f0f2f5;
+    --gray-bg: #f8f9fb; /* 조금 더 밝고 깨끗한 톤으로 수정 */
 }
 
-/* 1. 메인 화면용 헤더 (높고 듬직함) */
+/* 1. 메인 화면용 헤더 (로그인, 메인 등) */
 .main-header {
-    width: 100%; background: white; padding: 18px 0; 
-    text-align: center; border-bottom: 2px solid var(--dtro-blue);
+    width: 100%; background: white; padding: 15px 0; 
+    text-align: center; border-bottom: 3px solid var(--dtro-blue); /* 라인을 좀 더 두껍게 해서 강조 */
+    box-sizing: border-box;
 }
-.main-logo { height: 38px; vertical-align: middle; }
+/* 🚨 로고 높이를 우리가 맞춘 42px로 통일 */
+.main-logo { height: 42px; vertical-align: middle; object-fit: contain; }
 
-/* 2. 세부 관리 화면용 슬림 헤더 (공간 절약) */
+/* 2. 세부 관리 화면용 헤더 (공간 절약하면서도 정체성 유지) */
 .slim-header {
-    width: 100%; background: white; padding: 10px 0; 
-    display: flex; align-items: center; justify-content: center;
+    width: 100%; background: white; padding: 12px 15px; /* 패딩을 살짝 늘려 답답함 해소 */
+    display: flex; align-items: center; justify-content: space-between; /* 양 끝 정렬 */
     border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
+    box-sizing: border-box;
 }
-.slim-logo { height: 22px; }
+/* 🚨 슬림 헤더도 로고가 너무 작으면 안 보이니 최소 32px~42px 권장 */
+.slim-logo { height: 35px; object-fit: contain; }
+
 .logout-btn { 
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    background: #f8f9fa; border: 1px solid #ddd; padding: 4px 10px;
-    border-radius: 5px; font-size: 0.7rem; color: #666; cursor: pointer;
+    background: #f8f8f8; border: 1px solid #eaeaea; padding: 6px 12px;
+    border-radius: 8px; font-size: 0.8rem; color: #555; cursor: pointer;
+    font-weight: bold; transition: 0.2s;
 }
+.logout-btn:active { background: #eee; transform: scale(0.95); }
 
 /* 3. 공통 하단 탭 스타일 */
 .nav-bottom { 
     position: fixed; bottom: 0; left: 0; width: 100%; 
     background: white; display: flex; border-top: 1px solid #eee; 
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 1000;
+    box-shadow: 0 -2px 15px rgba(0,0,0,0.05); z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom); /* 아이폰 하단 바 대응 */
 }
 .nav-item { 
-    flex: 1; padding: 15px 0; text-align: center; 
-    font-size: 0.85rem; color: #999; text-decoration: none; 
+    flex: 1; padding: 12px 0; text-align: center; 
+    font-size: 0.8rem; color: #999; text-decoration: none; 
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
 .nav-item.active { color: var(--dtro-blue); font-weight: bold; }
 
-/* 공통 카드 스타일 */
+/* 공통 카드 스타일 (둥근 모서리 강조) */
 .card { 
-    background: white; border-radius: 15px; padding: 20px; 
-    margin-bottom: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+    background: white; border-radius: 20px; padding: 25px; /* 조금 더 둥글고 여유있게 */
+    margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); 
+    border: 1px solid rgba(0,0,0,0.02); /* 미세한 테두리로 깔끔함 추가 */
 }
