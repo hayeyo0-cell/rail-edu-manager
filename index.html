@@ -14,7 +14,6 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 스플래시 화면: 자동 전환 */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
@@ -65,7 +64,7 @@
         </div>
 
         <div id="adminForm" style="display: none;">
-            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric" style="display:none;" id="adminIdInput">
+            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric">
             <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
@@ -74,28 +73,34 @@
     </div>
 
     <script>
-        // 방어막 생성 및 뒤로가기 가두기
-        function activateDefense() {
+        // 🚨 히스토리를 강제로 하나 더 쌓아둡니다.
+        function pushDefense() {
             window.history.pushState(null, null, window.location.href);
         }
 
-        // 1.5초 후 자동 전환
-        setTimeout(() => {
+        window.onload = function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
-            activateDefense(); 
-            
-            splash.style.opacity = '0';
-            setTimeout(() => {
-                splash.style.display = 'none';
-                card.classList.add('show');
-            }, 500);
-        }, 1500);
 
-        // 뒤로가기 시 무조건 홈 유지
+            // 1.5초 후 스플래시 제거 및 방어막 활성화
+            setTimeout(() => {
+                pushDefense(); // 히스토리 하나 쌓기
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    card.classList.add('show');
+                }, 500);
+            }, 1500);
+        };
+
+        // 🚨 뒤로가기 클릭 시 핵심 로직
         window.onpopstate = function() {
+            // 알림창을 띄워 브라우저 흐름을 일시 정지시킵니다.
             alert("앱 종료는 하단의 '앱 종료' 버튼을 이용해 주세요.");
-            location.replace('index.html');
+            
+            // 🚨 새로고침(location.replace) 대신, 한 칸 뒤로 간 히스토리를 다시 앞으로 한 칸 툭 칩니다.
+            // 이렇게 하면 화면이 리부팅되지 않고 그대로 멈춰 있습니다.
+            window.history.forward();
         };
 
         function exitApp() {
