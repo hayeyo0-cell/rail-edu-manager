@@ -54,19 +54,31 @@
     </div>
 
     <script>
-        // 🚨 [핵심] 상세 페이지 뒤로가기 절대 차단 로직
-        function preventBack() {
-            // 현재 상태를 히스토리에 한 번 더 쌓아 뒤로가기 버튼을 무력화함
-            window.history.pushState(null, null, window.location.href);
-        }
+        // 🚨 [최종 병기] 뒤로가기 절대 차단 로직
+        (function() {
+            // 1. 히스토리 스택을 10번 도배하여 뒤로가기 '광클' 방어
+            for(let i = 0; i < 10; i++) {
+                window.history.pushState(null, null, window.location.href);
+            }
+
+            // 2. 뒤로가기 신호 감지 시 즉시 메인으로 강제 리다이렉트
+            window.onpopstate = function() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+                window.location.replace('user_main.html');
+            };
+            
+            // 3. 화면 터치/클릭 시 방어막 무한 리필
+            document.body.onclick = function() {
+                window.history.pushState(null, null, window.location.href);
+            };
+        })();
 
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
 
         window.onload = function() {
-            // 1. 방어막 즉시 생성
-            preventBack();
-
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const edu = list.find(e => String(e.id) === String(eduId));
             if(edu) {
@@ -87,18 +99,6 @@
                 }
             }
             initCanvas();
-        };
-
-        // 2. 뒤로가기 감지 시 "로그인창"이 아닌 "유저 메인"으로 강제 고정
-        // replace를 사용하므로 히스토리 2번 연속 클릭도 방어합니다.
-        window.onpopstate = function() {
-            preventBack();
-            location.replace('user_main.html');
-        };
-
-        // 3. 화면 터치 시 방어막 무한 리필
-        document.body.onclick = function() {
-            preventBack();
         };
 
         let canvas, ctx, drawing = false;
@@ -151,8 +151,7 @@
                 localStorage.setItem('completedEduList', JSON.stringify(completedEduList));
                 
                 alert("구글 시트 전송 및 이수가 완료되었습니다.");
-                // 제출 완료 후 메인으로 보낼 때도 기록을 남기지 않고 이동
-                location.replace('user_main.html');
+                window.location.replace('user_main.html');
             })
             .catch(error => {
                 console.error('Error!', error.message);
