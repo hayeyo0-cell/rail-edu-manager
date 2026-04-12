@@ -2,49 +2,49 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>미이수자 관리 - 관리자</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>미이수자 관리 - DTRO</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; padding: 20px; }
-        .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .back-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; margin-right: 10px; }
-        .section { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .edu-selector { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 20px; font-size: 1rem; background:white; }
-        .pending-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
-        .badge-wait { background: #ff7675; color: white; padding: 3px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fa; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 🚨 상단 헤더: 패딩 및 로고 42px 통일 */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
+        .brand-logo { height: 42px; object-fit: contain; }
+
+        .container { width: 92%; max-width: 500px; padding: 20px 0; }
+        .section-title { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 20px; text-align: left; width: 100%; }
+        
+        .section { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+        .edu-selector { 
+            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #eee; 
+            margin-bottom: 20px; font-size: 1rem; background: #fafafa; outline: none; font-weight: bold; color: var(--dtro-blue);
+        }
+        
+        .pending-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 5px; border-bottom: 1px solid #f9f9f9; font-size: 1rem; 
+        }
+        .pending-item:last-child { border-bottom: none; }
+        .badge-wait { background: #ff7675; color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
+        .count-info { font-size: 0.9rem; color: #888; margin-bottom: 15px; display: block; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="header"><button class="back-btn" onclick="location.href='admin_main.html'">←</button><h2>👥 미이수자 명단</h2></div>
-    <select id="edu-select" class="edu-selector" onchange="loadPendingList()"></select>
-    <div class="section" id="pending-container"></div>
+    <div class="top-nav">
+        <button class="back-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:75px;"></div>
+    </div>
 
-    <script>
-        const adminTeam = localStorage.getItem("loginAdmin");
-        const allStaff = Array.from({length: 58}, (_, i) => ({ id: 20050001 + i, name: `기관사 ${i + 1}` }));
-
-        function init() {
-            const eduList = JSON.parse(localStorage.getItem(`eduList_${adminTeam}`)) || [];
-            const select = document.getElementById('edu-select');
-            if(eduList.length === 0) { select.innerHTML = "<option>등록된 교육 없음</option>"; return; }
-            select.innerHTML = eduList.map(edu => `<option value="${edu.id}">${edu.title}</option>`).join('');
-            loadPendingList();
-        }
-
-        function loadPendingList() {
-            const eduId = parseInt(document.getElementById('edu-select').value);
-            const completeData = JSON.parse(localStorage.getItem(`complete_${adminTeam}`)) || [];
-            const container = document.getElementById('pending-container');
-            const doneIds = completeData.filter(c => c.eduId === eduId).map(c => c.userId);
-            const pending = allStaff.filter(s => !doneIds.includes(s.id.toString()));
-
-            container.innerHTML = pending.length === 0 
-                ? "<p style='text-align:center; color:#2ecc71;'>이수 완료! ✅</p>"
-                : `<p style="font-size:0.8rem; color:#888;">미이수: ${pending.length}명</p>` + 
-                  pending.map(s => `<div class="pending-item"><span>${s.name} (${s.id})</span><span class="badge-wait">미이수</span></div>`).join('');
-        }
-        init();
-    </script>
-</body>
-</html>
-
+    <div class="container">
+        <div class="section-title">👥 미이수자 명단 관리</div>
+        <select id="edu-select" class="edu-selector" onchange="loadPendingList()"></select>
+        
+        <div class="section" id="pending-container">
+            <p style="text-align:center; color:#ccc; padding:30
