@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DTRO 스마트 교육 플랫폼</title>
-    
-    <link rel="apple-touch-icon" href="icon.png">
-    <link rel="icon" type="image/png" href="icon.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="승무교육">
-
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
@@ -20,7 +14,7 @@
             align-items: center; justify-content: center; z-index: 9999;
             transition: opacity 0.5s ease;
         }
-        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; }
+        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
         .login-card { 
@@ -31,12 +25,14 @@
         .login-card.show { display: block; animation: fadeIn 0.5s forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; }
-        .main-title { font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; display: inline-block; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; margin-bottom: 10px; }
+        .input-group { text-align: left; margin-bottom: 15px; }
+        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
+        input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
@@ -58,35 +54,28 @@
         </div>
 
         <div id="userForm">
-            <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric">
-            <input type="password" id="userPw" placeholder="비밀번호 입력">
+            <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력" inputmode="numeric"></div>
+            <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
             <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
         </div>
 
         <div id="adminForm" style="display: none;">
-            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric">
-            <input type="password" id="adminPw" placeholder="비밀번호 입력">
+            <div id="adminIdArea" class="input-group" style="display:none;"><span class="input-label">관리자 사번</span><input type="number" id="adminId" placeholder="사번 입력" inputmode="numeric"></div>
+            <div class="input-group"><span id="pwLabel" class="input-label">마스터 인증(1234)</span><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
 
-        <button class="exit-btn" onclick="exitApp()">앱 종료</button>
+        <button class="exit-btn" onclick="exitApp()">시스템 종료</button>
     </div>
 
     <script>
-        // 🚨 뒤로가기 방어 로직 (로그인 이동과 겹치지 않게 조절)
-        function setBackDefense() {
-            window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, null, window.location.href);
-                // 뒤로가기를 누를 때만 알림
-                alert("앱을 종료하려면 하단의 '앱 종료' 버튼을 이용해 주세요.");
-            };
-        }
+        // 🚨 네비게이션 상태 추적 변수 (자석 현상 방지 핵심)
+        let isMoving = false;
 
         window.onload = function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
-
+            
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -100,15 +89,21 @@
                     }, 500);
                 }, 1500);
             }
-            
-            // 로그인 화면에서만 작동하는 방어막 가동
-            setBackDefense();
+
+            // 초기 방어막 주입
+            window.history.pushState(null, null, window.location.href);
+        };
+
+        // 뒤로가기 제어 (이동 중이 아닐 때만 작동)
+        window.onpopstate = function() {
+            if (isMoving) return; 
+            window.history.pushState(null, null, window.location.href);
         };
 
         function exitApp() {
-            if(confirm("앱을 종료하시겠습니까?")) {
+            if(confirm("시스템을 종료하시겠습니까?")) {
                 window.close();
-                setTimeout(() => { alert("브라우저의 탭 닫기(X)를 눌러 종료해 주세요."); }, 300);
+                setTimeout(() => { alert("브라우저의 탭 닫기를 이용해 종료해 주세요."); }, 300);
             }
         }
 
@@ -118,42 +113,59 @@
             document.getElementById('adminTab').classList.toggle('active', !isUser);
             document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
+            if(!isUser) {
+                const savedId = localStorage.getItem('adminId');
+                document.getElementById('adminIdArea').style.display = savedId ? 'block' : 'none';
+                document.getElementById('pwLabel').innerText = savedId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
+            }
         }
 
-        // 🚨 사용자 로그인 (방어 로직 완전 무력화 후 즉시 이동)
+        // 🚨 사용자 로그인 (방어 로직과의 충돌을 완전히 피함)
         function userLogin() {
-            const id = document.getElementById('userId').value;
-            const pw = document.getElementById('userPw').value;
+            const inputId = document.getElementById('userId').value;
+            const inputPw = document.getElementById('userPw').value;
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const savedTeamPw = localStorage.getItem('teamPw') || "1234";
+            const user = totalUserList.find(u => String(u.id) === String(inputId));
             
-            if(!id || !pw) return alert("사번과 비밀번호를 입력하세요.");
-
-            const list = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const sPw = localStorage.getItem('teamPw') || "1234";
-            const user = list.find(u => String(u.id) === String(id));
-
             if (!user) return alert("명단에 없는 사번입니다.");
-            if (pw !== sPw) return alert("비밀번호가 틀렸습니다.");
+            if (inputPw !== savedTeamPw) return alert("비밀번호가 틀렸습니다.");
             
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
+
+            // ✅ 이동 프로세스 시작
+            isMoving = true;           // 1. 이동 모드 활성화 (감시 카메라 무시)
+            window.onpopstate = null;  // 2. 방어 함수 완전 제거
             
-            // 🚨 [필살기] 모든 뒤로가기 방어 로직을 끄고 기록을 덮어씌웁니다.
-            window.onpopstate = null; 
-            window.location.replace('user_main.html');
+            // 3. 0.1초 뒤에 이동 (브라우저가 히스토리 갱신 시간을 갖도록 함)
+            setTimeout(() => {
+                window.location.replace('user_main.html');
+            }, 100);
         }
 
         function adminLogin() {
-            const id = document.getElementById('adminId').value;
-            const pw = document.getElementById('adminPw').value;
-            const sId = localStorage.getItem('adminId');
-            const sPw = localStorage.getItem('adminPw');
+            const inputId = document.getElementById('adminId').value;
+            const inputPw = document.getElementById('adminPw').value;
+            const savedId = localStorage.getItem('adminId');
+            const savedPw = localStorage.getItem('adminPw');
             
-            if ( (sId && String(id) === String(sId) && pw === sPw) || (pw === "1234") ) {
-                window.onpopstate = null;
-                window.location.replace((pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html');
-                return;
+            isMoving = true;
+            window.onpopstate = null;
+
+            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
+                window.location.replace('admin_main.html'); 
+                return; 
             }
+            if (inputPw === "1234") { 
+                window.location.replace('admin_setup_auth.html'); 
+                return; 
+            }
+            
+            // 실패 시 복구
+            isMoving = false;
+            window.history.pushState(null, null, window.location.href);
             alert("정보가 틀렸습니다.");
         }
     </script>
