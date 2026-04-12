@@ -9,7 +9,7 @@
         html, body { height: 100%; margin: 0; padding: 0; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; align-items: center; }
 
-        /* 🚨 상단 헤더: 다른 페이지와 동일하게 패딩 12px 및 높이 조정 */
+        /* 🚨 헤더 스타일: 패딩 12px 유지 및 정렬 최적화 */
         .top-header { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -17,8 +17,15 @@
         }
         .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기 수정: 42px로 통일 */
-        .brand-logo { height: 42px; object-fit: contain; mix-blend-mode: multiply; }
+        /* 🚨 로고 크기: 42px로 강제 고정 및 중앙 정렬 밸런스 */
+        .brand-logo { 
+            height: 42px !important; 
+            width: auto !important;
+            object-fit: contain; 
+            mix-blend-mode: multiply; 
+        }
+        /* 로고를 정가운데로 밀어주기 위한 빈 박스 */
+        .nav-spacer { width: 75px; }
 
         .main-container { width: 92%; max-width: 500px; padding: 20px 0; }
         
@@ -49,9 +56,9 @@
 <body>
 
     <div class="top-header">
-        <button class="back-btn" onclick="location.href='admin_main.html'">이전으로</button>
+        <button class="back-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
-        <div style="width:75px;"></div>
+        <div class="nav-spacer"></div>
     </div>
 
     <div class="main-container">
@@ -173,8 +180,3 @@
                 </div>
                 `;
             });
-            listArea.innerHTML = html;
-        }
-    </script>
-</body>
-</html>
