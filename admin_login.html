@@ -3,57 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DTRO 관리자</title>
-    <script>
-        function checkStatus() {
-            if (!localStorage.getItem('adminCreated')) {
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('setupSection').style.display = 'block';
-            }
-        }
-    </script>
+    <title>DTRO 관리자 - 로그인</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background-color: var(--bg-gray); }
         body { font-family: 'Noto Sans KR', sans-serif; display: flex; flex-direction: column; }
-        .top-header-section { width: 100%; background-color: var(--bg-gray); padding: 12px 0 8px 0; display: flex; flex-direction: column; align-items: center; border-bottom: 2px solid var(--dtro-blue); flex-shrink: 0; }
-        .brand-logo { height: 22px; margin-bottom: 4px; mix-blend-mode: multiply; }
-        .main-title { font-size: 1.35rem; font-weight: bold; color: #222; margin: 0; }
+        
+        /* 🚨 상단 헤더: 로고 크기 42px 통일 및 블루 라인 강조 */
+        .top-header-section { 
+            width: 100%; background: white; padding: 15px 0; 
+            display: flex; flex-direction: column; align-items: center; 
+            border-bottom: 3px solid var(--dtro-blue); flex-shrink: 0; 
+        }
+        .brand-logo { height: 42px; margin-bottom: 6px; mix-blend-mode: multiply; object-fit: contain; }
+        .main-title { font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); margin: 0; }
+
         .main-container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; padding-bottom: 30px; }
+        
         .card { width: 88%; max-width: 380px; background: white; border-radius: 24px; padding: 40px 24px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; box-sizing: border-box; }
-        input { width: 100%; height: 55px; border: 1px solid #eee; border-radius: 14px; padding: 0 15px; margin-bottom: 18px; box-sizing: border-box; outline: none; background: #fafafa; font-size: 1.05rem; }
-        .btn-black { width: 100%; height: 58px; background: #333; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        
+        input { 
+            width: 100%; height: 55px; border: 1px solid #eee; border-radius: 14px; 
+            padding: 0 15px; margin-bottom: 18px; box-sizing: border-box; outline: none; 
+            background: #fafafa; font-size: 1.05rem; transition: 0.3s;
+        }
+        input:focus { border-color: var(--dtro-blue); background: #fff; }
+
+        .btn-black { 
+            width: 100%; height: 58px; background: #333; color: white; border: none; 
+            border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; 
+            transition: 0.2s;
+        }
+        .btn-black:active { background: #000; transform: scale(0.98); }
     </style>
 </head>
 <body onload="checkStatus()">
     <div class="top-header-section">
         <img src="logo.png" class="brand-logo" alt="DTRO">
-        <h1 class="main-title">관리자 전용</h1>
+        <h1 class="main-title">관리자 보안 시스템</h1>
     </div>
+
     <div class="main-container">
         <div id="loginSection" class="card">
-            <h2 style="font-size:1.15rem; margin-bottom:25px;">담당자 로그인</h2>
-            <input type="text" id="loginId" placeholder="관리자 ID (사번)">
-            <input type="password" id="loginPw" placeholder="비밀번호"> <button class="btn-black" onclick="handleLogin()">로그인하기</button>
-            <a href="index.html" style="display:block; margin-top:25px; color:#ccc; font-size:0.85rem; text-decoration:none;">홈으로</a>
+            <h2 style="font-size:1.15rem; margin-bottom:25px; color:#333;">담당자 로그인</h2>
+            <input type="text" id="loginId" placeholder="관리자 사번 입력" inputmode="numeric">
+            <input type="password" id="loginPw" placeholder="비밀번호 입력"> 
+            <button class="btn-black" onclick="handleLogin()">로그인하기</button>
+            <a href="index.html" style="display:block; margin-top:25px; color:#aaa; font-size:0.85rem; text-decoration:none;">← 홈으로 돌아가기</a>
         </div>
+
         <div id="setupSection" class="card" style="display:none;">
             <h2 style="font-size:1.1rem; margin-bottom:25px; color:var(--dtro-blue); line-height:1.5;">최초 설정을 위해<br>마스터 비번을 입력하세요</h2>
-            <input type="password" id="masterInput" placeholder="Master Password" style="text-align:center;"> <button class="btn-black" onclick="verifyMaster()">마스터 인증</button>
+            <input type="password" id="masterInput" placeholder="Master Password" style="text-align:center;"> 
+            <button class="btn-black" onclick="verifyMaster()">마스터 인증</button>
         </div>
     </div>
+
     <script>
-        function verifyMaster() {
-            if(document.getElementById('masterInput').value === '1234') { // 마스터 비번 1234
-                location.href = 'admin_first_reg.html';
-            } else { alert('마스터 비밀번호가 틀립니다.'); }
+        // 🚨 [보안] 뒤로가기 절대 차단 로직
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+            window.onpopstate = function() {
+                lockHistory();
+                // 뒤로가기 시 이탈 방지 경고 (선택 사항)
+                // alert("보안을 위해 현재 페이지에 머뭅니다.");
+            };
+            document.body.onclick = lockHistory;
+        })();
+
+        function checkStatus() {
+            // 관리자 계정이 생성되지 않았으면 마스터 인증창 표시
+            if (!localStorage.getItem('adminId')) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('setupSection').style.display = 'block';
+            }
         }
+
+        function verifyMaster() {
+            if(document.getElementById('masterInput').value === '1234') { 
+                // 인증 성공 시 기록을 남기지 않고 이동
+                location.replace('admin_setup_auth.html'); 
+            } else { 
+                alert('마스터 비밀번호가 틀립니다.'); 
+            }
+        }
+
         function handleLogin() {
             const id = document.getElementById('loginId').value;
             const pw = document.getElementById('loginPw').value;
-            if(id === localStorage.getItem('adminId') && pw === localStorage.getItem('adminPw')) {
-                location.href = 'admin_main.html';
-            } else { alert('ID 또는 비밀번호가 일치하지 않습니다.'); }
+            const savedId = localStorage.getItem('adminId');
+            const savedPw = localStorage.getItem('adminPw');
+
+            if(id === savedId && pw === savedPw) {
+                // 로그인 성공 시 기록을 남기지 않고 이동
+                location.replace('admin_main.html');
+            } else { 
+                alert('ID 또는 비밀번호가 일치하지 않습니다.'); 
+            }
         }
     </script>
 </body>
