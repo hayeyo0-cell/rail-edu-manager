@@ -14,7 +14,7 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 스플래시 화면 (클릭 유도) */
+        /* 스플래시 화면 */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
@@ -41,20 +41,17 @@
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .input-group { text-align: left; margin-bottom: 15px; }
-        .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* 하단 앱 종료 버튼 */
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
-<body onclick="activateDefense()">
+<body>
 
     <div id="splashScreen" onclick="transitionToLogin()">
         <img src="logo.png" class="splash-logo" alt="DTRO">
         <div class="splash-text">스마트 교육 플랫폼</div>
-        <div class="tap-msg" id="tapMsg">화면을 터치하여 시작하세요</div>
+        <div class="tap-msg">화면을 터치하여 시작하세요</div>
     </div>
 
     <div class="login-card" id="loginCard">
@@ -67,14 +64,14 @@
         </div>
 
         <div id="userForm">
-            <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력" inputmode="numeric"></div>
-            <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
+            <input type="number" id="userId" placeholder="사번 입력" inputmode="numeric" style="margin-bottom:10px;">
+            <input type="password" id="userPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
         </div>
 
         <div id="adminForm" style="display: none;">
-            <div id="adminIdArea" class="input-group" style="display:none;"><span class="input-label">관리자 사번</span><input type="number" id="adminId" placeholder="사번 입력" inputmode="numeric"></div>
-            <div class="input-group"><span id="pwLabel" class="input-label">마스터 인증(1234)</span><input type="password" id="adminPw" placeholder="비밀번호 입력"></div>
+            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric" id="adminIdArea" style="display:none; margin-bottom:10px;">
+            <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
 
@@ -82,25 +79,16 @@
     </div>
 
     <script>
-        let isDefenseActive = false;
-
-        // 히스토리 폭탄 함수
+        // 🚨 [필살기] 뒤로가기 시 무조건 index.html로 강제 소환
         function activateDefense() {
-            const currentPath = window.location.pathname;
-            for (let i = 0; i < 20; i++) {
-                window.history.pushState(null, null, currentPath + "#app" + Date.now() + i);
-            }
-            isDefenseActive = true;
+            window.history.pushState(null, null, window.location.href);
         }
 
-        // 스플래시 클릭 시 로그인 화면으로 전환
         function transitionToLogin() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
+            activateDefense(); // 터치하는 순간 방어막 생성
             
-            // 클릭과 동시에 방어막 활성화
-            activateDefense();
-
             splash.style.opacity = '0';
             setTimeout(() => {
                 splash.style.display = 'none';
@@ -109,7 +97,6 @@
             }, 500);
         }
 
-        // 페이지 로드 시 세션 체크
         window.onload = function() {
             if (sessionStorage.getItem('isSplashShown')) {
                 document.getElementById('splashScreen').style.display = 'none';
@@ -118,19 +105,16 @@
             }
         };
 
-        // 뒤로가기 시 가두기 + 알림
+        // 🚨 뒤로가기 클릭 시 강제 새로고침 (이탈 원천 봉쇄)
         window.onpopstate = function() {
-            activateDefense();
             alert("앱 종료는 하단의 '앱 종료' 버튼을 이용해 주세요.");
-            window.history.forward();
+            location.replace('index.html'); // 이전 페이지로 가는 대신 현재 페이지를 다시 그림
         };
 
         function exitApp() {
             if(confirm("앱을 종료하시겠습니까?")) {
                 window.close();
-                setTimeout(() => {
-                    alert("브라우저의 탭 닫기 버튼을 눌러 종료해 주세요.");
-                }, 300);
+                setTimeout(() => { alert("브라우저의 탭 닫기 버튼을 눌러 종료해 주세요."); }, 300);
             }
         }
 
@@ -140,11 +124,6 @@
             document.getElementById('adminTab').classList.toggle('active', !isUser);
             document.getElementById('userForm').style.display = isUser ? 'block' : 'none';
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
-            if(!isUser) {
-                const sId = localStorage.getItem('adminId');
-                document.getElementById('adminIdArea').style.display = sId ? 'block' : 'none';
-                document.getElementById('pwLabel').innerText = sId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
-            }
         }
 
         function userLogin() {
