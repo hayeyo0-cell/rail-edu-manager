@@ -8,16 +8,20 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 로고 공간 확보를 위해 패딩 12px로 수정 */
-        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
+        /* 🚨 헤더: 패딩 12px 및 로고 42px 고정 */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee; 
+            position: sticky; top: 0; z-index: 100;
+        }
         
         .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 🚨 로고 크기 28px -> 42px로 상향 */
         .brand-logo { height: 42px; object-fit: contain; }
         
         .container { width: 92%; max-width: 400px; padding: 20px 0; }
-        .edu-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .edu-card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); text-align: left; }
         .edu-title { font-weight: bold; font-size: 1.1rem; color: #333; margin-bottom: 8px; display: block; }
         .edu-date { font-size: 0.8rem; color: #999; margin-bottom: 12px; display: block; }
         .btn-group { display: flex; gap: 10px; justify-content: flex-end; }
@@ -26,33 +30,70 @@
 </head>
 <body>
     <div class="top-nav">
-        <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
+        <button class="nav-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO Logo">
         <div style="width:75px;"></div>
     </div>
-    <div class="container" id="listArea">
-        </div>
+
+    <div class="container" id="listArea"></div>
+
     <script>
+        // 🚨 [보안] 뒤로가기 절대 차단 및 관리자 메인 리다이렉트
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+
+            window.onpopstate = function() {
+                lockHistory();
+                // 로그인 화면 탈출 방지 -> 관리자 메인으로 강제 이동
+                window.location.replace('admin_main.html');
+            };
+
+            document.body.onclick = function() { lockHistory(); };
+        })();
+
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
+
         window.onload = function() {
             renderEduList();
         };
+
         function renderEduList() {
             const listArea = document.getElementById('listArea');
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            // 내 소속 교육만 필터링
             const myEduList = totalEduList.filter(edu => edu.dept === myDept);
-            if (myEduList.length === 0) { listArea.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">등록된 교육 내역이 없습니다.</p>'; return; }
+
+            if (myEduList.length === 0) { 
+                listArea.innerHTML = '<p style="text-align:center; color:#ccc; margin-top:50px;">등록된 교육 내역이 없습니다.</p>'; 
+                return; 
+            }
+
             let html = '';
-            myEduList.forEach(edu => {
-                html += `<div class="edu-card"><span class="edu-title">${edu.title}</span><span class="edu-date">등록일: ${edu.date}</span><div class="btn-group"><button class="del-btn" onclick="deleteEdu('${edu.id}')">삭제하기</button></div></div>`;
+            myEduList.reverse().forEach(edu => {
+                html += `
+                    <div class="edu-card">
+                        <span class="edu-title">${edu.title}</span>
+                        <span class="edu-date">등록일: ${edu.date}</span>
+                        <div class="btn-group">
+                            <button class="del-btn" onclick="deleteEdu('${edu.id}')">삭제하기</button>
+                        </div>
+                    </div>`;
             });
             listArea.innerHTML = html;
         }
+
         function deleteEdu(id) {
-            if(!confirm("삭제하시겠습니까?")) return;
+            if(!confirm("삭제하시겠습니까? 관련 이수 기록은 유지되지만 목록에선 사라집니다.")) return;
+            
             let totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             totalEduList = totalEduList.filter(edu => String(edu.id) !== String(id));
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
+            
             renderEduList();
         }
     </script>
