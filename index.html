@@ -8,7 +8,10 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
-        .logo-area img { width: 170px; margin-bottom: 20px; }
+        
+        /* 🚨 로고 크기 최적화 */
+        .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        
         .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
@@ -38,7 +41,16 @@
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
     </div>
+
     <script>
+        // 🚨 [보안 강화] 뒤로가기 방지 로직
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+            // 선택 사항: 뒤로가기 시 알림을 띄우고 싶다면 아래 주석 해제
+            // alert("보안을 위해 로그인을 완료해 주세요.");
+        };
+
         function switchTab(mode) {
             const isUser = (mode === 'user');
             document.getElementById('userTab').classList.toggle('active', isUser);
@@ -47,31 +59,45 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
             if(!isUser) checkAdminStatus();
         }
+
         function checkAdminStatus() {
             const savedId = localStorage.getItem('adminId');
             document.getElementById('adminIdArea').style.display = savedId ? 'block' : 'none';
             document.getElementById('pwLabel').innerText = savedId ? "관리자 비밀번호" : "마스터 비밀번호(1234) 인증";
         }
+
         function userLogin() {
             const inputId = document.getElementById('userId').value;
             const inputPw = document.getElementById('userPw').value;
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             const savedTeamPw = localStorage.getItem('teamPw') || "1234";
             const user = totalUserList.find(u => String(u.id) === String(inputId));
+            
             if (!user) return alert("명단에 없는 사번입니다.");
             if (inputPw !== savedTeamPw) return alert("비밀번호가 틀렸습니다.");
+            
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
-            location.href = 'user_main.html';
+            
+            // 로그인 시 히스토리를 대체하여 로그인 전으로 못 돌아가게 함
+            location.replace('user_main.html');
         }
+
         function adminLogin() {
             const inputId = document.getElementById('adminId').value;
             const inputPw = document.getElementById('adminPw').value;
             const savedId = localStorage.getItem('adminId');
             const savedPw = localStorage.getItem('adminPw');
-            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { location.href = 'admin_main.html'; return; }
-            if (inputPw === "1234") { location.href = 'admin_setup_auth.html'; return; }
+            
+            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
+                location.replace('admin_main.html'); 
+                return; 
+            }
+            if (inputPw === "1234") { 
+                location.replace('admin_setup_auth.html'); 
+                return; 
+            }
             alert("정보가 틀렸습니다.");
         }
     </script>
