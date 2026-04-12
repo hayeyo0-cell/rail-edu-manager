@@ -8,21 +8,20 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 헤더: 로고 강조 및 [← 메인으로] 버튼 고정 */
+        /* 🚨 상단바: 패딩 및 로고 42px 고정 */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
-            box-sizing: border-box; border-bottom: 1px solid #eee;
+            box-sizing: border-box; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
         }
         .nav-btn { 
             background: white; border: 1px solid #eaeaea; border-radius: 8px; 
             padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
         }
-        .brand-logo { height: 26px; object-fit: contain; }
+        .brand-logo { height: 42px; object-fit: contain; }
 
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
 
-        /* 카드 디자인: 기관사님 원본 스타일 */
         .status-card { 
             background: white; border-radius: 30px; padding: 25px 20px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; margin-bottom: 20px;
@@ -33,7 +32,6 @@
             margin-bottom: 20px; display: block; text-align: left;
         }
 
-        /* 이수율 요약 정보 */
         .summary-box {
             background: #f0f7ff; border-radius: 20px; padding: 20px;
             text-align: center; margin-bottom: 25px;
@@ -41,7 +39,6 @@
         .summary-percent { font-size: 2.2rem; font-weight: bold; color: var(--dtro-blue); }
         .summary-label { font-size: 0.9rem; color: #666; margin-top: 5px; }
 
-        /* 팀원 리스트 스타일 */
         .member-item {
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 5px; border-bottom: 1px solid #f2f2f2;
@@ -53,14 +50,14 @@
         .status-badge {
             padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;
         }
-        .done { background: #eef9f1; color: #2ecc71; } /* 이수 완료 */
-        .yet { background: #fff5f5; color: #ff4d4d; }  /* 미이수 */
+        .done { background: #eef9f1; color: #2ecc71; }
+        .yet { background: #fff5f5; color: #ff4d4d; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
+        <button class="nav-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -74,12 +71,26 @@
                 <div class="summary-label">현재 우리 팀 전체 이수율</div>
             </div>
 
-            <div id="listArea">
-                </div>
+            <div id="listArea"></div>
         </div>
     </div>
 
     <script>
+        // 🚨 [보안] 뒤로가기 절대 차단 로직
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+            window.onpopstate = function() {
+                lockHistory();
+                window.location.replace('admin_main.html');
+            };
+            document.body.onclick = lockHistory;
+        })();
+
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
 
         window.onload = function() {
@@ -90,12 +101,11 @@
             const listArea = document.getElementById('listArea');
             const percentText = document.getElementById('percentText');
 
-            // 1. 데이터 불러오기
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             const myTeamMembers = totalUserList.filter(u => u.dept === myDept);
             
-            // 2. 사인 완료 데이터 (나중에 사용자 페이지 완성 시 기록됨)
-            const signData = JSON.parse(localStorage.getItem('signData')) || [];
+            // 이수 완료 데이터 (사용자 페이지의 signData 또는 completedEduList 참조)
+            const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
 
             if (myTeamMembers.length === 0) {
                 listArea.innerHTML = '<p style="text-align:center; color:#ccc; padding:30px;">등록된 팀원이 없습니다.</p>';
@@ -106,8 +116,8 @@
             let html = '';
 
             myTeamMembers.forEach(member => {
-                // 이 팀원이 사인을 했는지 확인 (사번 기준)
-                const isDone = signData.some(s => String(s.userId) === String(member.id));
+                // 이 팀원이 최소 하나 이상의 교육을 이수했는지 확인 (사번 기준)
+                const isDone = completedEduList.some(s => String(s.userId) === String(member.id));
                 if (isDone) doneCount++;
 
                 html += `
@@ -123,8 +133,7 @@
                 `;
             });
 
-            // 이수율 계산 및 표시
-            const percent = Math.round((doneCount / myTeamMembers.length) * 100);
+            const percent = myTeamMembers.length > 0 ? Math.round((doneCount / myTeamMembers.length) * 100) : 0;
             percentText.innerText = percent + "%";
             listArea.innerHTML = html;
         }
