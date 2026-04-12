@@ -27,15 +27,12 @@
 
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
-        
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
         .input-group { text-align: left; margin-bottom: 15px; }
         .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
-        
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
@@ -74,7 +71,7 @@
     <script>
         let isMoving = false;
 
-        // 🚨 뒤로가기 방어막 주입 함수
+        // 🚨 히스토리 강제 주입 (뒤로가기 방어용)
         function pushState() {
             window.history.pushState(null, null, window.location.href);
         }
@@ -96,26 +93,22 @@
                     }, 500);
                 }, 1500);
             }
-
-            // 🚨 앱 실행 즉시 뒤로가기 못하게 가둠
             pushState();
         };
 
-        // 🚨 뒤로가기 시도시 자석처럼 다시 현재 페이지로 주입
+        // 🚨 [강화] 뒤로가기 시 현재 페이지를 덮어씌워 좀비 페이지 진입 차단
         window.onpopstate = function() {
             if (isMoving) return; 
             pushState();
-            alert("앱을 종료하려면 하단의 '시스템 종료' 버튼을 이용해 주세요.");
+            // location.replace를 한 번 더 실행하여 기록을 뭉개버림
+            window.location.replace(window.location.href);
+            alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
         };
 
-        // 🚨 시스템 종료 (강제 종료 트리거)
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
-                // 대부분의 모바일 브라우저에서 탭을 닫는 가장 확실한 방법
                 window.open('about:blank', '_self').close();
-                setTimeout(() => {
-                    alert("브라우저의 탭 닫기(X) 버튼을 눌러 종료해 주세요.");
-                }, 300);
+                setTimeout(() => { alert("브라우저의 탭 닫기(X)를 이용해 주세요."); }, 300);
             }
         }
 
@@ -149,9 +142,8 @@
             isMoving = true;           
             window.onpopstate = null;  
             
-            setTimeout(() => {
-                window.location.replace('user_main.html');
-            }, 100);
+            // 🚨 기록을 남기지 않고 이동
+            setTimeout(() => { window.location.replace('user_main.html'); }, 100);
         }
 
         function adminLogin() {
@@ -163,12 +155,10 @@
             isMoving = true;
             window.onpopstate = null;
 
-            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
-                window.location.replace('admin_main.html'); 
-                return; 
-            }
-            if (inputPw === "1234") { 
-                window.location.replace('admin_setup_auth.html'); 
+            if ( (savedId && String(inputId) === String(savedId) && inputPw === savedPw) || inputPw === "1234" ) { 
+                const target = (inputPw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
+                // 🚨 기록을 남기지 않고 이동
+                window.location.replace(target); 
                 return; 
             }
             
