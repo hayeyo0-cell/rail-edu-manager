@@ -8,7 +8,7 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🚨 상단 헤더: 패딩 및 로고 크기 수정 (42px) */
+        /* 🚨 상단 헤더: 패딩 및 로고 크기 42px 고정 */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -18,13 +18,10 @@
             background: white; border: 1px solid #eaeaea; border-radius: 8px; 
             padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold;
         }
-        
-        /* 🚨 로고 크기 26px -> 42px로 상향 */
         .brand-logo { height: 42px; object-fit: contain; }
 
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
 
-        /* 등록 카드 디자인 */
         .edu-card { 
             background: white; border-radius: 30px; padding: 30px 20px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; 
@@ -41,7 +38,6 @@
         }
         input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
 
-        /* 파일 첨부 영역: 저장소 연결 */
         .file-section { margin-top: 15px; text-align: left; }
         .file-input-box { 
             width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; 
@@ -58,7 +54,7 @@
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="location.href='admin_main.html'">← 메인으로</button>
+        <button class="nav-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -100,6 +96,27 @@
     </div>
 
     <script>
+        // 🚨 [보안] 뒤로가기 절대 차단 및 리다이렉트 로직
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+
+            window.onpopstate = function() {
+                // 뒤로가기 시 확인 창을 띄워 작성 중인 내용 보호
+                if(confirm("작성 중인 교육 내용이 저장되지 않을 수 있습니다. 관리자 메인으로 돌아갈까요?")) {
+                    window.location.replace('admin_main.html');
+                } else {
+                    lockHistory();
+                }
+            };
+
+            document.body.onclick = function() { lockHistory(); };
+        })();
+
         // 소속 정보 불러오기
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
         document.getElementById('currentDept').innerText = myDept;
@@ -147,7 +164,8 @@
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
 
             alert("교육이 성공적으로 등록되었습니다!");
-            location.href = 'admin_main.html';
+            // 🚨 저장 후 이동 시에도 replace를 사용하여 히스토리 삭제
+            window.location.replace('admin_main.html');
         }
     </script>
 </body>
