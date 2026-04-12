@@ -9,7 +9,7 @@
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
         .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; }
         
-        /* 🚨 로고 크기 최적화 */
+        /* 로고 크기 최적화 */
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         
         .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
@@ -43,12 +43,15 @@
     </div>
 
     <script>
-        // 🚨 [보안 강화] 뒤로가기 방지 로직
+        // 🚨 [보안] 뒤로가기 절대 방지 로직
+        // 페이지 로드 시 히스토리에 현재 페이지를 강제로 한 번 더 쌓습니다.
         window.history.pushState(null, null, window.location.href);
+
         window.onpopstate = function() {
+            // 사용자가 뒤로가기를 시도하면 다시 현재 페이지를 쌓아 '제자리걸음' 시킵니다.
             window.history.pushState(null, null, window.location.href);
-            // 선택 사항: 뒤로가기 시 알림을 띄우고 싶다면 아래 주석 해제
-            // alert("보안을 위해 로그인을 완료해 주세요.");
+            // 강제로 새로고침 효과를 주어 이전 데이터가 보이는 것을 방지합니다.
+            location.replace(window.location.href);
         };
 
         function switchTab(mode) {
@@ -80,7 +83,7 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 로그인 시 히스토리를 대체하여 로그인 전으로 못 돌아가게 함
+            // 🚨 [보안] 로그인이 완료되면 뒤로가기로 로그인창에 못 오게 현재 히스토리를 덮어씁니다.
             location.replace('user_main.html');
         }
 
