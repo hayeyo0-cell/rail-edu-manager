@@ -79,11 +79,12 @@
     </div>
 
     <script>
-        // 🚨 [진짜 최종] 연속 뒤로가기 절대 방어 (히스토리 폭탄)
+        // 🚨 [필살기] 가짜 주소를 무한 생성하여 브라우저의 탈출 지능을 마비시킵니다.
         function preventBack() {
-            // 한 번 클릭에 10개의 가짜 기록을 쌓아 광클해도 이탈하지 못하게 합니다.
-            for(let i=0; i<10; i++) {
-                window.history.pushState(null, null, window.location.href);
+            const currentPath = window.location.pathname;
+            // 주소 뒤에 고유 번호(#+시간값)를 붙인 기록을 15개 쌓습니다.
+            for (let i = 0; i < 15; i++) {
+                window.history.pushState(null, null, currentPath + "#" + Date.now() + i);
             }
         }
 
@@ -114,16 +115,17 @@
             transitionToLogin();
             setTimeout(transitionToLogin, 3000); 
 
-            // 진입 즉시 폭탄 투하
+            // 진입 시 가짜 주소 폭탄 투하
             preventBack();
         });
 
-        // 뒤로가기 감지 시 다시 10개 리필 (새로고침 없이 조용히)
+        // 뒤로가기 클릭 시 다시 가짜 주소 리필 + 강제 전진
         window.onpopstate = function() {
             preventBack();
+            window.history.forward();
         };
 
-        // 화면 어디든 터치하면 기록을 계속 보충 (방어막 강화)
+        // 화면 터치 시 방어막 상시 재생성
         document.body.onclick = function() {
             preventBack();
         };
