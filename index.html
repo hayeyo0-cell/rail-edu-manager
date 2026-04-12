@@ -65,7 +65,7 @@
         </div>
 
         <div id="adminForm" style="display: none;">
-            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric" id="adminIdInput">
+            <input type="number" id="adminId" placeholder="관리자 사번" inputmode="numeric">
             <input type="password" id="adminPw" placeholder="비밀번호 입력">
             <button class="login-btn" onclick="adminLogin()">관리자 인증</button>
         </div>
@@ -76,7 +76,7 @@
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
 
-            // 🚨 핵심: 스플래시 한 번만 보기 로직
+            // 1. 스플래시 제어 (세션당 1회)
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -91,8 +91,16 @@
                 }, 1500);
             }
             
-            // 뒤로가기 시 자연스러운 이탈을 위해 히스토리 정리
+            // 🚨 [핵심] 히스토리 강제 초기화
+            // 현재 페이지를 히스토리의 '시작점'으로 덮어씌워 이전 페이지로의 이동을 차단합니다.
+            window.history.pushState(null, null, window.location.href);
             window.history.replaceState(null, null, window.location.pathname);
+        };
+
+        // 뒤로가기 이벤트 감지 (차단용)
+        window.onpopstate = function() {
+            // 갈 곳이 없으므로 현재 페이지를 유지하거나 앱 종료 유도
+            window.history.pushState(null, null, window.location.href);
         };
 
         function switchTab(mode) {
@@ -115,6 +123,8 @@
             localStorage.setItem('currentUserDept', user.dept);
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
+            
+            // 로그인 시 히스토리에 흔적을 남기지 않고 이동
             location.href = 'user_main.html';
         }
 
