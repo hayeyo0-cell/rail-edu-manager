@@ -11,7 +11,6 @@
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         
-        /* 로고 크기 42px 유지 */
         .brand-logo { height: 42px; object-fit: contain; }
 
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
@@ -31,7 +30,7 @@
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="location.href='user_main.html'">← 메인으로</button>
+        <button class="nav-btn" onclick="location.replace('user_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -42,24 +41,42 @@
     </div>
 
     <script>
+        // 🚨 [보안] 하위 페이지 뒤로가기 방지 로직
+        function preventBack() {
+            window.history.pushState(null, null, window.location.href);
+        }
+
         window.onload = function() {
-            // 🚨 [수정 포인트] 사용자 메인과 동일한 'currentUserId' 키를 사용합니다.
+            // 1. 방어막 즉시 생성
+            preventBack();
+
             const myId = localStorage.getItem('currentUserId');
-            
             if(!myId) { 
                 alert("로그인 정보가 없습니다.");
-                location.href = 'index.html'; 
+                location.replace('index.html'); 
                 return; 
             }
             
+            renderArchive();
+        };
+
+        // 2. 뒤로가기 감지 시 메인으로 강제 이동
+        window.onpopstate = function() {
+            preventBack();
+            location.replace('user_main.html');
+        };
+
+        // 3. 화면 클릭 시 방어막 리필
+        document.body.onclick = function() {
+            preventBack();
+        };
+
+        function renderArchive() {
+            const myId = localStorage.getItem('currentUserId');
             const archiveListDiv = document.getElementById('archiveList');
-            
-            // 데이터 불러오기
             const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             
-            // 🚨 [핵심 수정] 상세페이지(서명 로직)에서 저장할 때 썼던 userId와 매칭 확인
-            // userId가 숫자형일지 문자열일지 모르니 String으로 감싸서 비교합니다.
             const myCompleted = completedList.filter(c => String(c.userId) === String(myId));
 
             if (myCompleted.length === 0) {
@@ -68,12 +85,8 @@
             }
 
             let html = '';
-            // 최신순 정렬
             myCompleted.reverse().forEach(item => {
-                // 교육 ID로 원본 교육 정보를 찾습니다.
                 const edu = totalEduList.find(e => String(e.id) === String(item.eduId));
-                
-                // 만약 교육 정보가 삭제되었더라도 이수 기록은 보여주기 위해 예외 처리
                 const title = edu ? edu.title : "삭제된 교육 과정";
                 const info = edu ? `${edu.dept} | ${edu.type}` : "상세 정보 없음";
 
