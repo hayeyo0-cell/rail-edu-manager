@@ -18,24 +18,26 @@
 
         .container { width: 92%; max-width: 450px; padding: 20px 0; }
         
-        /* 🚨 [수정] 명단 추가 영역: 한 줄에 다 안 넣고 여유 있게 배치 */
-        .input-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; }
-        .input-title { text-align: left; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; font-size: 1.1rem; }
+        /* 🚨 [수정] 입력 영역: 모든 요소를 위아래(column)로 배치 */
+        .input-card { background: white; border-radius: 20px; padding: 25px 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; }
+        .input-title { text-align: left; font-weight: bold; color: var(--dtro-blue); margin-bottom: 18px; font-size: 1.1rem; display: flex; align-items: center; gap: 5px; }
         
-        .input-row { display: flex; flex-direction: column; gap: 10px; } /* 위아래로 배치 */
-        .input-inner-group { display: flex; gap: 8px; } /* 이름과 사번은 한 줄 */
+        .input-row { display: flex; flex-direction: column; gap: 12px; } /* 요소 간 간격 12px */
         
         input { 
-            flex: 1; padding: 14px; border: 1px solid #eee; border-radius: 12px; 
-            font-size: 1rem; outline: none; background: #fafafa; box-sizing: border-box; width: 100%;
+            width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 12px; 
+            font-size: 1rem; outline: none; background: #fafafa; box-sizing: border-box;
+            transition: 0.3s;
         }
-        input:focus { border-color: var(--dtro-blue); background: #fff; }
+        input:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.1); }
         
         .add-btn { 
-            width: 100%; padding: 15px; background: var(--dtro-blue); color: white; 
+            width: 100%; padding: 16px; background: var(--dtro-blue); color: white; 
             border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; 
             cursor: pointer; margin-top: 5px; box-shadow: 0 4px 10px rgba(0,114,188,0.2);
+            transition: 0.2s;
         }
+        .add-btn:active { transform: scale(0.98); opacity: 0.9; }
 
         .list-card { background: white; border-radius: 20px; padding: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; }
         .list-header { padding: 15px 15px 5px 15px; text-align: left; font-weight: bold; color: #666; font-size: 0.95rem; }
@@ -58,10 +60,8 @@
         <div class="input-card">
             <div class="input-title">👤 신규 팀원 등록</div>
             <div class="input-row">
-                <div class="input-inner-group">
-                    <input type="text" id="newName" placeholder="성함">
-                    <input type="number" id="newId" placeholder="사번 (8자리)" inputmode="numeric">
-                </div>
+                <input type="text" id="newName" placeholder="성함을 입력하세요">
+                <input type="number" id="newId" placeholder="사번 8자리를 입력하세요" inputmode="numeric">
                 <button class="add-btn" onclick="addUser()">등록하기</button>
             </div>
         </div>
@@ -75,10 +75,11 @@
     </div>
 
     <script>
+        // [보안] 뒤로가기 차단
         (function() {
             function lockHistory() { for(let i=0; i<10; i++) window.history.pushState(null, null, window.location.href); }
             lockHistory();
-            window.onpopstate = function() { lockHistory(); window.location.replace('admin_main.html'); };
+            window.onpopstate = function() { window.location.replace('admin_main.html'); };
             document.body.onclick = lockHistory;
         })();
 
