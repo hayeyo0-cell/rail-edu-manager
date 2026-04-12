@@ -8,11 +8,10 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 헤더 디자인: 로고 42px 및 중앙 정렬 유지 */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: center; align-items: center; 
-            box-sizing: border-box; border-bottom: 1px solid #eee; position: relative; 
+            box-sizing: border-bottom: 1px solid #eee; position: relative; 
         }
         .logout-btn { 
             position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; 
@@ -24,7 +23,6 @@
 
         .section-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 5px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
 
-        /* 필터 버튼 디자인 */
         .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
         .filter-btn { 
             padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; 
@@ -33,16 +31,18 @@
         }
         .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
 
-        /* 교육 카드 */
         .edu-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .badge { padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: #f3e5f5; color: #7b1fa2; }
+        
+        /* 🚨 추가: D-Day 배지 스타일 */
+        .dday-badge { padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; background: #fff0f0; color: #ff4d4d; border: 1px solid #ffcccc; }
+        
         .date-label { font-size: 0.85rem; color: #999; }
         .edu-title { font-weight: bold; font-size: 1.25rem; color: #333; margin-bottom: 10px; display: block; line-height: 1.4; }
         .deadline-text { font-size: 1rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; display: block; }
         .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; cursor: pointer; }
 
-        /* 학습 보관함 카드 */
         .archive-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); display: flex; align-items: center; cursor: pointer; text-align: left; margin-top: 10px; }
         .archive-icon { width: 75px; height: 75px; margin-right: 15px; object-fit: contain; }
         .archive-info h4 { margin: 0 0 8px 0; font-size: 1.25rem; color: #333; font-weight: bold; }
@@ -64,7 +64,6 @@
         <div id="userEduListArea"></div>
 
         <div class="section-title">학습 보관함</div>
-        
         <div class="archive-card" onclick="location.href='user_archive.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3532/3532053.png" class="archive-icon" alt="Archive">
             <div class="archive-info">
@@ -75,10 +74,7 @@
     </div>
 
     <script>
-        // 🚨 [보안] 사용자 메인 뒤로가기 절대 방지
-        function preventBack() {
-            window.history.pushState(null, null, window.location.href);
-        }
+        function preventBack() { window.history.pushState(null, null, window.location.href); }
 
         let currentFilter = '전체';
         const userDept = localStorage.getItem('currentUserDept') || "";
@@ -86,24 +82,50 @@
 
         window.onload = function() {
             if(!userId) { location.href = 'index.html'; return; }
-            
-            // 히스토리 방어막 생성
             preventBack();
-            
             renderFilters();
             loadEduData();
+            
+            // 🚨 [핵심] 접속 시 마감 임박 알림 체크
+            checkDeadlineAlert();
         };
 
-        // 뒤로가기 감지 시 현재 주소로 강제 고정
         window.onpopstate = function() {
             preventBack();
             location.replace(window.location.href);
         };
 
-        // 화면 클릭 시 방어막 리필
-        document.body.onclick = function() {
-            preventBack();
-        };
+        document.body.onclick = function() { preventBack(); };
+
+        // 🚨 [로직] 마감 기한 계산 및 알림창 띄우기
+        function checkDeadlineAlert() {
+            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const today = new Date().setHours(0, 0, 0, 0);
+            
+            let urgentList = [];
+
+            allEduList.forEach(edu => {
+                // 내 소속 교육인지 + 아직 이수 전인지 확인
+                const isMyEdu = edu.dept === userDept;
+                const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
+                
+                if (isMyEdu && !isDone && edu.deadline) {
+                    const targetDate = new Date(edu.deadline).setHours(0, 0, 0, 0);
+                    const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+
+                    // 🚨 마감이 3일 이내로 남았거나 이미 지난 경우
+                    if (diffDays <= 3) {
+                        const status = diffDays < 0 ? "기한 만료" : (diffDays === 0 ? "오늘 마감" : `D-${diffDays}`);
+                        urgentList.push(`• ${edu.title} (${status})`);
+                    }
+                }
+            });
+
+            if (urgentList.length > 0) {
+                alert(`⚠️ 마감 임박 교육 알림\n\n현재 미이수 상태인 교육이 ${urgentList.length}건 있습니다.\n\n${urgentList.join('\n')}\n\n서둘러 이수해 주시기 바랍니다!`);
+            }
+        }
 
         function renderFilters() {
             const filterDiv = document.getElementById('categoryFilters');
@@ -123,11 +145,12 @@
             const listArea = document.getElementById('userEduListArea');
             const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const today = new Date().setHours(0, 0, 0, 0);
             
             let filtered = allEduList.filter(edu => {
                 const isMyDept = edu.dept === userDept;
                 const isNotDone = !completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
-                const isCategoryMatch = (currentFilter === '전체' || edu.type === currentFilter);
+                const isCategoryMatch = (currentFilter === '전체' || edu.type === currentFilter || edu.category === currentFilter);
                 return isMyDept && isNotDone && isCategoryMatch;
             });
 
@@ -136,16 +159,30 @@
                 return;
             }
 
-            listArea.innerHTML = filtered.map(edu => `
+            listArea.innerHTML = filtered.map(edu => {
+                // 🚨 D-Day 배지 생성 로직
+                let ddayBadge = "";
+                if(edu.deadline) {
+                    const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
+                    const diff = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+                    const statusText = diff < 0 ? "기한만료" : (diff === 0 ? "D-Day" : `D-${diff}`);
+                    ddayBadge = `<span class="dday-badge">${statusText}</span>`;
+                }
+
+                return `
                 <div class="edu-card">
                     <div class="card-header">
-                        <span class="badge">${edu.type || '교육'}</span>
+                        <div>
+                            <span class="badge">${edu.type || edu.category || '교육'}</span>
+                            ${ddayBadge}
+                        </div>
                         <span class="date-label">게시일: ${edu.date}</span>
                     </div>
                     <span class="edu-title">${edu.title}</span>
-                    <span class="deadline-text">⏳ 마감 기한: ${edu.deadline || '없음'} 까지</span>
+                    <span class="deadline-text">⏳ 마감 기한: ${edu.deadline || '상시'} 까지</span>
                     <button class="btn-start" onclick="location.href='user_edu_detail.html?id=${edu.id}'">교육 입장하기 →</button>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
     </script>
 </body>
