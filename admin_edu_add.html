@@ -33,7 +33,7 @@
     <div class="container">
         <div class="edu-card">
             <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
-            <div class="dept-info-box">📍 현재 관리 소속: <strong id="currentDept">경산승무팀</strong></div>
+            <div class="dept-info-box">📍 소속: <strong id="currentDept">경산승무팀</strong></div>
 
             <label class="input-label">교육 분류</label>
             <select id="eduType">
@@ -64,18 +64,25 @@
     </div>
 
     <script>
-        // 🚨 [필승 로직] 뒤로가기를 감지하는 즉시 메인 페이지로 날려버림
-        window.history.pushState(null, null, window.location.href);
-        window.onpopstate = function () {
-            window.history.pushState(null, null, window.location.href);
-            if(confirm("작성 중인 내용이 저장되지 않습니다. 관리자 메인으로 돌아갈까요?")) {
-                window.location.replace('admin_main.html');
-            }
-        };
+        // 🚨 [필승 전략] 브라우저 히스토리를 현재 페이지로 계속 덮어쓰기
+        (function() {
+            // 페이지 로드 시 현재 상태를 히스토리에 강제로 박음
+            history.pushState(null, null, location.href);
+
+            window.onpopstate = function() {
+                // 사용자가 뒤로가기를 누르는 순간! 다시 현재 페이지를 히스토리에 박음 (무한 루프)
+                history.pushState(null, null, location.href);
+                
+                // 그 다음 사용자에게 물어봄
+                if(confirm("작성 중인 내용이 저장되지 않습니다.\n관리자 메인으로 돌아갈까요?")) {
+                    location.replace('admin_main.html');
+                }
+            };
+        })();
 
         function goBackMain() {
             if(confirm("작성 중인 내용이 저장되지 않습니다. 메인으로 갈까요?")) {
-                window.location.replace('admin_main.html');
+                location.replace('admin_main.html');
             }
         }
 
@@ -95,26 +102,23 @@
         function saveEdu() {
             const title = document.getElementById('eduTitle').value;
             const content = document.getElementById('eduContent').value;
-            const type = document.getElementById('eduType').value;
-            const deadline = document.getElementById('eduDeadline').value;
-
-            if(!title || !content) { alert("제목과 내용을 모두 입력해 주세요!"); return; }
+            if(!title || !content) { alert("내용을 모두 입력해 주세요!"); return; }
 
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             totalEduList.push({
                 id: Date.now(),
                 dept: myDept,
-                category: type,
+                category: document.getElementById('eduType').value,
                 title: title,
                 content: content,
-                deadline: deadline,
+                deadline: document.getElementById('eduDeadline').value,
                 fileData: selectedFileData,
                 date: new Date().toLocaleDateString()
             });
             localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
 
             alert("성공적으로 등록되었습니다!");
-            window.location.replace('admin_main.html');
+            location.replace('admin_main.html');
         }
     </script>
 </body>
