@@ -8,20 +8,26 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
         
-        /* 🚨 스플래시 로고 화면 스타일 */
+        /* 🚨 스플래시 화면 (기본적으로 보임) */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.5s ease-out, visibility 0.5s;
+            transition: opacity 0.5s ease;
         }
-        .splash-logo { width: 200px; height: auto; margin-bottom: 20px; object-fit: contain; }
+        .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
 
-        /* 로그인 카드 디자인 유지 */
-        .login-card { width: 90%; max-width: 400px; background: white; padding: 45px 25px; border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); text-align: center; opacity: 0; transition: opacity 0.5s ease-in; }
-        .login-card.show { opacity: 1; }
+        /* 로그인 카드 (기본적으로 숨김) */
+        .login-card { 
+            width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
+            border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
+            text-align: center; display: none; /* 스크립트에서 show 처리 */
+        }
+        .login-card.show { display: block; animation: fadeIn 0.5s; }
         
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
@@ -31,8 +37,6 @@
         .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* 앱 종료 버튼 (세련되게 하단 배치) */
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
@@ -68,25 +72,35 @@
     </div>
 
     <script>
-        // 🚨 스플래시 로직: 뒤로가기 시 반복 방지 (sessionStorage 활용)
+        // 🚨 스플래시 및 히스토리 최종 제어
         window.onload = function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
-            const isSplashShown = sessionStorage.getItem('isSplashShown');
-
-            if (isSplashShown) {
-                // 이미 봤다면 바로 노출
-                splash.style.display = 'none'; 
+            
+            // 1. 세션 체크 (새로고침 시 스플래시 스킵)
+            if (sessionStorage.getItem('isSplashShown')) {
+                splash.style.display = 'none';
                 card.classList.add('show');
             } else {
-                // 처음이면 1.5초 보여줌
+                // 2. 1.5초 후 화면 전환
                 setTimeout(() => {
                     splash.style.opacity = '0';
-                    splash.style.visibility = 'hidden';
-                    card.classList.add('show');
-                    sessionStorage.setItem('isSplashShown', 'true');
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                        card.classList.add('show');
+                        sessionStorage.setItem('isSplashShown', 'true');
+                    }, 500); // 페이드아웃 애니메이션 시간
                 }, 1500);
             }
+
+            // 3. 뒤로가기 방지용 히스토리 주입
+            window.history.pushState(null, null, window.location.href);
+        };
+
+        // 뒤로가기 클릭 시 (앱 이탈 방지)
+        window.onpopstate = function() {
+            window.history.pushState(null, null, window.location.href);
+            // 필요 시 "종료 버튼을 이용해 주세요" 알림 추가 가능
         };
 
         // 앱 종료
@@ -98,13 +112,6 @@
             }
         }
 
-        // 뒤로가기 절대 방어
-        function preventBack() { window.history.pushState(null, null, window.location.href); }
-        preventBack();
-        window.onpopstate = function() { preventBack(); location.replace(window.location.href); };
-        document.body.onclick = function() { preventBack(); };
-
-        // 탭 전환
         function switchTab(mode) {
             const isUser = (mode === 'user');
             document.getElementById('userTab').classList.toggle('active', isUser);
