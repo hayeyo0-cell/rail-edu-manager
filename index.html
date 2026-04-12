@@ -38,8 +38,6 @@
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; margin-bottom: 10px; }
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        
-        /* 🚨 추가된 앱 종료 버튼 스타일 */
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
     </style>
 </head>
@@ -75,7 +73,7 @@
     </div>
 
     <script>
-        // 🚨 히스토리 방어 로직 (로그인 이동과 충돌하지 않도록 개선)
+        // 히스토리 방어막 생성 함수
         function initHistory() {
             window.history.pushState(null, null, window.location.href);
         }
@@ -84,6 +82,7 @@
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
 
+            // 1. 스플래시 로직 (세션당 1회)
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -97,6 +96,7 @@
                     }, 500);
                 }, 1500);
             }
+            // 진입 시 방어막 활성화
             initHistory();
         };
 
@@ -105,12 +105,12 @@
             initHistory();
         };
 
-        // 🚨 앱 종료 기능
+        // 앱 종료 기능
         function exitApp() {
             if(confirm("앱을 종료하시겠습니까?")) {
                 window.close();
                 setTimeout(() => {
-                    alert("브라우저의 탭 닫기(X)를 눌러 종료해 주세요.");
+                    alert("보안 정책상 브라우저의 '탭 닫기(X)'를 눌러 종료해 주세요.");
                 }, 300);
             }
         }
@@ -123,7 +123,7 @@
             document.getElementById('adminForm').style.display = isUser ? 'none' : 'block';
         }
 
-        // 🚨 로그인 기능 (이제 정상적으로 작동합니다!)
+        // 🚨 사용자 로그인 (방해 로직 일시 해제 적용)
         function userLogin() {
             const id = document.getElementById('userId').value;
             const pw = document.getElementById('userPw').value;
@@ -141,17 +141,23 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
             
-            // 🚨 간섭 없이 즉시 이동
+            // 🚨 핵심: 이동 직전에 방어막 감지를 꺼버려야 충돌이 없습니다!
+            window.onpopstate = null;
             location.href = 'user_main.html';
         }
 
+        // 관리자 로그인도 동일하게 처리
         function adminLogin() {
             const id = document.getElementById('adminId').value;
             const pw = document.getElementById('adminPw').value;
             const sId = localStorage.getItem('adminId');
             const sPw = localStorage.getItem('adminPw');
-            if (sId && String(id) === String(sId) && pw === sPw) { location.href = 'admin_main.html'; return; }
-            if (pw === "1234") { location.href = 'admin_setup_auth.html'; return; }
+            
+            if ( (sId && String(id) === String(sId) && pw === sPw) || (pw === "1234") ) {
+                window.onpopstate = null; // 방어막 해제
+                location.href = (pw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
+                return;
+            }
             alert("정보가 틀렸습니다.");
         }
     </script>
