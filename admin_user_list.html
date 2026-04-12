@@ -7,32 +7,147 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-header { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; box-sizing: border-box; position: sticky; top: 0; z-index: 100; }
-        .back-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 6px 12px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
+        
+        /* 헤더: 로고 42px 및 메인으로 버튼 */
+        .top-nav { 
+            width: 100%; background: white; padding: 12px 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            box-sizing: border-box; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100;
+        }
+        .nav-btn { background: #f8f8f8; border: 1px solid #eee; border-radius: 6px; padding: 6px 12px; font-size: 0.8rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
-        .container { width: 92%; max-width: 500px; padding: 20px 0; }
-        /* 기존 스타일 유지... (생략) */
+
+        .container { width: 92%; max-width: 450px; padding: 20px 0; }
+        
+        /* ➕ 명단 추가 입력창 */
+        .input-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+        .input-group { display: flex; gap: 8px; margin-top: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 0.9rem; outline: none; background: #fafafa; }
+        input:focus { border-color: var(--dtro-blue); background: #fff; }
+        .add-btn { background: var(--dtro-blue); color: white; border: none; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+
+        /* 👥 명단 리스트 */
+        .list-card { background: white; border-radius: 20px; padding: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
+        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f9f9f9; }
+        .user-item:last-child { border-bottom: none; }
+        .user-info { text-align: left; }
+        .user-name { font-weight: bold; font-size: 1.05rem; color: #333; }
+        .user-id { font-size: 0.85rem; color: #999; margin-left: 5px; }
+        .del-user-btn { background: #fff0f0; color: #ff4d4d; border: 1px solid #ffe0e0; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="top-header">
-        <button class="back-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
+    <div class="top-nav">
+        <button class="nav-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
+
+    <div class="container">
+        <div class="input-card">
+            <div style="text-align:left; font-weight:bold; color:var(--dtro-blue); margin-bottom:12px;">👤 신규 팀원 등록</div>
+            <div class="input-group">
+                <input type="text" id="newName" placeholder="성함">
+                <input type="number" id="newId" placeholder="사번 (8자리)" inputmode="numeric">
+                <button class="add-btn" onclick="addUser()">등록</button>
+            </div>
+        </div>
+
+        <div class="list-card">
+            <div style="padding:15px 15px 5px 15px; text-align:left; font-weight:bold; color:#666; font-size:0.9rem;">
+                우리 팀 명단 (<span id="userCount">0</span>명)
+            </div>
+            <div id="userListArea">
+                </div>
+        </div>
+    </div>
+
     <script>
-        // 🚨 [보안] 뒤로가기 시 관리자 메인으로 강제 압송
+        // 🚨 [보안] 뒤로가기 차단 로직
         (function() {
-            function lockHistory() { for(let i=0; i<5; i++) window.history.pushState(null, null, window.location.href); }
+            function lockHistory() { for(let i=0; i<10; i++) window.history.pushState(null, null, window.location.href); }
             lockHistory();
-            window.onpopstate = function() { 
-                lockHistory(); 
-                window.location.replace('admin_main.html'); 
-            };
+            window.onpopstate = function() { lockHistory(); window.location.replace('admin_main.html'); };
             document.body.onclick = lockHistory;
         })();
-        
-        // 기존 명단 관리 로직 (CRUD) 유지...
+
+        const myDept = localStorage.getItem('userDept') || "경산승무팀";
+
+        window.onload = function() {
+            renderUserList();
+        };
+
+        // 명단 그리기 함수
+        function renderUserList() {
+            const listArea = document.getElementById('userListArea');
+            const countText = document.getElementById('userCount');
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            
+            // 내 소속 팀원만 필터링
+            const myTeam = totalUserList.filter(u => u.dept === myDept);
+            countText.innerText = myTeam.length;
+
+            if (myTeam.length === 0) {
+                listArea.innerHTML = '<p style="text-align:center; color:#ccc; padding:40px;">등록된 팀원이 없습니다.<br>상단에서 팀원을 추가해 주세요.</p>';
+                return;
+            }
+
+            let html = '';
+            // 사번 순으로 정렬해서 보여주기
+            myTeam.sort((a, b) => a.id - b.id).forEach(user => {
+                html += `
+                    <div class="user-item">
+                        <div class="user-info">
+                            <span class="user-name">${user.name}</span>
+                            <span class="user-id">(${user.id})</span>
+                        </div>
+                        <button class="del-user-btn" onclick="deleteUser('${user.id}')">삭제</button>
+                    </div>`;
+            });
+            listArea.innerHTML = html;
+        }
+
+        // 팀원 추가 함수
+        function addUser() {
+            const name = document.getElementById('newName').value.trim();
+            const id = document.getElementById('newId').value.trim();
+
+            if(!name || !id) { alert("성함과 사번을 모두 입력해 주세요."); return; }
+            if(id.length !== 8) { alert("사번은 8자리로 입력해 주세요."); return; }
+
+            let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            
+            // 중복 사번 체크
+            if(totalUserList.some(u => String(u.id) === String(id))) {
+                alert("이미 등록된 사번입니다."); return;
+            }
+
+            const newUser = {
+                id: id,
+                name: name,
+                dept: myDept
+            };
+
+            totalUserList.push(newUser);
+            localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
+
+            // 입력창 비우고 다시 그리기
+            document.getElementById('newName').value = '';
+            document.getElementById('newId').value = '';
+            renderUserList();
+            alert(`${name} 기관사님이 등록되었습니다.`);
+        }
+
+        // 팀원 삭제 함수
+        function deleteUser(id) {
+            if(!confirm("해당 팀원을 명단에서 삭제하시겠습니까?")) return;
+            
+            let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            totalUserList = totalUserList.filter(u => String(u.id) !== String(id));
+            localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
+            
+            renderUserList();
+        }
     </script>
 </body>
 </html>
