@@ -69,11 +69,9 @@
     </div>
 
     <script>
-        // 🚨 상태 플래그 (이동 중이거나 종료 중이면 방어 안 함)
-        let isProcessing = false;
+        let isMoving = false;
 
         function pushState() {
-            if (isProcessing) return;
             window.history.pushState(null, null, window.location.href);
         }
 
@@ -97,26 +95,17 @@
             pushState();
         };
 
-        // 뒤로가기 방어
         window.onpopstate = function() {
-            if (isProcessing) return; 
+            if (isMoving) return; 
             pushState();
-            // 경고창만 띄우고 강제 이동(replace)은 제거했습니다. (무한루프 원인)
+            window.location.replace(window.location.href);
             alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
         };
 
-        // 🚨 시스템 종료 (가장 확실한 해결책)
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
-                isProcessing = true; // 🚨 모든 방어막 해제
-                window.onpopstate = null; // 감시 중단
-                
-                // 브라우저 닫기 시도
-                window.close();
-                // 모바일 환경을 위해 빈 페이지로 이동 (더 이상 방어 로직이 없는 곳으로)
-                setTimeout(() => {
-                    window.location.replace('about:blank');
-                }, 100);
+                window.open('about:blank', '_self').close();
+                setTimeout(() => { alert("브라우저의 탭 닫기(X)를 이용해 종료해 주세요."); }, 300);
             }
         }
 
@@ -147,8 +136,9 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
 
-            isProcessing = true;           
+            isMoving = true;           
             window.onpopstate = null;  
+            
             setTimeout(() => { window.location.replace('user_main.html'); }, 100);
         }
 
@@ -158,16 +148,22 @@
             const savedId = localStorage.getItem('adminId');
             const savedPw = localStorage.getItem('adminPw');
             
-            isProcessing = true;
+            isMoving = true;
             window.onpopstate = null;
 
-            if ( (savedId && String(inputId) === String(savedId) && inputPw === savedPw) || inputPw === "1234" ) { 
-                const target = (inputPw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
-                window.location.replace(target); 
+            // 🚨 1순위: 등록된 관리자 계정 확인 (메인으로 이동)
+            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
+                window.location.replace('admin_main.html'); 
                 return; 
             }
             
-            isProcessing = false;
+            // 🚨 2순위: 1234 마스터 인증 (설정 페이지로 이동)
+            if (inputPw === "1234") { 
+                window.location.replace('admin_setup_auth.html'); 
+                return; 
+            }
+            
+            isMoving = false;
             pushState();
             alert("정보가 틀렸습니다.");
         }
