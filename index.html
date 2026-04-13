@@ -12,7 +12,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.4s ease; /* 🚨 페이드아웃 속도 살짝 상향 */
         }
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
@@ -83,14 +83,15 @@
                 splash.style.display = 'none';
                 card.classList.add('show');
             } else {
+                // 🚨 스플래시 대기 시간을 0.8초(800ms)로 단축
                 setTimeout(() => {
                     splash.style.opacity = '0';
                     setTimeout(() => {
                         splash.style.display = 'none';
                         card.classList.add('show');
                         sessionStorage.setItem('isSplashShown', 'true');
-                    }, 500);
-                }, 1500);
+                    }, 400); // 🚨 페이드아웃 시간도 0.4초로 최적화
+                }, 800); 
             }
             pushState();
         };
@@ -151,13 +152,12 @@
             isMoving = true;
             window.onpopstate = null;
 
-            // 🚨 1순위: 등록된 관리자 계정 확인 (메인으로 이동)
+            // 🚨 관리자 로그인 순서 교정 유지 (사번 체크 1순위)
             if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
                 window.location.replace('admin_main.html'); 
                 return; 
             }
             
-            // 🚨 2순위: 1234 마스터 인증 (설정 페이지로 이동)
             if (inputPw === "1234") { 
                 window.location.replace('admin_setup_auth.html'); 
                 return; 
