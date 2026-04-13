@@ -69,9 +69,11 @@
     </div>
 
     <script>
-        let isMoving = false;
+        // 🚨 상태 플래그 (이동 중이거나 종료 중이면 방어 안 함)
+        let isProcessing = false;
 
         function pushState() {
+            if (isProcessing) return;
             window.history.pushState(null, null, window.location.href);
         }
 
@@ -95,17 +97,26 @@
             pushState();
         };
 
+        // 뒤로가기 방어
         window.onpopstate = function() {
-            if (isMoving) return; 
+            if (isProcessing) return; 
             pushState();
-            window.location.replace(window.location.href);
+            // 경고창만 띄우고 강제 이동(replace)은 제거했습니다. (무한루프 원인)
             alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
         };
 
+        // 🚨 시스템 종료 (가장 확실한 해결책)
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
-                window.open('about:blank', '_self').close();
-                setTimeout(() => { alert("브라우저의 탭 닫기(X)를 이용해 종료해 주세요."); }, 300);
+                isProcessing = true; // 🚨 모든 방어막 해제
+                window.onpopstate = null; // 감시 중단
+                
+                // 브라우저 닫기 시도
+                window.close();
+                // 모바일 환경을 위해 빈 페이지로 이동 (더 이상 방어 로직이 없는 곳으로)
+                setTimeout(() => {
+                    window.location.replace('about:blank');
+                }, 100);
             }
         }
 
@@ -136,35 +147,27 @@
             localStorage.setItem('currentUserName', user.name);
             localStorage.setItem('currentUserId', user.id);
 
-            isMoving = true;           
+            isProcessing = true;           
             window.onpopstate = null;  
-            
             setTimeout(() => { window.location.replace('user_main.html'); }, 100);
         }
 
-        // 🚨 관리자 로그인 로직 교정 (사번 체크 우선)
         function adminLogin() {
             const inputId = document.getElementById('adminId').value;
             const inputPw = document.getElementById('adminPw').value;
             const savedId = localStorage.getItem('adminId');
             const savedPw = localStorage.getItem('adminPw');
             
-            isMoving = true;
+            isProcessing = true;
             window.onpopstate = null;
 
-            // ✅ 1순위: 생성된 관리자 계정 정보와 일치하는지 확인
-            if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
-                window.location.replace('admin_main.html'); 
+            if ( (savedId && String(inputId) === String(savedId) && inputPw === savedPw) || inputPw === "1234" ) { 
+                const target = (inputPw === "1234") ? 'admin_setup_auth.html' : 'admin_main.html';
+                window.location.replace(target); 
                 return; 
             }
             
-            // ✅ 2순위: 1순위에 해당하지 않으면서 비밀번호가 1234인 경우 (초기 설정행)
-            if (inputPw === "1234") { 
-                window.location.replace('admin_setup_auth.html'); 
-                return; 
-            }
-            
-            isMoving = false;
+            isProcessing = false;
             pushState();
             alert("정보가 틀렸습니다.");
         }
