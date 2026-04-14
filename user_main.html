@@ -24,7 +24,7 @@
         .section-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 5px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
 
         .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
-        .filter-container::-webkit-scrollbar { display: none; } /* 스크롤바 숨김 */
+        .filter-container::-webkit-scrollbar { display: none; }
         .filter-btn { 
             padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; 
             background: white; font-size: 0.82rem; 
@@ -40,7 +40,8 @@
         .date-label { font-size: 0.85rem; color: #999; }
         .edu-title { font-weight: bold; font-size: 1.25rem; color: #333; margin-bottom: 10px; display: block; line-height: 1.4; }
         .deadline-text { font-size: 1rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; display: block; }
-        .btn-start { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; cursor: pointer; }
+        
+        .btn-start { width: 100%; padding: 16px; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; cursor: pointer; }
 
         .archive-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); display: flex; align-items: center; cursor: pointer; text-align: left; margin-top: 10px; }
         .archive-icon { width: 75px; height: 75px; margin-right: 15px; object-fit: contain; }
@@ -63,7 +64,7 @@
         <div id="userEduListArea"></div>
 
         <div class="section-title">학습 보관함</div>
-        <div class="archive-card" onclick="location.href='user_archive.html'">
+        <div class="archive-card" onclick="location.href='user_history.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3532/3532053.png" class="archive-icon" alt="Archive">
             <div class="archive-info">
                 <h4>나의 이수 완료 내역</h4>
@@ -73,33 +74,37 @@
     </div>
 
     <script>
+        // 🚨 완벽한 뒤로가기 방어 로직 (팝업 확인 눌러도 안 튕겨나감!)
+        (function() {
+            function lockHistory() {
+                window.history.pushState(null, null, window.location.href);
+            }
+            
+            // 1. 페이지 접속하자마자 자물쇠 1차 채움
+            lockHistory();
+
+            // 2. 사용자가 뒤로가기를 시도할 때
+            window.addEventListener('popstate', function() {
+                alert("교육 중에는 뒤로가기를 할 수 없습니다.\n우측 상단의 로그아웃 버튼을 이용해 주세요.");
+                
+                // 🚨 핵심: 경고창의 [확인]을 누르는 즉시 자물쇠 2차 채움! (튕김 방지)
+                lockHistory(); 
+            });
+        })();
+
         // 전역 변수 및 설정
         let currentFilter = '전체';
         const userDept = localStorage.getItem('currentUserDept') || "";
         const userId = localStorage.getItem('currentUserId');
 
         window.onload = function() {
-            // 1. 로그인 체크
             if(!userId) { location.replace('index.html'); return; }
             
-            // 2. 뒤로가기 방지 초기화
-            window.history.pushState(null, null, window.location.href);
-            
-            // 3. UI 렌더링
             renderFilters();
             loadEduData();
-            
-            // 4. 마감 알림 체크
             checkDeadlineAlert();
         };
 
-        // 뒤로가기 방지 로직 (브라우저 자석 고정)
-        window.onpopstate = function() {
-            window.history.pushState(null, null, window.location.href);
-            alert("교육 중에는 뒤로가기를 할 수 없습니다. 로그아웃 버튼을 이용해 주세요.");
-        };
-
-        // 로그아웃 처리
         function handleLogout() {
             if(confirm("로그아웃 하시겠습니까?")) {
                 localStorage.removeItem('currentUserId');
@@ -120,8 +125,10 @@
             allEduList.forEach(edu => {
                 const isMyEdu = edu.dept === userDept;
                 const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
+                const isOffline = edu.signatureType === "오프라인";
                 
-                if (isMyEdu && !isDone && edu.deadline) {
+                // 🚨 오프라인 공지는 이수할 필요가 없으므로 알림(팝업)에서 제외!
+                if (isMyEdu && !isDone && edu.deadline && !isOffline) {
                     const targetDate = new Date(edu.deadline).setHours(0, 0, 0, 0);
                     const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
 
@@ -133,7 +140,7 @@
             });
 
             if (urgentList.length > 0) {
-                alert(`⚠️ 마감 임박 교육 알림\n\n현재 미이수 상태인 교육이 ${urgentList.length}건 있습니다.\n\n${urgentList.join('\n')}\n\n서둘러 이수해 주시기 바랍니다!`);
+                alert(`⚠️ 마감 임박 교육 알림\n\n현재 미이수 상태인 필수 교육이 ${urgentList.length}건 있습니다.\n\n${urgentList.join('\n')}\n\n서둘러 이수해 주시기 바랍니다!`);
             }
         }
 
@@ -159,24 +166,55 @@
             
             let filtered = allEduList.filter(edu => {
                 const isMyDept = edu.dept === userDept;
-                const isNotDone = !completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
+                const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
                 const isCategoryMatch = (currentFilter === '전체' || edu.type === currentFilter || edu.category === currentFilter);
-                return isMyDept && isNotDone && isCategoryMatch;
+                
+                const isOffline = edu.signatureType === "오프라인";
+                
+                // 🚨 오프라인 공지는 '이수' 개념이 없으므로 평생 남아있게 됨.
+                // 따라서 마감 기한이 설정되어 있고, 그 날짜가 지났다면 리스트에서 숨겨줌 (깔끔한 화면 유지)
+                let isExpiredOffline = false;
+                if(isOffline && edu.deadline) {
+                    const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
+                    if(today > targetDate) isExpiredOffline = true;
+                }
+
+                // 일반 교육은 미이수(!isDone)일 때만 표시, 오프라인은 기한 안 지났으면 항상 표시
+                return isMyDept && (!isDone || isOffline) && isCategoryMatch && !isExpiredOffline;
             });
 
             if(filtered.length === 0) {
-                listArea.innerHTML = '<div class="empty-box">🎉 현재 이수할 교육이 없습니다.</div>';
+                listArea.innerHTML = '<div class="empty-box">🎉 현재 이수할 교육/공지가 없습니다.</div>';
                 return;
             }
 
             listArea.innerHTML = filtered.map(edu => {
+                const isOffline = edu.signatureType === "오프라인";
+                
                 let ddayBadge = "";
+                let deadlineText = `⏳ 마감 기한: ${edu.deadline || '상시'} 까지`;
+
                 if(edu.deadline) {
                     const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
                     const diff = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
                     const statusText = diff < 0 ? "기한만료" : (diff === 0 ? "D-Day" : `D-${diff}`);
-                    ddayBadge = `<span class="dday-badge">${statusText}</span>`;
+                    
+                    // 오프라인 교육은 '마감 기한'이 아니라 '게시 기한'으로 부드럽게 표현
+                    if(isOffline) {
+                        ddayBadge = `<span class="dday-badge" style="background:#f0f8ff; color:#0072bc; border-color:#cce5ff;">게시중</span>`;
+                        deadlineText = `📢 게시 기한: ${edu.deadline} 까지`;
+                    } else {
+                        ddayBadge = `<span class="dday-badge">${statusText}</span>`;
+                    }
+                } else {
+                    if(isOffline) {
+                        deadlineText = `📢 상시 게시됨`;
+                    }
                 }
+
+                // 🚨 오프라인 교육용 초록색 버튼으로 변경
+                const btnText = isOffline ? "📢 내용 확인하기 (이수 불필요)" : "교육 입장하기 →";
+                const btnBgColor = isOffline ? "#27ae60" : "var(--dtro-blue)";
 
                 return `
                 <div class="edu-card">
@@ -188,8 +226,8 @@
                         <span class="date-label">게시일: ${edu.date}</span>
                     </div>
                     <span class="edu-title">${edu.title}</span>
-                    <span class="deadline-text">⏳ 마감 기한: ${edu.deadline || '상시'} 까지</span>
-                    <button class="btn-start" onclick="location.href='user_edu_detail.html?id=${edu.id}'">교육 입장하기 →</button>
+                    <span class="deadline-text" style="${isOffline ? 'color:#555;' : ''}">${deadlineText}</span>
+                    <button class="btn-start" style="background-color: ${btnBgColor};" onclick="location.href='user_edu_detail.html?id=${edu.id}'">${btnText}</button>
                 </div>`;
             }).join('');
         }
