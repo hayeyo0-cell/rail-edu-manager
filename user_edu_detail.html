@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>교육 상세 - DTRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
@@ -18,10 +18,13 @@
         .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
         
         .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
-        .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
+        .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 5px; display: block; }
+        .click-hint { font-size: 0.85rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 15px; display: block; animation: blink 2s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         
-        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; pointer-events: none; }
-        #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; overflow: hidden; background: #fafafa; }
+        /* 🚨 터치할 수 있게 스타일 수정 */
+        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; cursor: pointer; }
+        #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; overflow: hidden; background: #fafafa; cursor: pointer; }
         #pdfCanvas { width: 100%; height: auto; }
 
         .sig-card { display: none; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
@@ -32,9 +35,22 @@
 
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+
+        /* 🚨 전체화면 확대 모달 스타일 */
+        .zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; overflow: auto; text-align: center; }
+        .modal-close { position: fixed; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 8px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; z-index: 100000; }
+        .zoom-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; z-index: 100000; pointer-events: none; white-space: nowrap; }
+        #zoomImg { width: 100%; height: auto; margin: auto; display: block; margin-top: 60px; margin-bottom: 60px; }
     </style>
 </head>
 <body>
+
+    <div id="zoomModal" class="zoom-modal">
+        <button class="modal-close" onclick="closeZoom()">✕ 닫기</button>
+        <div class="zoom-hint">👆 두 손가락으로 화면을 확대할 수 있습니다</div>
+        <img id="zoomImg" src="">
+    </div>
+
     <div class="top-nav">
         <button class="nav-btn" onclick="goMain()">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
@@ -48,8 +64,10 @@
             <div id="displayContent" class="edu-content">내용을 불러오는 중...</div>
             <div class="file-section">
                 <span class="file-label">📎 첨부 파일 학습 (다운로드 불가)</span>
-                <img id="imageViewer" class="img-preview" oncontextmenu="return false;">
-                <div id="pdfWrapper"><canvas id="pdfCanvas"></canvas></div>
+                <span class="click-hint" id="clickHint" style="display:none;">🔍 이미지를 터치하면 크게 확대하여 볼 수 있습니다</span>
+                
+                <img id="imageViewer" class="img-preview" oncontextmenu="return false;" onclick="openZoom('image')">
+                <div id="pdfWrapper" onclick="openZoom('pdf')"><canvas id="pdfCanvas"></canvas></div>
                 <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
             </div>
         </div>
@@ -75,16 +93,18 @@
         const isReviewMode = urlParams.get('review') === 'true'; 
         let isSignatureRequired = false;
 
-        // 🚨 뒤로가기 버튼 누르면 무조건 교육 메인(user_main.html)으로 이동하도록 수정
-        function goMain() {
-            window.location.replace('user_main.html');
-        }
+        function goMain() { window.location.replace('user_main.html'); }
 
-        // 🚨 폰 자체 뒤로가기(하단 스와이프) 방어 및 메인 강제 이동
         (function() {
             for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
             window.onpopstate = function() { 
-                goMain(); 
+                // 줌 모달이 열려있을 때 뒤로가기를 누르면 모달만 닫기
+                if(document.getElementById('zoomModal').style.display === 'block') {
+                    closeZoom();
+                    window.history.pushState(null, null, window.location.href);
+                } else {
+                    goMain(); 
+                }
             };
         })();
 
@@ -97,7 +117,6 @@
                 document.getElementById('displayContent').innerText = edu.content;
                 document.getElementById('displayType').innerText = edu.category || edu.type || "일반교육";
                 
-                // 🚨 이미 완료한 교육이거나, 애초에 '오프라인' 교육이면 하단 제출 버튼 숨기기
                 if(isReviewMode || edu.signatureType === "오프라인") {
                     document.getElementById('bottomBar').style.display = 'none'; 
                     document.getElementById('sigCardArea').style.display = 'none'; 
@@ -112,6 +131,8 @@
 
                 if(edu.fileData) {
                     document.getElementById('noFileText').style.display = 'none';
+                    document.getElementById('clickHint').style.display = 'block'; // 🚨 안내문구 띄우기
+
                     if(edu.fileData.startsWith('data:image/')) {
                         const img = document.getElementById('imageViewer');
                         img.src = edu.fileData;
@@ -143,7 +164,34 @@
                 console.error("PDF 렌더링 실패:", e);
                 document.getElementById('noFileText').innerText = "PDF 미리보기를 불러올 수 없습니다.";
                 document.getElementById('noFileText').style.display = 'block';
+                document.getElementById('clickHint').style.display = 'none';
             }
+        }
+
+        // 🚨 전체화면 확대 열기 로직
+        function openZoom(type) {
+            const modal = document.getElementById('zoomModal');
+            const zoomImg = document.getElementById('zoomImg');
+            
+            if (type === 'image') {
+                zoomImg.src = document.getElementById('imageViewer').src;
+            } else if (type === 'pdf') {
+                // PDF 캔버스를 고화질 이미지로 변환해서 확대창에 띄움
+                zoomImg.src = document.getElementById('pdfCanvas').toDataURL('image/png');
+            }
+            
+            modal.style.display = 'block';
+            
+            // 🚨 화면 확대 잠금 해제 (최대 5배 줌 허용)
+            document.getElementById('viewportMeta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+        }
+
+        // 🚨 전체화면 확대 닫기 로직
+        function closeZoom() {
+            document.getElementById('zoomModal').style.display = 'none';
+            
+            // 🚨 화면 확대 다시 잠금 (앱 레이아웃 깨짐 방지)
+            document.getElementById('viewportMeta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
         }
 
         let canvas, ctx, drawing = false;
