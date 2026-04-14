@@ -26,7 +26,7 @@
         }
         select:focus, input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.05); }
         
-        /* 🚨 업그레이드된 3단 라디오 버튼 스타일 (세로 배치로 넓게 터치 가능) */
+        /* 3단 라디오 버튼 스타일 */
         .radio-group-col { display: flex; flex-direction: column; gap: 10px; padding: 5px 0; }
         .radio-item { 
             display: flex; align-items: center; justify-content: flex-start; gap: 12px; 
@@ -36,7 +36,7 @@
         .radio-item input { width: 22px; height: 22px; cursor: pointer; margin: 0; accent-color: var(--dtro-blue); flex-shrink: 0; }
         .radio-item.active { border-color: var(--dtro-blue); background: #f0f7ff; color: var(--dtro-blue); }
 
-        /* 세련된 파일 첨부 UI */
+        /* 파일 첨부 UI */
         .file-upload-wrapper { position: relative; width: 100%; margin-top: 5px; }
         .file-upload-btn { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; 
@@ -89,11 +89,11 @@
                 </label>
                 <label class="radio-item active" id="labelSigNo">
                     <input type="radio" name="needSig" value="단순 확인" checked onclick="updateRadioUI()"> 
-                    ✔️ 단순 확인 (다 읽고 버튼만 클릭)
+                    ✔️ 단순 확인 (서명없이 이수완료만 누름)
                 </label>
                 <label class="radio-item" id="labelOffline">
                     <input type="radio" name="needSig" value="오프라인" onclick="updateRadioUI()"> 
-                    📢 단순 게시 / 오프라인 (이수버튼 없음)
+                    📢 오프라인 교육 (서명/이수 버튼 없음)
                 </label>
             </div>
 
@@ -132,7 +132,6 @@
         const myDept = localStorage.getItem('userDept') || "소속 미지정";
         document.getElementById('currentDept').innerText = myDept;
 
-        // 🚨 3단계 라디오 버튼 색상 변경 로직
         function updateRadioUI() {
             const val = document.querySelector('input[name="needSig"]:checked').value;
             document.getElementById('labelSigYes').classList.toggle('active', val === '서명 필요');
@@ -169,7 +168,6 @@
         function saveEdu() {
             const title = document.getElementById('eduTitle').value.trim();
             const content = document.getElementById('eduContent').value.trim();
-            // 라디오 버튼에서 어떤 값을 선택했는지 가져옴
             const sigType = document.querySelector('input[name="needSig"]:checked').value;
             let deadline = document.getElementById('eduDeadline').value;
 
@@ -192,7 +190,7 @@
                     title: title,
                     content: content,
                     deadline: deadline,
-                    signatureType: sigType, // 🚨 '서명 필요', '단순 확인', '오프라인' 값이 저장됩니다!
+                    signatureType: sigType, 
                     fileData: selectedFileData,
                     date: new Date().toLocaleDateString()
                 });
