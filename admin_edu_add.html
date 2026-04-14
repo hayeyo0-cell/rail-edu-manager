@@ -7,31 +7,54 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
-        .container { width: 92%; max-width: 420px; padding: 25px 0; padding-bottom: 60px; }
-        .edu-card { background: white; border-radius: 30px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; }
-        .card-title { font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: block; text-align: left; }
-        .dept-info-box { background: #f0f7ff; color: #555; padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 25px; text-align: center; }
-        .input-label { font-size: 1rem; font-weight: bold; color: #333; margin: 20px 0 10px 0; display: block; text-align: left; }
-        select, input, textarea { width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 15px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; transition: 0.3s; }
-        input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; }
         
-        /* 🚨 추가: 서명 라디오 버튼 스타일 */
-        .radio-group { display: flex; gap: 20px; padding: 5px 0; }
-        .radio-item { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 1rem; color: #444; }
-        .radio-item input { width: 20px; height: 20px; cursor: pointer; margin: 0; }
+        .container { width: 92%; max-width: 450px; padding: 25px 0; padding-bottom: 60px; }
+        .edu-card { background: white; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); box-sizing: border-box; }
+        
+        .card-title { font-size: 1.4rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 25px; display: block; text-align: center; }
+        .dept-info-box { background: #f0f7ff; color: var(--dtro-blue); padding: 14px; border-radius: 12px; font-size: 0.95rem; margin-bottom: 25px; text-align: center; border: 1px dashed #bcdcff; }
+        
+        .input-label { font-size: 0.95rem; font-weight: bold; color: #333; margin: 20px 0 8px 5px; display: block; text-align: left; }
+        
+        select, input[type="text"], input[type="date"], textarea { 
+            width: 100%; padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; 
+            box-sizing: border-box; font-size: 1rem; background: #f8fafc; outline: none; transition: 0.2s; 
+        }
+        select:focus, input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.05); }
+        
+        /* 🚨 개선된 서명 라디오 버튼 스타일 */
+        .radio-group { display: flex; gap: 15px; padding: 5px 0; }
+        .radio-item { 
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; 
+            background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 12px; 
+            cursor: pointer; font-size: 1rem; color: #444; font-weight: bold; transition: 0.2s; 
+        }
+        .radio-item input { width: 20px; height: 20px; cursor: pointer; margin: 0; accent-color: var(--dtro-blue); }
+        .radio-item.active { border-color: var(--dtro-blue); background: #f0f7ff; color: var(--dtro-blue); }
 
-        .file-section { margin-top: 15px; text-align: left; }
-        .file-input-box { width: 100%; padding: 12px; border: 1px solid #eee; border-radius: 12px; background: #fff; box-sizing: border-box; font-size: 0.9rem; color: #666; }
-        .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; margin-top: 35px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2); }
+        /* 🚨 세련된 파일 첨부 UI */
+        .file-upload-wrapper { position: relative; width: 100%; margin-top: 5px; }
+        .file-upload-btn { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; 
+            width: 100%; padding: 20px; border: 2px dashed #cbd5e1; border-radius: 12px; background: #f8fafc; 
+            color: #64748b; font-weight: bold; cursor: pointer; transition: 0.2s; box-sizing: border-box;
+        }
+        .file-upload-wrapper input[type="file"] { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .file-upload-wrapper:hover .file-upload-btn { border-color: var(--dtro-blue); color: var(--dtro-blue); background: #f0f7ff; }
+        .file-name-display { margin-top: 10px; font-size: 0.9rem; color: var(--dtro-blue); font-weight: bold; text-align: center; display: none; background: #e0f2fe; padding: 10px; border-radius: 8px; word-break: break-all; }
+
+        .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; margin-top: 35px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2); transition: transform 0.1s; }
+        .save-btn:active { transform: scale(0.98); box-shadow: none; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="location.replace('admin_main.html')">← 메인으로</button>
+        <button class="nav-btn" onclick="goBack()">← 메인으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -39,7 +62,7 @@
     <div class="container">
         <div class="edu-card">
             <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
-            <div class="dept-info-box">📍 소속: <strong id="currentDept">경산승무팀</strong></div>
+            <div class="dept-info-box">📍 담당 소속: <strong id="currentDept">경산승무팀</strong></div>
 
             <label class="input-label">교육 분류</label>
             <select id="eduType">
@@ -51,80 +74,140 @@
                 <option value="육성방송 훈련">육성방송 훈련</option>
             </select>
 
-            <label class="input-label">제목</label>
+            <label class="input-label">교육 제목</label>
             <input type="text" id="eduTitle" placeholder="제목을 입력하세요">
 
-            <label class="input-label">⌛ 마감 기한</label>
+            <label class="input-label">⌛ 제출 마감일</label>
             <input type="date" id="eduDeadline">
 
-            <label class="input-label">📝 본인 확인 서명 여부</label>
-            <div class="radio-group">
-                <label class="radio-item">
-                    <input type="radio" name="needSig" value="필요"> 필요
+            <label class="input-label">📝 본인 확인(서명) 필요 여부</label>
+            <div class="radio-group" id="sigGroup">
+                <label class="radio-item" id="labelSigYes">
+                    <input type="radio" name="needSig" value="필요" onclick="updateRadioUI()"> 필요
                 </label>
-                <label class="radio-item">
-                    <input type="radio" name="needSig" value="불필요" checked> 불필요
+                <label class="radio-item active" id="labelSigNo">
+                    <input type="radio" name="needSig" value="불필요" checked onclick="updateRadioUI()"> 불필요
                 </label>
             </div>
 
-            <label class="input-label">상세 지시내용</label>
-            <textarea id="eduContent" rows="7" placeholder="상세 내용을 입력하세요"></textarea>
+            <label class="input-label">상세 교육내용</label>
+            <textarea id="eduContent" rows="6" placeholder="상세 내용을 입력하세요"></textarea>
 
-            <label class="input-label">📎 파일 첨부</label>
-            <div class="file-section">
-                <input type="file" id="eduFile" class="file-input-box">
+            <label class="input-label">📎 파일 첨부 (최대 2MB)</label>
+            <div class="file-upload-wrapper">
+                <div class="file-upload-btn">
+                    <span style="font-size: 1.5rem;">📥</span>
+                    <span>여기를 터치하여 파일 선택</span>
+                </div>
+                <input type="file" id="eduFile" accept="image/*, .pdf, .hwp">
             </div>
+            <div id="fileNameDisplay" class="file-name-display"></div>
 
-            <button class="save-btn" onclick="saveEdu()">설정 저장 및 완료</button>
+            <button class="save-btn" onclick="saveEdu()">설정 저장 및 배포</button>
         </div>
     </div>
 
     <script>
-        // 🚨 [보안] 뒤로가기 시 무조건 메인으로 강제 리다이렉트
+        // 🚨 뒤로가기 시 무조건 메인으로 강제 리다이렉트
+        let isMoving = false;
         (function() {
             history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                location.replace('admin_main.html');
-            };
+            window.addEventListener('popstate', function() {
+                if(isMoving) return;
+                goBack();
+            });
         })();
 
-        const myDept = localStorage.getItem('userDept') || "경산승무팀";
+        function goBack() {
+            isMoving = true;
+            location.replace('admin_main.html');
+        }
+
+        // 현재 소속 불러오기
+        const myDept = localStorage.getItem('userDept') || "소속 미지정";
         document.getElementById('currentDept').innerText = myDept;
 
+        // 라디오 버튼 예쁘게 하이라이트 주는 로직
+        function updateRadioUI() {
+            const isYes = document.querySelector('input[name="needSig"]:checked').value === "필요";
+            document.getElementById('labelSigYes').classList.toggle('active', isYes);
+            document.getElementById('labelSigNo').classList.toggle('active', !isYes);
+        }
+
+        // 🚨 [보안 방어막] 파일 첨부 시 용량 제한 로직 (2MB 한도)
         let selectedFileData = ""; 
         document.getElementById('eduFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
+            const nameDisplay = document.getElementById('fileNameDisplay');
+            
             if (file) {
+                // 용량이 2MB(2 * 1024 * 1024 bytes)를 초과하는 경우 차단
+                if (file.size > 2 * 1024 * 1024) {
+                    alert("⚠️ 파일 용량이 너무 큽니다! (최대 2MB 제한)\n\n용량이 큰 파일을 저장하면 시스템이 멈출 수 있습니다. 파일 크기를 줄이거나 다른 파일을 선택해 주세요.");
+                    this.value = ''; // 입력창 초기화
+                    nameDisplay.style.display = 'none';
+                    selectedFileData = "";
+                    return;
+                }
+
+                // 정상 용량일 경우 화면에 파일 이름 표시
+                nameDisplay.innerText = `📎 첨부됨: ${file.name}`;
+                nameDisplay.style.display = 'block';
+
                 const reader = new FileReader();
                 reader.onload = function(event) { selectedFileData = event.target.result; };
                 reader.readAsDataURL(file);
+            } else {
+                nameDisplay.style.display = 'none';
+                selectedFileData = "";
             }
         });
 
+        // 교육 데이터 저장
         function saveEdu() {
-            const title = document.getElementById('eduTitle').value;
-            const content = document.getElementById('eduContent').value;
-            // 🚨 라디오 버튼 값 읽기
+            const title = document.getElementById('eduTitle').value.trim();
+            const content = document.getElementById('eduContent').value.trim();
             const sigType = document.querySelector('input[name="needSig"]:checked').value;
+            let deadline = document.getElementById('eduDeadline').value;
 
-            if(!title || !content) { alert("제목과 내용을 입력해 주세요!"); return; }
+            if(!title || !content) { 
+                alert("제목과 상세 내용을 필수로 입력해 주세요!"); 
+                return; 
+            }
+            
+            if(!deadline) {
+                deadline = "기한 없음";
+            }
 
+            // localStorage에서 기존 데이터 불러오기
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            totalEduList.push({
-                id: Date.now(),
-                dept: myDept,
-                category: document.getElementById('eduType').value,
-                title: title,
-                content: content,
-                deadline: document.getElementById('eduDeadline').value,
-                signatureType: sigType, // 🚨 서명 옵션 저장
-                fileData: selectedFileData,
-                date: new Date().toLocaleDateString()
-            });
-            localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
+            
+            try {
+                // 데이터 밀어넣기
+                totalEduList.push({
+                    id: Date.now(),
+                    dept: myDept,
+                    category: document.getElementById('eduType').value,
+                    title: title,
+                    content: content,
+                    deadline: deadline,
+                    signatureType: sigType,
+                    fileData: selectedFileData,
+                    date: new Date().toLocaleDateString()
+                });
 
-            alert("등록되었습니다!");
-            location.replace('admin_main.html');
+                // 🚨 용량 에러(QuotaExceededError) 캐치용 try-catch 문
+                localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
+                
+                alert("🎉 새로운 교육이 성공적으로 등록되었습니다!");
+                isMoving = true;
+                location.replace('admin_main.html');
+                
+            } catch (error) {
+                // 만약 그동안 쌓인 데이터가 너무 많아서 터진 경우
+                console.error(error);
+                alert("⚠️ 시스템 저장 공간이 꽉 찼습니다!\n기존에 등록된 오래된 교육들을 삭제하여 공간을 확보한 뒤 다시 시도해 주세요.");
+            }
         }
     </script>
 </body>
