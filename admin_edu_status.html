@@ -81,3 +81,118 @@
         </div>
 
         <div class="tab-menu">
+            <button class="tab-btn active" id="tabYet" onclick="switchTab('yet')">미이수자 명단</button>
+            <button class="tab-btn" id="tabDone" onclick="switchTab('done')">이수 완료자</button>
+        </div>
+
+        <div class="list-card" id="listArea"></div>
+    </div>
+
+    <script>
+        // 🚨 [보안] 뒤로가기 방지 및 관리자 메인 리다이렉트 로직
+        (function() {
+            function lockHistory() {
+                for(let i = 0; i < 10; i++) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+            lockHistory();
+
+            window.onpopstate = function() {
+                lockHistory();
+                // 뒤로가기 시 로그인창 탈출 방지 -> 관리자 메인으로 강제 복귀
+                window.location.replace('admin_main.html');
+            };
+
+            // 화면 클릭 시 방어막 무한 리필
+            document.body.onclick = function() { lockHistory(); };
+        })();
+
+        const adminDept = localStorage.getItem('userDept') || "경산승무팀";
+        let currentTab = 'yet';
+
+        window.onload = function() {
+            loadEduOptions();
+        };
+
+        function loadEduOptions() {
+            const eduSelect = document.getElementById('eduSelect');
+            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            const myEduList = allEduList.filter(edu => edu.dept === adminDept);
+
+            if (myEduList.length === 0) {
+                eduSelect.innerHTML = '<option value="">등록된 교육이 없습니다</option>';
+                return;
+            }
+
+            let html = '<option value="">교육을 선택하세요</option>';
+            myEduList.forEach(edu => {
+                html += `<option value="${edu.title}">${edu.title}</option>`;
+            });
+            eduSelect.innerHTML = html;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.getElementById('tabYet').classList.toggle('active', tab === 'yet');
+            document.getElementById('tabDone').classList.toggle('active', tab === 'done');
+            updateStats();
+        }
+
+        function updateStats() {
+            const selectedTitle = document.getElementById('eduSelect').value;
+            if (!selectedTitle) return;
+
+            document.getElementById('selectedEduTitle').innerText = selectedTitle;
+
+            const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const myDeptUsers = totalUserList.filter(u => u.dept === adminDept);
+            const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            
+            const doneUsersInDept = myDeptUsers.filter(user => {
+                return completedList.some(done => done.title === selectedTitle && done.empId === user.id);
+            });
+
+            const yetUsersInDept = myDeptUsers.filter(user => {
+                return !doneUsersInDept.some(done => done.id === user.id);
+            });
+
+            const total = myDeptUsers.length;
+            const done = doneUsersInDept.length;
+            const yet = yetUsersInDept.length;
+            const percent = total > 0 ? (done / total) * 100 : 0;
+
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('doneCount').innerText = done;
+            document.getElementById('yetCount').innerText = yet;
+            document.getElementById('progressBar').style.width = percent + "%";
+
+            renderList(currentTab === 'done' ? doneUsersInDept : yetUsersInDept);
+        }
+
+        function renderList(users) {
+            const listArea = document.getElementById('listArea');
+            if (users.length === 0) {
+                listArea.innerHTML = '<div style="text-align:center; padding:30px; color:#999;">해당되는 인원이 없습니다.</div>';
+                return;
+            }
+
+            let html = '';
+            users.forEach(user => {
+                const statusLabel = currentTab === 'done' ? '이수완료' : '미이수';
+                const statusClass = currentTab === 'done' ? 'status-done' : 'status-yet';
+                html += `
+                <div class="user-item">
+                    <div class="user-info">
+                        <span class="user-name">${user.name}</span>
+                        <span class="user-id">사번: ${user.id}</span>
+                    </div>
+                    <span class="status-badge ${statusClass}">${statusLabel}</span>
+                </div>
+                `;
+            });
+            listArea.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
