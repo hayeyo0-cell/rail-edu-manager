@@ -17,14 +17,10 @@
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; }
         .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
         
-        /* 📎 첨부 파일 학습 영역 */
         .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
         .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 12px; display: block; }
         
-        /* 이미지 미리보기 */
         .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; pointer-events: none; }
-        
-        /* 🚨 PDF 미리보기 (캔버스 방식) */
         #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; overflow: hidden; background: #fafafa; }
         #pdfCanvas { width: 100%; height: auto; }
 
@@ -44,7 +40,7 @@
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="content-card">
             <span id="displayType" class="edu-badge">게시교육</span>
             <span id="displayTitle" class="edu-title">제목</span>
@@ -67,12 +63,12 @@
             <div class="sig-canvas-area"><canvas id="sigCanvas"></canvas></div>
         </div>
     </div>
-    <div class="bottom-bar">
-        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 학습 완료 제출</button>
+    
+    <div class="bottom-bar" id="bottomBar">
+        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 학습 완료 (이수)</button>
     </div>
 
     <script>
-        // 뒤로가기 차단 (유지)
         (function() {
             for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
             window.onpopstate = function() { window.location.replace('user_main.html'); };
@@ -87,12 +83,20 @@
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const edu = list.find(e => String(e.id) === String(eduId));
+            
             if(edu) {
                 document.getElementById('displayTitle').innerText = edu.title;
                 document.getElementById('displayContent').innerText = edu.content;
                 document.getElementById('displayType').innerText = edu.category || edu.type || "일반교육";
                 
-                if(edu.signatureType === "필요") {
+                // 🚨 3단계 버튼 제어 마법 시작!
+                if(edu.signatureType === "오프라인") {
+                    // 1. 오프라인 교육일 땐 하단 제출 버튼 영역을 아예 날려버림
+                    document.getElementById('bottomBar').style.display = 'none';
+                    // 2. 하단에 불필요하게 붕 떠있던 여백도 깔끔하게 줄여줌
+                    document.getElementById('mainContainer').style.paddingBottom = '30px';
+                } 
+                else if(edu.signatureType === "서명 필요" || edu.signatureType === "필요") {
                     isSignatureRequired = true;
                     document.getElementById('sigCardArea').style.display = 'block';
                     document.getElementById('mainSubmitBtn').innerText = "✅ 서명 완료 및 제출";
@@ -106,23 +110,21 @@
                         img.src = edu.fileData;
                         img.style.display = 'block';
                     } else if(edu.fileData.startsWith('data:application/pdf')) {
-                        // 🚨 PDF 렌더링 시작
                         renderPDF(edu.fileData);
                     }
                 }
             }
         };
 
-        // 🚨 PDF를 캔버스에 그리는 함수
         async function renderPDF(dataUrl) {
             try {
                 const loadingTask = pdfjsLib.getDocument(dataUrl);
                 const pdf = await loadingTask.promise;
-                const page = await pdf.getPage(1); // 1페이지만 출력
+                const page = await pdf.getPage(1); 
                 
                 const canvas = document.getElementById('pdfCanvas');
                 const context = canvas.getContext('2d');
-                const viewport = page.getViewport({ scale: 2.0 }); // 고해상도 설정
+                const viewport = page.getViewport({ scale: 2.0 }); 
 
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
@@ -157,12 +159,16 @@
         function submitEdu() {
             if(!confirm("이수를 완료하시겠습니까?")) return;
             const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
+            
+            // 기존 Google Sheets 전송 로직 유지
             const sendData = { id: localStorage.getItem('currentUserId'), name: localStorage.getItem('currentUserName'), title: document.getElementById('displayTitle').innerText, signature: signatureData, date: new Date().toLocaleString() };
             fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sendData) })
             .then(() => {
+                // 앱 내부 장부에 기록
                 let completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
                 completed.push({ eduId: eduId, userId: localStorage.getItem('currentUserId'), completedDate: new Date().toLocaleDateString() });
                 localStorage.setItem('completedEduList', JSON.stringify(completed));
+                
                 alert("이수가 완료되었습니다.");
                 window.location.replace('user_main.html');
             })
