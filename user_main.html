@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>사용자 메인 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
         .top-nav { 
@@ -49,9 +49,25 @@
         .archive-info p { margin: 0; font-size: 1rem; color: #888; line-height: 1.5; }
 
         .empty-box { text-align:center; color:#ccc; padding:40px; background:white; border-radius:25px; margin-bottom:20px; box-shadow: 0 8px 20px rgba(0,0,0,0.02); }
+
+        /* 🚨 브라우저 알림창 대신 띄울 "가짜 팝업(커스텀 모달)" 디자인 */
+        .custom-alert-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999999; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .custom-alert-box { background: white; width: 80%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: popIn 0.3s ease; }
+        .custom-alert-title { font-size: 1.2rem; font-weight: bold; color: var(--error-red); margin-bottom: 10px; }
+        .custom-alert-msg { font-size: 0.95rem; color: #444; line-height: 1.5; margin-bottom: 20px; }
+        .custom-alert-btn { width: 100%; padding: 14px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
+
+    <div id="backAlertModal" class="custom-alert-bg">
+        <div class="custom-alert-box">
+            <div class="custom-alert-title">⚠️ 알림</div>
+            <div class="custom-alert-msg">교육 중에는 뒤로가기를 할 수 없습니다.<br>우측 상단의 <b>로그아웃</b> 버튼을<br>이용해 주세요.</div>
+            <button class="custom-alert-btn" onclick="closeBackAlert()">확인</button>
+        </div>
+    </div>
 
     <div class="top-nav">
         <img src="logo.png" class="brand-logo" alt="DTRO Logo">
@@ -64,7 +80,7 @@
         <div id="userEduListArea"></div>
 
         <div class="section-title">학습 보관함</div>
-        <div class="archive-card" onclick="location.href='user_archive.html'">
+        <div class="archive-card" onclick="location.href='user_history.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3532/3532053.png" class="archive-icon" alt="Archive">
             <div class="archive-info">
                 <h4>나의 이수 완료 내역</h4>
@@ -74,23 +90,26 @@
     </div>
 
     <script>
-        // 🚨 0.1초의 마법이 적용된 궁극의 뒤로가기 방어 로직!
+        // 🚨 얼어붙지 않는 절대 방어 "더블 락(Double Lock)" 스크립트!
         (function() {
-            // 1. 페이지에 들어오자마자 자물쇠를 먼저 채웁니다.
-            history.pushState(null, null, location.href);
+            // 1. 처음 페이지 열릴 때 가짜 히스토리를 2개 쌓아서 "더블 락"을 겁니다.
+            window.history.pushState({ noBack: true }, '');
+            window.history.pushState({ noBack: true }, '');
 
-            // 2. 사용자가 스마트폰 뒤로가기 버튼을 누를 때
-            window.onpopstate = function() {
-                // 즉시 자물쇠를 한 번 더 채웁니다.
-                history.pushState(null, null, location.href);
+            // 2. 사용자가 뒤로가기 버튼을 누르면
+            window.addEventListener('popstate', function() {
+                // 또다시 가짜 히스토리를 밀어넣어서 현상 유지!
+                window.history.pushState({ noBack: true }, '');
                 
-                // 🚨 0.1초(100ms) 기다렸다가 경고창을 띄웁니다!
-                // 이렇게 하면 브라우저가 자물쇠를 완전히 잠글 시간을 확보할 수 있습니다.
-                setTimeout(function() {
-                    alert("교육 중에는 뒤로가기를 할 수 없습니다.\n우측 상단의 로그아웃 버튼을 이용해 주세요.");
-                }, 100);
-            };
+                // 3. 브라우저를 멈추는 alert() 대신, 우리가 만든 예쁜 HTML 팝업을 띄움
+                document.getElementById('backAlertModal').style.display = 'flex';
+            });
         })();
+
+        // 가짜 팝업창 닫기 버튼 로직
+        function closeBackAlert() {
+            document.getElementById('backAlertModal').style.display = 'none';
+        }
 
         // 전역 변수 및 설정
         let currentFilter = '전체';
@@ -139,6 +158,7 @@
             });
 
             if (urgentList.length > 0) {
+                // 마감 알림은 화면 로드 시 한 번만 뜨고 동작을 멈추지 않으므로 기본 alert 유지
                 alert(`⚠️ 마감 임박 교육 알림\n\n현재 미이수 상태인 필수 교육이 ${urgentList.length}건 있습니다.\n\n${urgentList.join('\n')}\n\n서둘러 이수해 주시기 바랍니다!`);
             }
         }
