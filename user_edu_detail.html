@@ -36,7 +36,7 @@
 </head>
 <body>
     <div class="top-nav">
-        <button class="nav-btn" onclick="location.replace('user_main.html')">← 메인으로</button>
+        <button class="nav-btn" id="backBtn">← 뒤로가기</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
@@ -48,9 +48,7 @@
             <div class="file-section">
                 <span class="file-label">📎 첨부 파일 학습 (다운로드 불가)</span>
                 <img id="imageViewer" class="img-preview" oncontextmenu="return false;">
-                
                 <div id="pdfWrapper"><canvas id="pdfCanvas"></canvas></div>
-                
                 <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
             </div>
         </div>
@@ -69,16 +67,23 @@
     </div>
 
     <script>
-        (function() {
-            for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() { window.location.replace('user_main.html'); };
-        })();
-
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
+        const isReviewMode = urlParams.get('review') === 'true'; // 🚨 복습 꼬리표 확인
         let isSignatureRequired = false;
+
+        // 🚨 뒤로가기 방어 및 버튼 연결
+        (function() {
+            for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function() { 
+                window.location.replace(isReviewMode ? 'user_history.html' : 'user_main.html'); 
+            };
+            document.getElementById('backBtn').onclick = function() {
+                window.location.replace(isReviewMode ? 'user_history.html' : 'user_main.html');
+            };
+        })();
 
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
@@ -89,11 +94,12 @@
                 document.getElementById('displayContent').innerText = edu.content;
                 document.getElementById('displayType').innerText = edu.category || edu.type || "일반교육";
                 
-                // 🚨 3단계 버튼 제어 마법 시작!
-                if(edu.signatureType === "오프라인") {
-                    // 1. 오프라인 교육일 땐 하단 제출 버튼 영역을 아예 날려버림
-                    document.getElementById('bottomBar').style.display = 'none';
-                    // 2. 하단에 불필요하게 붕 떠있던 여백도 깔끔하게 줄여줌
+                // 🚨 3단계 버튼 제어 마법 + 복습 모드 연동!
+                // 1. 이미 완료한 교육을 다시 보러 왔거나 (review=true)
+                // 2. 관리자가 애초에 '오프라인'으로 올린 글이라면
+                if(isReviewMode || edu.signatureType === "오프라인") {
+                    document.getElementById('bottomBar').style.display = 'none'; // 제출 버튼 숨김
+                    document.getElementById('sigCardArea').style.display = 'none'; // 사인 박스도 숨김
                     document.getElementById('mainContainer').style.paddingBottom = '30px';
                 } 
                 else if(edu.signatureType === "서명 필요" || edu.signatureType === "필요") {
@@ -160,11 +166,9 @@
             if(!confirm("이수를 완료하시겠습니까?")) return;
             const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
             
-            // 기존 Google Sheets 전송 로직 유지
             const sendData = { id: localStorage.getItem('currentUserId'), name: localStorage.getItem('currentUserName'), title: document.getElementById('displayTitle').innerText, signature: signatureData, date: new Date().toLocaleString() };
             fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sendData) })
             .then(() => {
-                // 앱 내부 장부에 기록
                 let completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
                 completed.push({ eduId: eduId, userId: localStorage.getItem('currentUserId'), completedDate: new Date().toLocaleDateString() });
                 localStorage.setItem('completedEduList', JSON.stringify(completed));
