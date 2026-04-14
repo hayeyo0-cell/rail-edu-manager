@@ -16,11 +16,15 @@
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
         .section-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 20px; text-align: left; width: 100%; }
 
+        /* 🚨 터치할 수 있다는 걸 보여주기 위해 클릭 효과 추가 */
         .archive-item { 
             background: white; border-radius: 20px; padding: 20px; 
             margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); 
             display: flex; flex-direction: column; text-align: left; border-left: 5px solid #27ae60;
+            cursor: pointer; transition: transform 0.1s;
         }
+        .archive-item:active { transform: scale(0.98); background: #f9fbfd; }
+        
         .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .comp-badge { font-size: 0.75rem; color: #27ae60; font-weight: bold; background: #e8f5e9; padding: 3px 8px; border-radius: 5px; }
         .item-title { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 5px; }
@@ -41,35 +45,21 @@
     </div>
 
     <script>
-        // 🚨 [보안] 하위 페이지 뒤로가기 방지 로직
-        function preventBack() {
-            window.history.pushState(null, null, window.location.href);
-        }
+        function preventBack() { window.history.pushState(null, null, window.location.href); }
 
         window.onload = function() {
-            // 1. 방어막 즉시 생성
             preventBack();
-
             const myId = localStorage.getItem('currentUserId');
             if(!myId) { 
                 alert("로그인 정보가 없습니다.");
                 location.replace('index.html'); 
                 return; 
             }
-            
             renderArchive();
         };
 
-        // 2. 뒤로가기 감지 시 메인으로 강제 이동
-        window.onpopstate = function() {
-            preventBack();
-            location.replace('user_main.html');
-        };
-
-        // 3. 화면 클릭 시 방어막 리필
-        document.body.onclick = function() {
-            preventBack();
-        };
+        window.onpopstate = function() { preventBack(); location.replace('user_main.html'); };
+        document.body.onclick = function() { preventBack(); };
 
         function renderArchive() {
             const myId = localStorage.getItem('currentUserId');
@@ -88,10 +78,15 @@
             myCompleted.reverse().forEach(item => {
                 const edu = totalEduList.find(e => String(e.id) === String(item.eduId));
                 const title = edu ? edu.title : "삭제된 교육 과정";
-                const info = edu ? `${edu.dept} | ${edu.type}` : "상세 정보 없음";
+                
+                // 🚨 undefined 오류 해결: edu.type 대신 edu.category 사용
+                const info = edu ? `${edu.dept} | ${edu.category || '분류 없음'}` : "상세 정보 없음";
+                
+                // 🚨 살아있는 교육은 상세페이지로 이동(review=true 꼬리표 달기), 지워진 건 알림창 띄우기
+                const clickAction = edu ? `onclick="revisitEdu('${item.eduId}')"` : `onclick="alert('관리자에 의해 삭제되거나 기한이 만료된 교육입니다.')"`;
 
                 html += `
-                    <div class="archive-item">
+                    <div class="archive-item" ${clickAction}>
                         <div class="item-header">
                             <span class="comp-badge">이수 완료</span>
                             <span style="font-size:0.8rem; color:#999;">완료일: ${item.completedDate || '기록없음'}</span>
@@ -102,6 +97,12 @@
                 `;
             });
             archiveListDiv.innerHTML = html;
+        }
+
+        // 🚨 다시 보기 기능 연결
+        function revisitEdu(eduId) {
+            // review=true 꼬리표를 달아서 상세 페이지가 "아! 복습하러 온 거구나" 알게 함
+            window.location.replace(`user_edu_detail.html?id=${eduId}&review=true`);
         }
     </script>
 </body>
