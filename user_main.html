@@ -64,7 +64,7 @@
         <div id="userEduListArea"></div>
 
         <div class="section-title">학습 보관함</div>
-        <div class="archive-card" onclick="location.href='user_history.html'">
+        <div class="archive-card" onclick="location.href='user_archive.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/3532/3532053.png" class="archive-icon" alt="Archive">
             <div class="archive-info">
                 <h4>나의 이수 완료 내역</h4>
@@ -74,22 +74,22 @@
     </div>
 
     <script>
-        // 🚨 완벽한 뒤로가기 방어 로직 (팝업 확인 눌러도 안 튕겨나감!)
+        // 🚨 0.1초의 마법이 적용된 궁극의 뒤로가기 방어 로직!
         (function() {
-            function lockHistory() {
-                window.history.pushState(null, null, window.location.href);
-            }
-            
-            // 1. 페이지 접속하자마자 자물쇠 1차 채움
-            lockHistory();
+            // 1. 페이지에 들어오자마자 자물쇠를 먼저 채웁니다.
+            history.pushState(null, null, location.href);
 
-            // 2. 사용자가 뒤로가기를 시도할 때
-            window.addEventListener('popstate', function() {
-                alert("교육 중에는 뒤로가기를 할 수 없습니다.\n우측 상단의 로그아웃 버튼을 이용해 주세요.");
+            // 2. 사용자가 스마트폰 뒤로가기 버튼을 누를 때
+            window.onpopstate = function() {
+                // 즉시 자물쇠를 한 번 더 채웁니다.
+                history.pushState(null, null, location.href);
                 
-                // 🚨 핵심: 경고창의 [확인]을 누르는 즉시 자물쇠 2차 채움! (튕김 방지)
-                lockHistory(); 
-            });
+                // 🚨 0.1초(100ms) 기다렸다가 경고창을 띄웁니다!
+                // 이렇게 하면 브라우저가 자물쇠를 완전히 잠글 시간을 확보할 수 있습니다.
+                setTimeout(function() {
+                    alert("교육 중에는 뒤로가기를 할 수 없습니다.\n우측 상단의 로그아웃 버튼을 이용해 주세요.");
+                }, 100);
+            };
         })();
 
         // 전역 변수 및 설정
@@ -127,7 +127,6 @@
                 const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
                 const isOffline = edu.signatureType === "오프라인";
                 
-                // 🚨 오프라인 공지는 이수할 필요가 없으므로 알림(팝업)에서 제외!
                 if (isMyEdu && !isDone && edu.deadline && !isOffline) {
                     const targetDate = new Date(edu.deadline).setHours(0, 0, 0, 0);
                     const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
@@ -171,15 +170,12 @@
                 
                 const isOffline = edu.signatureType === "오프라인";
                 
-                // 🚨 오프라인 공지는 '이수' 개념이 없으므로 평생 남아있게 됨.
-                // 따라서 마감 기한이 설정되어 있고, 그 날짜가 지났다면 리스트에서 숨겨줌 (깔끔한 화면 유지)
                 let isExpiredOffline = false;
                 if(isOffline && edu.deadline) {
                     const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
                     if(today > targetDate) isExpiredOffline = true;
                 }
 
-                // 일반 교육은 미이수(!isDone)일 때만 표시, 오프라인은 기한 안 지났으면 항상 표시
                 return isMyDept && (!isDone || isOffline) && isCategoryMatch && !isExpiredOffline;
             });
 
@@ -199,7 +195,6 @@
                     const diff = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
                     const statusText = diff < 0 ? "기한만료" : (diff === 0 ? "D-Day" : `D-${diff}`);
                     
-                    // 오프라인 교육은 '마감 기한'이 아니라 '게시 기한'으로 부드럽게 표현
                     if(isOffline) {
                         ddayBadge = `<span class="dday-badge" style="background:#f0f8ff; color:#0072bc; border-color:#cce5ff;">게시중</span>`;
                         deadlineText = `📢 게시 기한: ${edu.deadline} 까지`;
@@ -212,7 +207,6 @@
                     }
                 }
 
-                // 🚨 오프라인 교육용 초록색 버튼으로 변경
                 const btnText = isOffline ? "📢 내용 확인하기 (이수 불필요)" : "교육 입장하기 →";
                 const btnBgColor = isOffline ? "#27ae60" : "var(--dtro-blue)";
 
