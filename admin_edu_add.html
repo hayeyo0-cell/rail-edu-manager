@@ -26,7 +26,7 @@
         }
         select:focus, input:focus, textarea:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.05); }
         
-        /* 🚨 개선된 서명 라디오 버튼 스타일 */
+        /* 서명 라디오 버튼 스타일 */
         .radio-group { display: flex; gap: 15px; padding: 5px 0; }
         .radio-item { 
             flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; 
@@ -36,7 +36,7 @@
         .radio-item input { width: 20px; height: 20px; cursor: pointer; margin: 0; accent-color: var(--dtro-blue); }
         .radio-item.active { border-color: var(--dtro-blue); background: #f0f7ff; color: var(--dtro-blue); }
 
-        /* 🚨 세련된 파일 첨부 UI */
+        /* 세련된 파일 첨부 UI */
         .file-upload-wrapper { position: relative; width: 100%; margin-top: 5px; }
         .file-upload-btn { 
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; 
@@ -67,10 +67,11 @@
             <label class="input-label">교육 분류</label>
             <select id="eduType">
                 <option value="게시교육">게시교육</option>
-                <option value="안전교육">안전교육</option>
-                <option value="운전취급">운전취급</option>
+                <option value="대면교육">대면교육</option>
+                <option value="면담교육">면담교육</option>
+                <option value="기타교육">기타교육</option>
                 <option value="지시사항">지시사항</option>
-                <option value="시뮬레이션">시뮬레이션</option>
+                <option value="시뮬레이션 교육">시뮬레이션 교육</option>
                 <option value="육성방송 훈련">육성방송 훈련</option>
             </select>
 
@@ -108,7 +109,6 @@
     </div>
 
     <script>
-        // 🚨 뒤로가기 시 무조건 메인으로 강제 리다이렉트
         let isMoving = false;
         (function() {
             history.pushState(null, null, location.href);
@@ -123,34 +123,29 @@
             location.replace('admin_main.html');
         }
 
-        // 현재 소속 불러오기
         const myDept = localStorage.getItem('userDept') || "소속 미지정";
         document.getElementById('currentDept').innerText = myDept;
 
-        // 라디오 버튼 예쁘게 하이라이트 주는 로직
         function updateRadioUI() {
             const isYes = document.querySelector('input[name="needSig"]:checked').value === "필요";
             document.getElementById('labelSigYes').classList.toggle('active', isYes);
             document.getElementById('labelSigNo').classList.toggle('active', !isYes);
         }
 
-        // 🚨 [보안 방어막] 파일 첨부 시 용량 제한 로직 (2MB 한도)
         let selectedFileData = ""; 
         document.getElementById('eduFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const nameDisplay = document.getElementById('fileNameDisplay');
             
             if (file) {
-                // 용량이 2MB(2 * 1024 * 1024 bytes)를 초과하는 경우 차단
                 if (file.size > 2 * 1024 * 1024) {
                     alert("⚠️ 파일 용량이 너무 큽니다! (최대 2MB 제한)\n\n용량이 큰 파일을 저장하면 시스템이 멈출 수 있습니다. 파일 크기를 줄이거나 다른 파일을 선택해 주세요.");
-                    this.value = ''; // 입력창 초기화
+                    this.value = ''; 
                     nameDisplay.style.display = 'none';
                     selectedFileData = "";
                     return;
                 }
 
-                // 정상 용량일 경우 화면에 파일 이름 표시
                 nameDisplay.innerText = `📎 첨부됨: ${file.name}`;
                 nameDisplay.style.display = 'block';
 
@@ -163,7 +158,6 @@
             }
         });
 
-        // 교육 데이터 저장
         function saveEdu() {
             const title = document.getElementById('eduTitle').value.trim();
             const content = document.getElementById('eduContent').value.trim();
@@ -179,11 +173,9 @@
                 deadline = "기한 없음";
             }
 
-            // localStorage에서 기존 데이터 불러오기
             const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             
             try {
-                // 데이터 밀어넣기
                 totalEduList.push({
                     id: Date.now(),
                     dept: myDept,
@@ -196,7 +188,6 @@
                     date: new Date().toLocaleDateString()
                 });
 
-                // 🚨 용량 에러(QuotaExceededError) 캐치용 try-catch 문
                 localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
                 
                 alert("🎉 새로운 교육이 성공적으로 등록되었습니다!");
@@ -204,7 +195,6 @@
                 location.replace('admin_main.html');
                 
             } catch (error) {
-                // 만약 그동안 쌓인 데이터가 너무 많아서 터진 경우
                 console.error(error);
                 alert("⚠️ 시스템 저장 공간이 꽉 찼습니다!\n기존에 등록된 오래된 교육들을 삭제하여 공간을 확보한 뒤 다시 시도해 주세요.");
             }
