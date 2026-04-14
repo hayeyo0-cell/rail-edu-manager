@@ -12,7 +12,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
             align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.4s ease; /* 🚨 페이드아웃 속도 살짝 상향 */
+            transition: opacity 0.4s ease;
         }
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
@@ -70,6 +70,7 @@
 
     <script>
         let isMoving = false;
+        let isBackAlertShowing = false; // 🚨 무한 루프 방지용 자물쇠 추가!
 
         function pushState() {
             window.history.pushState(null, null, window.location.href);
@@ -83,25 +84,36 @@
                 splash.style.display = 'none';
                 card.classList.add('show');
             } else {
-                // 🚨 스플래시 대기 시간을 0.8초(800ms)로 단축
                 setTimeout(() => {
                     splash.style.opacity = '0';
                     setTimeout(() => {
                         splash.style.display = 'none';
                         card.classList.add('show');
                         sessionStorage.setItem('isSplashShown', 'true');
-                    }, 400); // 🚨 페이드아웃 시간도 0.4초로 최적화
+                    }, 400); 
                 }, 800); 
             }
-            pushState();
+            pushState(); // 처음 페이지 진입 시 상태 밀어넣기
         };
 
-        window.onpopstate = function() {
+        // 🚨 뒤로가기 무한 루프 해결 로직
+        window.addEventListener('popstate', function(event) {
             if (isMoving) return; 
-            pushState();
-            window.location.replace(window.location.href);
-            alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
-        };
+            
+            pushState(); // 뒤로가기를 무효화시키고 현재 페이지에 가둠
+
+            // 자물쇠가 열려 있을 때만 경고창 띄우기
+            if (!isBackAlertShowing) {
+                isBackAlertShowing = true; // 자물쇠 잠금
+                
+                alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
+                
+                // 사용자가 확인을 누르고 0.5초 뒤에 자물쇠 해제 (쿨타임)
+                setTimeout(() => {
+                    isBackAlertShowing = false;
+                }, 500);
+            }
+        });
 
         function exitApp() {
             if(confirm("시스템을 종료하시겠습니까?")) {
@@ -138,7 +150,6 @@
             localStorage.setItem('currentUserId', user.id);
 
             isMoving = true;           
-            window.onpopstate = null;  
             
             setTimeout(() => { window.location.replace('user_main.html'); }, 100);
         }
@@ -150,9 +161,7 @@
             const savedPw = localStorage.getItem('adminPw');
             
             isMoving = true;
-            window.onpopstate = null;
 
-            // 🚨 관리자 로그인 순서 교정 유지 (사번 체크 1순위)
             if (savedId && String(inputId) === String(savedId) && inputPw === savedPw) { 
                 window.location.replace('admin_main.html'); 
                 return; 
