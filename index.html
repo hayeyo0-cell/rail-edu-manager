@@ -11,8 +11,7 @@
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: white; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.4s ease;
+            align-items: center; justify-content: center; z-index: 9999; transition: opacity 0.4s ease;
         }
         .splash-logo { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .splash-text { font-size: 1.5rem; font-weight: bold; color: #222; }
@@ -20,21 +19,34 @@
         .login-card { 
             width: 90%; max-width: 400px; background: white; padding: 45px 25px; 
             border-radius: 30px; box-shadow: 0 12px 40px rgba(0,0,0,0.06); 
-            text-align: center; display: none; 
+            text-align: center; display: none; box-sizing: border-box;
         }
         .login-card.show { display: block; animation: fadeIn 0.5s forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .logo-area img { width: 180px; height: auto; margin-bottom: 20px; object-fit: contain; }
         .main-title { display: inline-block; font-size: 1.5rem; font-weight: bold; color: #222; margin-bottom: 30px; background: linear-gradient(to top, rgba(0, 114, 188, 0.2) 40%, transparent 40%); padding: 0 5px; }
+        
         .tab-menu { display: flex; margin-bottom: 25px; background: #f0f0f0; border-radius: 15px; padding: 5px; }
         .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; background: none; color: #999; }
         .tab-btn.active { background: white; color: var(--dtro-blue); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
         .input-group { text-align: left; margin-bottom: 15px; }
         .input-label { font-size: 0.85rem; font-weight: bold; color: #666; margin-bottom: 6px; display: block; padding-left: 5px; }
         input { width: 100%; padding: 15px; border: 1px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 1rem; background: #fafafa; outline: none; }
+        
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
+
+        /* 커스텀 모달 디자인 */
+        .custom-alert-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999999; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .custom-alert-box { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.3s ease; }
+        .custom-alert-title { font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; }
+        .custom-alert-msg { font-size: 0.95rem; color: #444; line-height: 1.5; margin-bottom: 20px; word-break: keep-all; }
+        .btn-group-row { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        .modal-btn-cancel { background: #f0f0f0; color: #666; }
+        .modal-btn-confirm { background: var(--dtro-blue); color: white; }
     </style>
 </head>
 <body>
@@ -42,6 +54,17 @@
     <div id="splashScreen">
         <img src="logo.png" class="splash-logo" alt="DTRO">
         <div class="splash-text">스마트 교육 플랫폼</div>
+    </div>
+
+    <div id="authModal" class="custom-alert-bg">
+        <div class="custom-alert-box">
+            <div id="authModalTitle" class="custom-alert-title">📱 기기 인증 필요</div>
+            <div id="authModalMsg" class="custom-alert-msg">등록되지 않은 기기입니다.<br>관리자에게 기기 승인을 요청하시겠습니까?</div>
+            <div class="btn-group-row" id="authBtnGroup">
+                <button class="modal-btn modal-btn-cancel" onclick="closeAuthModal()">취소</button>
+                <button class="modal-btn modal-btn-confirm" id="requestAuthBtn">요청하기</button>
+            </div>
+        </div>
     </div>
 
     <div class="login-card" id="loginCard">
@@ -56,7 +79,7 @@
         <div id="userForm">
             <div class="input-group"><span class="input-label">사용자 사번</span><input type="number" id="userId" placeholder="사번 입력" inputmode="numeric"></div>
             <div class="input-group"><span class="input-label">팀 공용 비밀번호</span><input type="password" id="userPw" placeholder="비밀번호 입력"></div>
-            <button class="login-btn" onclick="userLogin()">교육 시작하기 →</button>
+            <button class="login-btn" onclick="userLogin()">로그인 및 교육 시작 →</button>
         </div>
 
         <div id="adminForm" style="display: none;">
@@ -70,16 +93,19 @@
 
     <script>
         let isMoving = false;
-        let isBackAlertShowing = false; // 🚨 무한 루프 방지용 자물쇠 추가!
 
-        function pushState() {
-            window.history.pushState(null, null, window.location.href);
-        }
+        function pushState() { window.history.pushState(null, null, window.location.href); }
 
         window.onload = function() {
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
             
+            // 🚨 내 스마트폰만의 고유 ID(기기 번호) 생성 및 발급
+            if(!localStorage.getItem('myDeviceUUID')) {
+                const uniqueId = 'device-' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('myDeviceUUID', uniqueId);
+            }
+
             if (sessionStorage.getItem('isSplashShown')) {
                 splash.style.display = 'none';
                 card.classList.add('show');
@@ -93,26 +119,13 @@
                     }, 400); 
                 }, 800); 
             }
-            pushState(); // 처음 페이지 진입 시 상태 밀어넣기
+            pushState(); 
         };
 
-        // 🚨 뒤로가기 무한 루프 해결 로직
         window.addEventListener('popstate', function(event) {
             if (isMoving) return; 
-            
-            pushState(); // 뒤로가기를 무효화시키고 현재 페이지에 가둠
-
-            // 자물쇠가 열려 있을 때만 경고창 띄우기
-            if (!isBackAlertShowing) {
-                isBackAlertShowing = true; // 자물쇠 잠금
-                
-                alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
-                
-                // 사용자가 확인을 누르고 0.5초 뒤에 자물쇠 해제 (쿨타임)
-                setTimeout(() => {
-                    isBackAlertShowing = false;
-                }, 500);
-            }
+            pushState(); 
+            alert("보안을 위해 뒤로가기를 사용할 수 없습니다. '시스템 종료'를 이용해 주세요.");
         });
 
         function exitApp() {
@@ -135,23 +148,80 @@
             }
         }
 
+        function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
+        function showAuthMsg(title, msg, showBtns = false) {
+            document.getElementById('authModalTitle').innerHTML = title;
+            document.getElementById('authModalMsg').innerHTML = msg;
+            document.getElementById('authBtnGroup').style.display = showBtns ? 'flex' : 'none';
+            
+            if(!showBtns) { // 버튼이 없을 땐 확인 버튼 하나만 생성
+                document.getElementById('authBtnGroup').style.display = 'flex';
+                document.getElementById('authBtnGroup').innerHTML = `<button class="modal-btn modal-btn-confirm" onclick="closeAuthModal()">확인</button>`;
+            }
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        // 🚨 직원 철통 보안 로그인 로직
         function userLogin() {
-            const inputId = document.getElementById('userId').value;
+            const inputId = document.getElementById('userId').value.trim();
             const inputPw = document.getElementById('userPw').value;
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             const savedTeamPw = localStorage.getItem('teamPw') || "1234";
-            const user = totalUserList.find(u => String(u.id) === String(inputId));
             
-            if (!user) return alert("명단에 없는 사번입니다.");
-            if (inputPw !== savedTeamPw) return alert("비밀번호가 틀렸습니다.");
+            const userIndex = totalUserList.findIndex(u => String(u.id) === String(inputId));
+            const myDeviceUUID = localStorage.getItem('myDeviceUUID');
             
-            localStorage.setItem('currentUserDept', user.dept);
-            localStorage.setItem('currentUserName', user.name);
-            localStorage.setItem('currentUserId', user.id);
+            // 1차: 명단 및 비번 확인
+            if (userIndex === -1) { alert("관리자 명단에 등록되지 않은 사번입니다."); return; }
+            if (inputPw !== savedTeamPw) { alert("팀 공용 비밀번호가 틀렸습니다."); return; }
+            
+            const user = totalUserList[userIndex];
+            const status = user.authStatus || 'none';
 
-            isMoving = true;           
+            // 2차: 기기 인증 및 승인 상태 확인
+            if (status === 'none') {
+                // 한 번도 승인 요청한 적 없는 새 기기
+                document.getElementById('authBtnGroup').innerHTML = `
+                    <button class="modal-btn modal-btn-cancel" onclick="closeAuthModal()">취소</button>
+                    <button class="modal-btn modal-btn-confirm" onclick="requestDeviceAuth('${inputId}')">인증 요청</button>
+                `;
+                showAuthMsg('📱 기기 인증 필요', '처음 접속하는 기기입니다.<br>관리자에게 기기 승인을 요청하시겠습니까?', true);
+                return;
+            } 
+            else if (status === 'pending') {
+                if(user.deviceId === myDeviceUUID) {
+                    showAuthMsg('⏳ 승인 대기 중', '관리자의 기기 승인을 기다리고 있습니다.<br>승인 완료 후 로그인해 주세요.');
+                } else {
+                    showAuthMsg('🚫 접속 불가', '해당 사번은 다른 기기에서 승인 대기 중입니다.');
+                }
+                return;
+            }
+            else if (status === 'approved') {
+                if(user.deviceId === myDeviceUUID) {
+                    // 🎉 내 폰으로 승인받은 정상 로그인!
+                    localStorage.setItem('currentUserDept', user.dept);
+                    localStorage.setItem('currentUserName', user.name);
+                    localStorage.setItem('currentUserId', user.id);
+                    isMoving = true;           
+                    setTimeout(() => { window.location.replace('user_main.html'); }, 100);
+                } else {
+                    showAuthMsg('🚫 다른 기기 등록됨', '해당 사번은 이미 다른 스마트폰에 귀속되어 있습니다.<br>기기 변경 시 관리자에게 해제를 요청하세요.');
+                }
+            }
+        }
+
+        // 🚨 사용자가 기기 인증을 요청하는 함수
+        function requestDeviceAuth(id) {
+            let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const userIndex = totalUserList.findIndex(u => String(u.id) === String(id));
             
-            setTimeout(() => { window.location.replace('user_main.html'); }, 100);
+            if(userIndex !== -1) {
+                totalUserList[userIndex].authStatus = 'pending';
+                totalUserList[userIndex].deviceId = localStorage.getItem('myDeviceUUID');
+                localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
+                
+                showAuthMsg('✅ 요청 완료', '관리자에게 기기 승인 요청이 전송되었습니다.<br>승인 후 다시 로그인해 주세요.');
+            }
         }
 
         function adminLogin() {
