@@ -38,7 +38,6 @@
         .login-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .exit-btn { width: 100%; padding: 12px; background: none; color: #bbb; border: none; font-size: 0.85rem; font-weight: bold; cursor: pointer; margin-top: 20px; text-decoration: underline; }
 
-        /* 커스텀 모달 디자인 */
         .custom-alert-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999999; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .custom-alert-box { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.3s ease; }
         .custom-alert-title { font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; }
@@ -100,7 +99,6 @@
             const splash = document.getElementById('splashScreen');
             const card = document.getElementById('loginCard');
             
-            // 🚨 내 스마트폰만의 고유 ID(기기 번호) 생성 및 발급
             if(!localStorage.getItem('myDeviceUUID')) {
                 const uniqueId = 'device-' + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem('myDeviceUUID', uniqueId);
@@ -151,17 +149,17 @@
         function closeAuthModal() { document.getElementById('authModal').style.display = 'none'; }
         function showAuthMsg(title, msg, showBtns = false) {
             document.getElementById('authModalTitle').innerHTML = title;
+            document.getElementById('authModalTitle').style.color = title.includes('🚫') ? '#ff4d4d' : 'var(--dtro-blue)';
             document.getElementById('authModalMsg').innerHTML = msg;
             document.getElementById('authBtnGroup').style.display = showBtns ? 'flex' : 'none';
             
-            if(!showBtns) { // 버튼이 없을 땐 확인 버튼 하나만 생성
+            if(!showBtns) { 
                 document.getElementById('authBtnGroup').style.display = 'flex';
                 document.getElementById('authBtnGroup').innerHTML = `<button class="modal-btn modal-btn-confirm" onclick="closeAuthModal()">확인</button>`;
             }
             document.getElementById('authModal').style.display = 'flex';
         }
 
-        // 🚨 직원 철통 보안 로그인 로직
         function userLogin() {
             const inputId = document.getElementById('userId').value.trim();
             const inputPw = document.getElementById('userPw').value;
@@ -171,16 +169,13 @@
             const userIndex = totalUserList.findIndex(u => String(u.id) === String(inputId));
             const myDeviceUUID = localStorage.getItem('myDeviceUUID');
             
-            // 1차: 명단 및 비번 확인
             if (userIndex === -1) { alert("관리자 명단에 등록되지 않은 사번입니다."); return; }
             if (inputPw !== savedTeamPw) { alert("팀 공용 비밀번호가 틀렸습니다."); return; }
             
             const user = totalUserList[userIndex];
             const status = user.authStatus || 'none';
 
-            // 2차: 기기 인증 및 승인 상태 확인
             if (status === 'none') {
-                // 한 번도 승인 요청한 적 없는 새 기기
                 document.getElementById('authBtnGroup').innerHTML = `
                     <button class="modal-btn modal-btn-cancel" onclick="closeAuthModal()">취소</button>
                     <button class="modal-btn modal-btn-confirm" onclick="requestDeviceAuth('${inputId}')">인증 요청</button>
@@ -192,13 +187,12 @@
                 if(user.deviceId === myDeviceUUID) {
                     showAuthMsg('⏳ 승인 대기 중', '관리자의 기기 승인을 기다리고 있습니다.<br>승인 완료 후 로그인해 주세요.');
                 } else {
-                    showAuthMsg('🚫 접속 불가', '해당 사번은 다른 기기에서 승인 대기 중입니다.');
+                    showAuthMsg('🚫 접속 불가', '해당 사번은 이미 다른 기기에서 승인 대기 중입니다.');
                 }
                 return;
             }
             else if (status === 'approved') {
                 if(user.deviceId === myDeviceUUID) {
-                    // 🎉 내 폰으로 승인받은 정상 로그인!
                     localStorage.setItem('currentUserDept', user.dept);
                     localStorage.setItem('currentUserName', user.name);
                     localStorage.setItem('currentUserId', user.id);
@@ -210,14 +204,23 @@
             }
         }
 
-        // 🚨 사용자가 기기 인증을 요청하는 함수
         function requestDeviceAuth(id) {
             let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             const userIndex = totalUserList.findIndex(u => String(u.id) === String(id));
+            const myDeviceUUID = localStorage.getItem('myDeviceUUID');
+
+            // 🚨 [보안 추가] 1기기 1사번 철통 검사!
+            // 이 스마트폰(myDeviceUUID)이 이미 다른 사람의 사번으로 대기중이거나 승인된 상태인지 검사합니다.
+            const isDeviceAlreadyUsed = totalUserList.some(u => u.deviceId === myDeviceUUID && String(u.id) !== String(id));
             
+            if (isDeviceAlreadyUsed) {
+                showAuthMsg('🚫 기기 중복 등록 불가', '이 스마트폰은 이미 다른 동료의 사번으로 인증되어 있습니다.<br><b>1개의 스마트폰에서는 1개의 사번만 사용할 수 있습니다.</b>');
+                return;
+            }
+
             if(userIndex !== -1) {
                 totalUserList[userIndex].authStatus = 'pending';
-                totalUserList[userIndex].deviceId = localStorage.getItem('myDeviceUUID');
+                totalUserList[userIndex].deviceId = myDeviceUUID;
                 localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
                 
                 showAuthMsg('✅ 요청 완료', '관리자에게 기기 승인 요청이 전송되었습니다.<br>승인 후 다시 로그인해 주세요.');
