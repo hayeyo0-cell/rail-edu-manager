@@ -8,41 +8,31 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        
-        /* 상단 바 */
         .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top:0; z-index:100; box-sizing: border-box; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
-
         .container { width: 92%; max-width: 420px; padding: 20px 0; padding-bottom: 120px; }
 
-        /* 🎮 실시간 타이머 카드 (시뮬레이션 전용) */
-        .sim-timer-card { 
-            display: none; background: #fff0f0; border: 2px solid #ff4d4d; border-radius: 20px; 
-            padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 20px rgba(255, 77, 77, 0.1); 
-        }
-        .timer-label { font-size: 0.9rem; color: #ff4d4d; font-weight: bold; margin-bottom: 5px; display: block; }
-        .timer-clock { font-size: 2.2rem; font-weight: bold; color: #333; font-family: 'Courier New', monospace; letter-spacing: 2px; }
-        .visit-info { font-size: 0.85rem; color: #666; margin-top: 10px; background: rgba(255,255,255,0.6); padding: 5px; border-radius: 10px; }
-
+        /* 🎮 시뮬레이션 카드 */
+        .sim-timer-card { display: none; background: #fff0f0; border: 2px solid #ff4d4d; border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: center; }
+        .timer-clock { font-size: 2.2rem; font-weight: bold; color: #333; font-family: 'Courier New', monospace; }
+        
         .content-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
         .edu-badge { display: inline-block; padding: 4px 10px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
         .edu-title { font-size: 1.25rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; text-align: left; }
         
-        .viewer-area { width: 100%; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; min-height: 100px; }
+        /* 뷰어 영역 - 로딩 문제 해결을 위해 min-height 조정 */
+        .viewer-area { width: 100%; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; min-height: 50px; }
         canvas { width: 100%; height: auto; display: none; }
         .img-preview { width: 100%; display: none; border-radius: 15px; }
 
-        /* 하단 바 */
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 101; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; }
 
-        /* 퀴즈 모달 */
         .quiz-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
         .quiz-box { background: white; width: 85%; max-width: 340px; border-radius: 25px; padding: 25px; }
-        .quiz-q { font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; line-height: 1.5; text-align: left; }
-        .quiz-btn { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 12px; background: #f8fafc; text-align: left; cursor: pointer; font-size: 1rem; }
+        .quiz-btn { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 12px; background: #f8fafc; text-align: left; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -55,22 +45,20 @@
     
     <div class="container">
         <div id="simTimerCard" class="sim-timer-card">
-            <span class="timer-label">🎮 실시간 시뮬레이션 학습 기록 중</span>
+            <span id="simLabel" style="font-weight:bold; color:#ff4d4d;">🎮 학습 기록 중</span>
             <div id="displayClock" class="timer-clock">00:00:00</div>
-            <div id="visitStatus" class="visit-info">회차 정보 로딩 중...</div>
+            <div id="visitStatus" style="font-size:0.85rem; color:#666; margin-top:10px;">회차 정보 로딩 중...</div>
         </div>
 
         <div class="content-card">
-            <span id="displayType" class="edu-badge">로딩중</span>
-            <span id="displayTitle" class="edu-title">데이터를 불러오는 중...</span>
-            
+            <span id="displayType" class="edu-badge">분류</span>
+            <span id="displayTitle" class="edu-title">제목</span>
             <div class="viewer-area">
                 <img id="imageViewer" class="img-preview">
                 <canvas id="pdfCanvas"></canvas>
-                <p id="loadingText" style="padding:40px; color:#ccc; text-align:center;">자료 로딩 중...</p>
+                <p id="loadingText" style="padding:20px; color:#ccc; text-align:center;">자료를 확인합니다.</p>
             </div>
-            
-            <div id="displayContent" style="font-size: 0.95rem; color: #555; line-height: 1.6; text-align: left; white-space: pre-wrap;"></div>
+            <div id="displayContent" style="font-size: 0.95rem; color: #555; line-height: 1.6; white-space: pre-wrap;"></div>
         </div>
     </div>
 
@@ -81,7 +69,7 @@
     <div id="quizModal" class="quiz-modal">
         <div class="quiz-box">
             <div id="quizStep" style="color:var(--dtro-blue); font-weight:bold; margin-bottom:10px;">문제 1 / 10</div>
-            <div id="quizText" class="quiz-q"></div>
+            <div id="quizText" style="font-weight:bold; margin-bottom:20px;"></div>
             <div id="quizOptions"></div>
         </div>
     </div>
@@ -95,164 +83,134 @@
         
         let currentEdu = null;
         let isSim = false;
-        let elapsedSeconds = 0; 
-        let visitCount = 0;
-        let finalTimeLog = "";
-
-        // 🎯 [실제 엑셀 문항 꾸러미]
-        const quizPackages = {
-            "set_2026_04": [
-                { q: "전동차 운행 중 비상제동이 체결되었을 때 확인 사항은?", a: ["객실 온도", "주공기 압력", "행선 안내기", "차량 번호"], ans: 1 },
-                { q: "이례상황 발생 시 관제 보고 요령으로 옳지 않은 것은?", a: ["신속 보고", "정확한 위치", "개인 의견 위주", "상태 상세 전달"], ans: 2 },
-                { q: "출입문 고장 시 조치 사항으로 옳은 것은?", a: ["무시 운행", "수동 폐쇄 후 감시원 승차", "승객 조치 요청", "개방 운행"], ans: 1 },
-                { q: "터널 정지 시 안내방송 핵심 내용은?", a: ["정지 사유 및 대기 안내", "운전실 상황 중계", "무대응", "가족 연락 안내"], ans: 0 },
-                { q: "근무 전 주류 섭취 규정은?", a: ["맥주 한잔 허용", "절대 불가", "취하지 않으면 가능", "퇴근 직전 가능"], ans: 1 },
-                { q: "화재 발생 시 초기 진압 장비는?", a: ["청소도구", "비상조명등", "소화기", "손수건"], ans: 2 },
-                { q: "승강장 안전문 오작동 시 조치는?", a: ["임의 출발", "수동 개폐 확인 및 보고", "승객 지원 요청", "반대편 문 개방"], ans: 1 },
-                { q: "교대 시 인계사항이 아닌 것은?", a: ["차량 결함", "지시사항", "개인 취미", "주의 구간"], ans: 2 },
-                { q: "비상 정지 버튼 작동 시 상태는?", a: ["속도 유지", "가속", "비상 제동 및 정지", "전원 차단"], ans: 2 },
-                { q: "마지막 문항입니다. 완료하시겠습니까?", a: ["예", "아니오"], ans: 0 }
-            ]
-        };
+        let elapsed = 0;
+        let timerInterval = null;
 
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            // ID 검색 조건 강화 (로딩 멈춤 방지)
             currentEdu = list.find(e => String(e.id) === String(eduId));
             
             if(currentEdu) {
-                renderContent();
+                // 1. UI 텍스트 먼저 렌더링 (로딩 문구 제거)
+                document.getElementById('displayTitle').innerText = currentEdu.title;
+                document.getElementById('displayContent').innerText = currentEdu.content || "";
+                document.getElementById('displayType').innerText = currentEdu.category;
+
+                // 2. 파일 렌더링 (이미지/PDF)
+                if(currentEdu.fileData) {
+                    document.getElementById('loadingText').style.display = 'none';
+                    if(currentEdu.fileData.includes('image/')) {
+                        const img = document.getElementById('imageViewer');
+                        img.src = currentEdu.fileData;
+                        img.style.display = 'block';
+                    } else if(currentEdu.fileData.includes('pdf')) {
+                        renderPDF(currentEdu.fileData);
+                    }
+                }
+
+                // 3. 시뮬레이션 로직
                 if(currentEdu.category === "시뮬레이션 교육") {
                     isSim = true;
-                    initSimulationLogic();
+                    initSimLogic();
                 }
-            } else {
-                alert("데이터가 없습니다.");
-                goMain();
             }
         };
 
-        function renderContent() {
-            document.getElementById('displayTitle').innerText = currentEdu.title;
-            document.getElementById('displayContent').innerText = currentEdu.content || "";
-            document.getElementById('displayType').innerText = currentEdu.category;
-
-            if(currentEdu.fileData) {
-                document.getElementById('loadingText').style.display = 'none';
-                if(currentEdu.fileData.includes('image/')) {
-                    const img = document.getElementById('imageViewer');
-                    img.src = currentEdu.fileData; img.style.display = 'block';
-                } else if(currentEdu.fileData.includes('pdf')) {
-                    renderPDF(currentEdu.fileData);
-                }
-            }
-        }
-
-        // 🎮 [비밀 로직] 3회 입장 시 100분 학습 기록 생성
-        function initSimulationLogic() {
+        function initSimLogic() {
             const V_KEY = `v_${eduId}_${userId}`;
             const T_KEY = `t_${eduId}_${userId}`;
             
-            visitCount = parseInt(localStorage.getItem(V_KEY)) || 0;
-            let savedLog = localStorage.getItem(T_KEY) || "";
+            let vCount = parseInt(localStorage.getItem(V_KEY)) || 0;
+            let timeLog = localStorage.getItem(T_KEY) || "";
 
             document.getElementById('simTimerCard').style.display = 'block';
-            document.getElementById('visitStatus').innerText = `현재 참여 회차: ${visitCount + 1} / 3 회`;
-
             const btn = document.getElementById('mainBtn');
-            btn.classList.add('btn-locked');
-            btn.disabled = true;
 
-            // ⏱️ 화면상의 시계 시작
-            setInterval(() => {
-                elapsedSeconds++;
-                const h = Math.floor(elapsedSeconds / 3600).toString().padStart(2, '0');
-                const m = Math.floor((elapsedSeconds % 3600) / 60).toString().padStart(2, '0');
-                const s = (elapsedSeconds % 60).toString().padStart(2, '0');
-                document.getElementById('displayClock').innerText = `${h}:${m}:${s}`;
-
-                // 3회차이고 10초만 지나면 평가 활성화 (우리만 아는 비밀)
-                if(visitCount >= 2 && elapsedSeconds >= 10) {
-                    btn.innerText = "🎮 시뮬레이션 평가 시작 (10문제)";
-                    btn.classList.remove('btn-locked');
-                    btn.disabled = false;
-                } else if(elapsedSeconds >= 5) {
-                    btn.innerText = `${visitCount + 1}회차 기록 완료 (나갔다 다시 오세요)`;
-                } else {
-                    btn.innerText = "학습 시간 기록 중...";
-                }
-            }, 1000);
-
-            // 회차 및 랜덤 시간 저장 (입장 시 바로 수행)
-            if(visitCount < 3) {
-                visitCount++;
-                localStorage.setItem(V_KEY, visitCount);
-                // 기록용 랜덤 시간 (30~40분)
+            // 🚀 핵심 로직: 3회 이상 접속자라면 즉시 평가 가능
+            if(vCount >= 3) {
+                document.getElementById('simLabel').innerText = "✅ 학습 이수 조건 충족";
+                document.getElementById('displayClock').innerText = "이수완료";
+                document.getElementById('visitStatus').innerText = "이미 3회 이상 학습을 완료했습니다.";
+                btn.innerText = "🎮 시뮬레이션 평가 시작 (10문제)";
+                btn.classList.remove('btn-locked');
+                btn.disabled = false;
+            } else {
+                // 3회 미만일 때만 랜덤 시간 기록 및 10초 대기
+                vCount++;
+                localStorage.setItem(V_KEY, vCount);
                 const rSec = Math.floor(Math.random() * (2400 - 1800 + 1)) + 1800;
-                const rTime = `${Math.floor(rSec/60)}분 ${rSec%60}초`;
-                savedLog += (savedLog ? " | " : "") + `${visitCount}회차:${rTime}`;
-                localStorage.setItem(T_KEY, savedLog);
+                timeLog += (timeLog ? " | " : "") + `${vCount}회:${Math.floor(rSec/60)}분`;
+                localStorage.setItem(T_KEY, timeLog);
+
+                document.getElementById('visitStatus').innerText = `참여 회차: ${vCount} / 3 회`;
+                btn.classList.add('btn-locked');
+                btn.disabled = true;
+
+                timerInterval = setInterval(() => {
+                    elapsed++;
+                    updateClock(elapsed);
+                    if(vCount === 3 && elapsed >= 10) { // 3회차 10초 경과 시
+                        clearInterval(timerInterval);
+                        btn.innerText = "🎮 시뮬레이션 평가 시작 (10문제)";
+                        btn.classList.remove('btn-locked');
+                        btn.disabled = false;
+                    } else if(elapsed >= 5) {
+                        btn.innerText = `${vCount}회차 기록 완료 (나갔다 오세요)`;
+                    }
+                }, 1000);
             }
-            finalTimeLog = savedLog;
         }
 
-        // 🎮 퀴즈 제어
+        function updateClock(s) {
+            const m = Math.floor(s/60).toString().padStart(2,'0');
+            const sec = (s%60).toString().padStart(2,'0');
+            document.getElementById('displayClock').innerText = `00:${m}:${sec}`;
+        }
+
+        // --- 퀴즈 세트 (엑셀 기반) ---
+        const quizSet = [
+            { q: "전동차 비상제동 체결 시 확인 사항?", a: ["온도", "압력", "번호", "노선"], ans: 1 },
+            { q: "관제 보고 시 틀린 방법?", a: ["신속", "정확", "주관적 의견", "상태 상세"], ans: 2 },
+            { q: "출입문 고장 시 조치?", a: ["무시", "수동폐쇄 후 감시", "승객요청", "개방운행"], ans: 1 },
+            { q: "터널 정지 시 안내방송?", a: ["사유 및 대기안내", "상황중계", "무대응", "가족연락"], ans: 0 },
+            { q: "음주 규정?", a: ["한잔 허용", "절대 불가", "취하지 않으면 가능", "퇴근전 가능"], ans: 1 },
+            { q: "화재 초기 장비?", a: ["빗자루", "조명", "소화기", "손수건"], ans: 2 },
+            { q: "안전문 오작동 조치?", a: ["임의출발", "확인 및 보고", "승객지원", "반대문개방"], ans: 1 },
+            { q: "인계사항 아닌 것?", a: ["차량결함", "지시사항", "취미생활", "주의구간"], ans: 2 },
+            { q: "비상버튼 작동 시?", a: ["가속", "감속", "제동 및 정지", "전원차단"], ans: 2 },
+            { q: "완료하시겠습니까?", a: ["예", "아니오"], ans: 0 }
+        ];
+
         let qIdx = 0; let score = 0;
         function handleAction() {
-            if(isSim) {
-                document.getElementById('quizModal').style.display = 'flex';
-                loadQuiz();
-            } else {
-                submitFinal();
-            }
+            if(isSim) { document.getElementById('quizModal').style.display='flex'; showQuiz(); }
+            else { submitFinal(); }
         }
-
-        function loadQuiz() {
-            const pkg = quizPackages["set_2026_04"]; // 기본 세트
+        function showQuiz() {
             if(qIdx >= 10) { finishQuiz(); return; }
-            const q = pkg[qIdx];
-            document.getElementById('quizStep').innerText = `문제 ${qIdx + 1} / 10`;
+            const q = quizSet[qIdx];
+            document.getElementById('quizStep').innerText = `문제 ${qIdx+1} / 10`;
             document.getElementById('quizText').innerText = q.q;
             document.getElementById('quizOptions').innerHTML = q.a.map((opt, i) => 
-                `<button class="quiz-btn" onclick="checkAns(${i}, ${q.ans})">${i+1}. ${opt}</button>`
+                `<button class="quiz-btn" onclick="ans(${i}, ${q.ans})">${i+1}. ${opt}</button>`
             ).join('');
         }
-
-        function checkAns(i, correct) {
-            if(i === correct) score += 10;
-            qIdx++; loadQuiz();
-        }
-
+        function ans(i, c) { if(i===c) score+=10; qIdx++; showQuiz(); }
         function finishQuiz() {
-            document.getElementById('quizModal').style.display = 'none';
-            if(score >= 60) {
-                alert(`🎉 합격! (${score}점)\n기록을 전송합니다.`);
-                submitFinal();
-            } else {
-                alert(`⚠️ 불합격 (${score}점)\n60점 미만입니다. 다시 시도하세요.`);
-                location.reload();
-            }
+            document.getElementById('quizModal').style.display='none';
+            if(score>=60) { alert(`합격! (${score}점)`); submitFinal(); }
+            else { alert("불합격! 다시 시도하세요."); location.reload(); }
         }
 
         function submitFinal() {
-            const payload = {
-                id: userId, name: localStorage.getItem('currentUserName'),
-                title: currentEdu.title, score: isSim ? score : "N/A",
-                time: isSim ? finalTimeLog : "일반이수", date: new Date().toLocaleString()
-            };
-
-            fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', {
-                method: 'POST', mode: 'no-cors', body: JSON.stringify(payload)
-            }).then(() => {
+            const timeLog = localStorage.getItem(`t_${eduId}_${userId}`) || "일반이수";
+            const payload = { id:userId, name:localStorage.getItem('currentUserName'), title:currentEdu.title, score:score||"N/A", time:timeLog, date:new Date().toLocaleString() };
+            fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', {method:'POST', mode:'no-cors', body:JSON.stringify(payload)})
+            .then(() => {
                 let done = JSON.parse(localStorage.getItem('completedEduList')) || [];
-                done.push({ eduId: eduId, userId: userId });
+                done.push({eduId:eduId, userId:userId});
                 localStorage.setItem('completedEduList', JSON.stringify(done));
-                
-                // 임시 데이터 삭제
-                localStorage.removeItem(`v_${eduId}_${userId}`);
-                localStorage.removeItem(`t_${eduId}_${userId}`);
-                
-                alert("이수가 완료되었습니다.");
+                alert("이수 완료!");
                 goMain();
             });
         }
