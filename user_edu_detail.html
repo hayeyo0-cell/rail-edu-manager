@@ -99,6 +99,23 @@
         let visitCount = 0;
         let finalTimeLog = "";
 
+        // --- 🎯 엑셀 기반 문제 꾸러미 세트 데이터 ---
+        const quizPackages = {
+            "set_2026_04": [
+                { q: "전동차 운행 중 비상제동이 체결되었을 때 가장 먼저 확인할 사항은?", a: ["객실 온도", "주공기 압력", "행선 안내기", "전동차 번호"], ans: 1 },
+                { q: "이례상황 발생 시 관제 보고 요령으로 옳지 않은 것은?", a: ["신속하게 보고", "정확한 위치 설명", "개인적인 의견 위주 보고", "현재 상태 상세 전달"], ans: 2 },
+                { q: "출입문 고장 시 조치 사항으로 옳은 것은?", a: ["무시하고 운행", "수동 폐쇄 후 감시원 승차", "승객에게 직접 조치 요청", "전체 출입문 개방 운행"], ans: 1 },
+                { q: "터널 내 정지 시 승객 안내방송 핵심 내용은?", a: ["정지 사유 및 대기 안내", "운전실 상황 생중계", "무대응", "가족에게 연락 안내"], ans: 0 },
+                { q: "근무 전 주류 섭취에 대한 규정은?", a: ["맥주 한잔은 허용", "절대 불가", "취하지 않으면 가능", "퇴근 직전만 가능"], ans: 1 },
+                { q: "화재 발생 시 초기 진압 장비는?", a: ["청소도구", "휴대용 비상조명등", "소화기", "손수건"], ans: 2 },
+                { q: "승강장 안전문 오작동 시 조치는?", a: ["임의 출발", "수동 개폐 확인 및 보고", "승객에게 밀어달라고 요청", "반대편 문 개방"], ans: 1 },
+                { q: "교대 근무 시 인계사항이 아닌 것은?", a: ["차량 결함 유무", "당일 지시사항", "개인적인 취미 생활", "운행 주의 구간"], ans: 2 },
+                { q: "비상 정지 버튼 작동 시 열차의 상태는?", a: ["속도 유지", "가속", "비상 제동 및 정지", "전원 차단만 됨"], ans: 2 },
+                { q: "마지막 문항입니다. 시뮬레이션을 완료하시겠습니까?", a: ["예", "아니오"], ans: 0 }
+            ],
+            "set_2026_05": [ /* 5월 문제는 여기에 추가... */ ]
+        };
+
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             currentEdu = list.find(e => String(e.id) === String(eduId));
@@ -108,13 +125,11 @@
                 document.getElementById('displayContent').innerText = currentEdu.content;
                 document.getElementById('displayType').innerText = currentEdu.category;
 
-                // 시뮬레이션 여부 체크
                 if(currentEdu.category === "시뮬레이션 교육") {
                     isSim = true;
                     runSimLogic();
                 }
 
-                // 파일 렌더링
                 if(currentEdu.fileData) {
                     document.getElementById('noFile').style.display = 'none';
                     if(currentEdu.fileData.startsWith('data:image/')) {
@@ -127,7 +142,7 @@
             }
         };
 
-        // 🎮 시뮬레이션 핵심 로직 (3회 입장 + 랜덤 시간)
+        // 🎮 시뮬레이션 핵심 로직 (3회 입장 + 랜덤 시간 기록)
         function runSimLogic() {
             const V_KEY = `v_${eduId}_${userId}`;
             const T_KEY = `t_${eduId}_${userId}`;
@@ -139,7 +154,7 @@
                 visitCount++;
                 localStorage.setItem(V_KEY, visitCount);
                 
-                // 30~40분 랜덤 생성
+                // 30~40분 랜덤 생성 (초 단위)
                 const sec = Math.floor(Math.random() * (2450 - 1800 + 1)) + 1800;
                 const timeStr = `${Math.floor(sec/60)}분 ${sec%60}초`;
                 savedLog += (savedLog ? " | " : "") + `${visitCount}회차:${timeStr}`;
@@ -162,49 +177,58 @@
             }
         }
 
-        // 🎮 퀴즈 시스템
+        // 🎮 퀴즈 시스템 (선택한 꾸러미 연동)
         let qIdx = 0; let score = 0;
-        const quizSet = [
-            { q: "전동차 안전 운행의 제1원칙은?", a: ["조기 도착", "안전 확인 및 규정 준수", "임의 판단"], ans: 1 },
-            { q: "비상 정지 버튼 작동 시 조치는?", a: ["즉시 관제 보고", "무시하고 서행", "일단 퇴근"], ans: 0 },
-            { q: "졸음운전 예방에 도움되는 것은?", a: ["스마트폰 게임", "환기 및 스트레칭", "옆 사람과 대화"], ans: 1 },
-            { q: "화재 발생 시 대피 유도 방향은?", a: ["연기 진행 방향", "연기 반대 방향", "상관 없음"], ans: 1 },
-            { q: "근무 전 음주는 허용되는가?", a: ["절대 불가", "맥주 한잔은 OK", "졸음 깰 정도만"], ans: 0 },
-            { q: "승객 구호 장비 위치 숙지는?", a: ["관리자의 의무", "본인의 의무", "승객의 의무"], ans: 1 },
-            { q: "이례상황 발생 시 안내방송은?", a: ["신속하고 정확하게", "최대한 늦게", "안 해도 됨"], ans: 0 },
-            { q: "출입문 고장 시 대처법은?", a: ["발로 찬다", "수동 잠금 후 보고", "그냥 열고 간다"], ans: 1 },
-            { q: "오늘 교육 내용을 이해했는가?", a: ["예", "아니오"], ans: 0 },
-            { q: "마지막 문제입니다. 이수하시겠습니까?", a: ["예", "아니오"], ans: 0 }
-        ];
 
         function handleAction() {
-            if(isSim) { document.getElementById('quizModal').style.display = 'flex'; loadQuiz(); }
-            else { submitFinal(); }
+            if(isSim) { 
+                document.getElementById('quizModal').style.display = 'flex'; 
+                loadQuiz(); 
+            } else { 
+                submitFinal(); 
+            }
         }
 
         function loadQuiz() {
+            // 관리자가 선택한 꾸러미 ID가 있으면 사용, 없으면 기본 4월 세트 사용
+            const packageId = (currentEdu.simulation && currentEdu.simulation.packageId) ? currentEdu.simulation.packageId : "set_2026_04";
+            const currentQuestions = quizPackages[packageId] || quizPackages["set_2026_04"];
+
             if(qIdx >= 10) { finishQuiz(); return; }
-            const q = quizSet[qIdx];
+            
+            const q = currentQuestions[qIdx];
             document.getElementById('quizStep').innerText = `문제 ${qIdx + 1} / 10`;
             document.getElementById('quizText').innerText = q.q;
             document.getElementById('quizOptions').innerHTML = q.a.map((opt, i) => 
-                `<button class="quiz-btn" onclick="checkQuiz(${i})">${i+1}. ${opt}</button>`
+                `<button class="quiz-btn" onclick="checkQuiz(${i}, ${q.ans})">${i+1}. ${opt}</button>`
             ).join('');
         }
 
-        function checkQuiz(i) { if(i === quizSet[qIdx].ans) score += 10; qIdx++; loadQuiz(); }
+        function checkQuiz(i, correctAns) { 
+            if(i === correctAns) score += 10; 
+            qIdx++; 
+            loadQuiz(); 
+        }
 
         function finishQuiz() {
             document.getElementById('quizModal').style.display = 'none';
-            if(score >= 60) { alert(`🎉 합격! (${score}점)\n기록을 전송합니다.`); submitFinal(); }
-            else { alert(`⚠️ 불합격 (${score}점)\n다시 접속하여 처음부터 시도하세요.`); location.reload(); }
+            if(score >= 60) { 
+                alert(`🎉 합격! (${score}점)\n기록을 전송합니다.`); 
+                submitFinal(); 
+            } else { 
+                alert(`⚠️ 불합격 (${score}점)\n다시 접속하여 처음부터 시도하세요.`); 
+                location.reload(); 
+            }
         }
 
         function submitFinal() {
             const payload = {
-                id: userId, name: localStorage.getItem('currentUserName'),
-                title: currentEdu.title, score: isSim ? score : "N/A",
-                time: isSim ? finalTimeLog : "일반이수", date: new Date().toLocaleString()
+                id: userId, 
+                name: localStorage.getItem('currentUserName'),
+                title: currentEdu.title, 
+                score: isSim ? score : "N/A",
+                time: isSim ? finalTimeLog : "일반이수", 
+                date: new Date().toLocaleString()
             };
 
             fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', {
@@ -214,7 +238,6 @@
                 done.push({ eduId: eduId, userId: userId });
                 localStorage.setItem('completedEduList', JSON.stringify(done));
                 
-                // 시뮬레이션용 임시 데이터 삭제
                 localStorage.removeItem(`v_${eduId}_${userId}`);
                 localStorage.removeItem(`t_${eduId}_${userId}`);
                 
