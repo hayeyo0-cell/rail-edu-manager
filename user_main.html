@@ -5,58 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>사용자 메인 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; --sim-purple: #7b1fa2; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        .top-nav { 
-            width: 100%; background: white; padding: 12px 15px; 
-            display: flex; justify-content: center; align-items: center; 
-            border-bottom: 1px solid #eee; position: relative; box-sizing: border-box;
-        }
-        .logout-btn { 
-            position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; 
-            border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #888; cursor: pointer; font-weight: bold;
-        }
+        /* 기존 스타일 유지 */
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid #eee; position: relative; box-sizing: border-box; }
+        .logout-btn { position: absolute; right: 15px; background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #888; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
-
         .container { width: 92%; max-width: 420px; padding: 25px 0; }
-
         .section-title { font-size: 1.25rem; font-weight: bold; color: var(--dtro-blue); margin: 25px 0 15px 0; display: flex; align-items: center; border-left: 5px solid var(--dtro-blue); padding-left: 10px; text-align: left; }
 
+        /* 필터 스크롤 바 */
         .filter-container { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 25px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
         .filter-container::-webkit-scrollbar { display: none; }
-        .filter-btn { 
-            padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; 
-            background: white; font-size: 0.82rem; 
-            white-space: nowrap; cursor: pointer; color: #666; transition: 0.2s;
-        }
+        .filter-btn { padding: 8px 14px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 0.82rem; white-space: nowrap; cursor: pointer; color: #666; transition: 0.2s; }
         .filter-btn.active { background: var(--dtro-blue); color: white; border-color: var(--dtro-blue); font-weight: bold; }
 
-        .edu-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
+        /* 교육 카드 */
+        .edu-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; position: relative; overflow: hidden; }
+        
+        /* 썸네일 표시용 (선택 사항: 관리자가 사진을 올렸을 경우) */
+        .card-thumb { width: 100%; height: 120px; background: #eee; border-radius: 15px; margin-bottom: 15px; object-fit: cover; display: none; }
+        
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .badge { padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: #f3e5f5; color: #7b1fa2; }
+        .badge { padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; background: #f3e5f5; color: var(--sim-purple); }
         .dday-badge { padding: 5px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; background: #fff0f0; color: #ff4d4d; border: 1px solid #ffcccc; }
         
+        /* 시뮬레이션 전용 강조 스타일 */
+        .sim-tag { background: #ff4757 !important; color: white !important; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+
         .date-label { font-size: 0.85rem; color: #999; }
         .edu-title { font-weight: bold; font-size: 1.25rem; color: #333; margin-bottom: 10px; display: block; line-height: 1.4; }
         .deadline-text { font-size: 1rem; color: #ff4d4d; font-weight: bold; margin-bottom: 20px; display: block; }
         
         .btn-start { width: 100%; padding: 16px; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.05rem; cursor: pointer; }
 
+        /* 학습 보관함 등 기존 스타일 생략 (동일함) */
         .archive-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); display: flex; align-items: center; cursor: pointer; text-align: left; margin-top: 10px; }
         .archive-icon { width: 75px; height: 75px; margin-right: 15px; object-fit: contain; }
         .archive-info h4 { margin: 0 0 8px 0; font-size: 1.25rem; color: #333; font-weight: bold; }
         .archive-info p { margin: 0; font-size: 1rem; color: #888; line-height: 1.5; }
-
         .empty-box { text-align:center; color:#ccc; padding:40px; background:white; border-radius:25px; margin-bottom:20px; box-shadow: 0 8px 20px rgba(0,0,0,0.02); }
 
-        /* 가짜 팝업(커스텀 모달) 디자인 */
+        /* 커스텀 모달 스타일 생략 (동일함) */
         .custom-alert-bg { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999999; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
         .custom-alert-box { background: white; width: 80%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: popIn 0.3s ease; }
         .custom-alert-title { font-size: 1.2rem; font-weight: bold; color: var(--error-red); margin-bottom: 10px; }
         .custom-alert-msg { font-size: 0.95rem; color: #444; line-height: 1.5; margin-bottom: 20px; }
         .custom-alert-btn { width: 100%; padding: 14px; background: var(--dtro-blue); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -90,20 +87,17 @@
     </div>
 
     <script>
-        // 뒤로가기 절대 방어 스크립트
+        // 뒤로가기 방어 로직 (기존 유지)
         (function() {
             window.history.pushState({ noBack: true }, '');
             window.history.pushState({ noBack: true }, '');
-
             window.addEventListener('popstate', function() {
                 window.history.pushState({ noBack: true }, '');
                 document.getElementById('backAlertModal').style.display = 'flex';
             });
         })();
 
-        function closeBackAlert() {
-            document.getElementById('backAlertModal').style.display = 'none';
-        }
+        function closeBackAlert() { document.getElementById('backAlertModal').style.display = 'none'; }
 
         let currentFilter = '전체';
         const userDept = localStorage.getItem('currentUserDept') || "";
@@ -111,10 +105,8 @@
 
         window.onload = function() {
             if(!userId) { location.replace('index.html'); return; }
-            
             renderFilters();
             loadEduData();
-            checkDeadlineAlert();
         };
 
         function handleLogout() {
@@ -122,42 +114,13 @@
                 localStorage.removeItem('currentUserId');
                 localStorage.removeItem('currentUserName');
                 localStorage.removeItem('currentUserDept');
-                localStorage.removeItem('isSplashShown');
                 location.replace('index.html');
-            }
-        }
-
-        function checkDeadlineAlert() {
-            const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            const today = new Date().setHours(0, 0, 0, 0);
-            
-            let urgentList = [];
-
-            allEduList.forEach(edu => {
-                const isMyEdu = edu.dept === userDept;
-                const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
-                const isOffline = edu.signatureType === "오프라인";
-                
-                if (isMyEdu && !isDone && edu.deadline && !isOffline) {
-                    const targetDate = new Date(edu.deadline).setHours(0, 0, 0, 0);
-                    const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-
-                    if (diffDays <= 3) {
-                        const status = diffDays < 0 ? "기한 만료" : (diffDays === 0 ? "오늘 마감" : `D-${diffDays}`);
-                        urgentList.push(`• ${edu.title} (${status})`);
-                    }
-                }
-            });
-
-            if (urgentList.length > 0) {
-                alert(`⚠️ 마감 임박 교육 알림\n\n현재 미이수 상태인 필수 교육이 ${urgentList.length}건 있습니다.\n\n${urgentList.join('\n')}\n\n서둘러 이수해 주시기 바랍니다!`);
             }
         }
 
         function renderFilters() {
             const filterDiv = document.getElementById('categoryFilters');
-            const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션', '육성방송 훈련', '기타교육'];
+            const categories = ['전체', '공지사항', '게시교육', '대면교육', '면담교육', '시뮬레이션 교육', '육성방송 훈련', '기타교육'];
             filterDiv.innerHTML = categories.map(cat => 
                 `<button class="filter-btn ${cat === currentFilter ? 'active' : ''}" onclick="changeFilter('${cat}')">${cat}</button>`
             ).join('');
@@ -178,12 +141,13 @@
             let filtered = allEduList.filter(edu => {
                 const isMyDept = edu.dept === userDept;
                 const isDone = completedEduList.some(s => String(s.eduId) === String(edu.id) && String(s.userId) === String(userId));
-                const isCategoryMatch = (currentFilter === '전체' || edu.type === currentFilter || edu.category === currentFilter);
                 
+                // 시뮬레이션 교육 필터링 로직 수정 (edu.category 체크)
+                const isCategoryMatch = (currentFilter === '전체' || edu.category === currentFilter);
                 const isOffline = edu.signatureType === "오프라인";
                 
                 let isExpiredOffline = false;
-                if(isOffline && edu.deadline) {
+                if(isOffline && edu.deadline && edu.deadline !== "기한 없음") {
                     const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
                     if(today > targetDate) isExpiredOffline = true;
                 }
@@ -196,37 +160,39 @@
                 return;
             }
 
+            // 최신 등록순 정렬
+            filtered.sort((a, b) => b.id - a.id);
+
             listArea.innerHTML = filtered.map(edu => {
                 const isOffline = edu.signatureType === "오프라인";
+                const isSimulation = edu.category === "시뮬레이션 교육" || (edu.simulation && edu.simulation.isSimulation);
                 
                 let ddayBadge = "";
                 let deadlineText = `⏳ 마감 기한: ${edu.deadline || '상시'} 까지`;
 
-                if(edu.deadline) {
+                if(edu.deadline && edu.deadline !== "기한 없음") {
                     const targetDate = new Date(edu.deadline).setHours(0,0,0,0);
                     const diff = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
                     const statusText = diff < 0 ? "기한만료" : (diff === 0 ? "D-Day" : `D-${diff}`);
-                    
-                    if(isOffline) {
-                        ddayBadge = `<span class="dday-badge" style="background:#f0f8ff; color:#0072bc; border-color:#cce5ff;">게시중</span>`;
-                        deadlineText = `📢 게시 기한: ${edu.deadline} 까지`;
-                    } else {
-                        ddayBadge = `<span class="dday-badge">${statusText}</span>`;
-                    }
-                } else {
-                    if(isOffline) {
-                        deadlineText = `📢 상시 게시됨`;
-                    }
+                    ddayBadge = isOffline ? `<span class="dday-badge" style="background:#f0f8ff; color:#0072bc; border-color:#cce5ff;">게시중</span>` : `<span class="dday-badge">${statusText}</span>`;
                 }
 
-                const btnText = isOffline ? "📢 내용 확인하기 (이수 불필요)" : "교육 입장하기 →";
-                const btnBgColor = isOffline ? "#27ae60" : "var(--dtro-blue)";
+                const badgeClass = isSimulation ? "badge sim-tag" : "badge";
+                const badgeLabel = isSimulation ? "🎮 시뮬레이션" : (edu.category || "교육");
+                const btnText = isSimulation ? "🎮 시뮬레이션 시작하기 →" : (isOffline ? "📢 내용 확인하기" : "교육 입장하기 →");
+                const btnBgColor = isSimulation ? "#ff4757" : (isOffline ? "#27ae60" : "var(--dtro-blue)");
+
+                // 관리자가 올린 이미지가 있을 경우 보여줌
+                const thumbImgHtml = edu.fileData && edu.fileData.startsWith('data:image') 
+                    ? `<img src="${edu.fileData}" class="card-thumb" style="display:block;">` 
+                    : "";
 
                 return `
                 <div class="edu-card">
+                    ${thumbImgHtml}
                     <div class="card-header">
                         <div>
-                            <span class="badge">${edu.type || edu.category || '교육'}</span>
+                            <span class="${badgeClass}">${badgeLabel}</span>
                             ${ddayBadge}
                         </div>
                         <span class="date-label">게시일: ${edu.date}</span>
