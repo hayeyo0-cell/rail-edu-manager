@@ -8,7 +8,6 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f4f6f9; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         
-        /* 상단 헤더 */
         .top-nav { 
             width: 100%; background: white; padding: 12px 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -19,7 +18,6 @@
 
         .container { width: 92%; max-width: 450px; padding: 20px 0; }
         
-        /* 신규 팀원 등록 카드 (세로 배치) */
         .input-card { background: white; border-radius: 20px; padding: 25px 20px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; }
         .input-title { text-align: left; font-weight: bold; color: var(--dtro-blue); margin-bottom: 18px; font-size: 1.1rem; }
         
@@ -27,8 +25,7 @@
         
         input { 
             width: 100%; padding: 16px; border: 1px solid #eee; border-radius: 12px; 
-            font-size: 1rem; outline: none; background: #fafafa; box-sizing: border-box;
-            transition: 0.3s;
+            font-size: 1rem; outline: none; background: #fafafa; box-sizing: border-box; transition: 0.3s;
         }
         input:focus { border-color: var(--dtro-blue); background: #fff; box-shadow: 0 0 0 3px rgba(0,114,188,0.1); }
         
@@ -38,15 +35,27 @@
             cursor: pointer; margin-top: 5px; box-shadow: 0 4px 10px rgba(0,114,188,0.2);
         }
 
-        /* 명단 리스트 카드 */
         .list-card { background: white; border-radius: 20px; padding: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); box-sizing: border-box; }
-        .list-header { padding: 15px 15px 5px 15px; text-align: left; font-weight: bold; color: #666; font-size: 0.95rem; }
+        .list-header { padding: 15px 15px 10px 15px; text-align: left; font-weight: bold; color: #666; font-size: 0.95rem; border-bottom: 2px solid #f0f0f0; margin-bottom: 5px; }
         
-        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 15px; border-bottom: 1px solid #f9f9f9; }
+        .user-item { display: flex; flex-direction: column; padding: 18px 15px; border-bottom: 1px solid #f9f9f9; }
         .user-item:last-child { border-bottom: none; }
+        .user-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .user-name { font-weight: bold; font-size: 1.1rem; color: #333; }
         .user-id { font-size: 0.9rem; color: #999; margin-left: 5px; }
-        .del-user-btn { background: #fff0f0; color: #ff4d4d; border: 1px solid #ffe0e0; padding: 8px 14px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; font-weight: bold; }
+        
+        /* 상태 뱃지 및 버튼 스타일 */
+        .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: bold; margin-left: 8px; }
+        .status-none { background: #f0f0f0; color: #999; }
+        .status-pending { background: #fff3e0; color: #ff9800; animation: blink 1.5s infinite; }
+        .status-approved { background: #e8f5e9; color: #2ecc71; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .action-row { display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-small { padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; border: none; }
+        .btn-approve { background: var(--dtro-blue); color: white; }
+        .btn-reset { background: #f0f0f0; color: #555; }
+        .btn-delete { background: #fff0f0; color: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -58,11 +67,11 @@
 
     <div class="container">
         <div class="input-card">
-            <div class="input-title">👤 신규 팀원 등록</div>
+            <div class="input-title">👤 신규 팀원 명단 등록</div>
             <div class="input-row">
                 <input type="number" id="newId" placeholder="사번 8자리를 입력하세요" inputmode="numeric">
                 <input type="text" id="newName" placeholder="성함을 입력하세요">
-                <button class="add-btn" onclick="addUser()">등록하기</button>
+                <button class="add-btn" onclick="addUser()">장부에 등록하기</button>
             </div>
         </div>
 
@@ -70,32 +79,26 @@
             <div class="list-header">
                 우리 팀 명단 (<span id="userCount">0</span>명)
             </div>
-            <div id="userListArea">
-                </div>
+            <div id="userListArea"></div>
         </div>
     </div>
 
     <script>
-        // 🚨 [보안] 뒤로가기 절대 차단 로직 (잡혔다 로직)
         (function() {
             history.pushState(null, null, location.href);
-            window.onpopstate = function() {
-                location.replace('admin_main.html');
-            };
+            window.onpopstate = function() { location.replace('admin_main.html'); };
         })();
 
         const myDept = localStorage.getItem('userDept') || "경산승무팀";
 
         window.onload = function() { renderUserList(); };
 
-        // 명단 출력
         function renderUserList() {
             const listArea = document.getElementById('userListArea');
-            const countText = document.getElementById('userCount');
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             
             const myTeam = totalUserList.filter(u => u.dept === myDept);
-            countText.innerText = myTeam.length;
+            document.getElementById('userCount').innerText = myTeam.length;
 
             if (myTeam.length === 0) {
                 listArea.innerHTML = '<p style="text-align:center; color:#ccc; padding:40px;">등록된 팀원이 없습니다.</p>';
@@ -103,21 +106,46 @@
             }
 
             let html = '';
-            // 사번 순 정렬
             myTeam.sort((a, b) => a.id - b.id).forEach(user => {
+                const status = user.authStatus || 'none';
+                let badgeHtml = '';
+                let actionHtml = '';
+
+                // 🚨 상태에 따른 뱃지와 버튼 변화 로직!
+                if (status === 'none') {
+                    badgeHtml = `<span class="status-badge status-none">미접속</span>`;
+                    actionHtml = `<button class="btn-small btn-delete" onclick="deleteUser('${user.id}')">삭제</button>`;
+                } else if (status === 'pending') {
+                    badgeHtml = `<span class="status-badge status-pending">기기 승인 대기중</span>`;
+                    actionHtml = `
+                        <button class="btn-small btn-approve" onclick="approveDevice('${user.id}')">✅ 승인</button>
+                        <button class="btn-small btn-delete" onclick="deleteUser('${user.id}')">삭제</button>
+                    `;
+                } else if (status === 'approved') {
+                    badgeHtml = `<span class="status-badge status-approved">기기 등록됨</span>`;
+                    actionHtml = `
+                        <button class="btn-small btn-reset" onclick="resetDevice('${user.id}')">📱 기기 해제</button>
+                        <button class="btn-small btn-delete" onclick="deleteUser('${user.id}')">삭제</button>
+                    `;
+                }
+
                 html += `
                     <div class="user-item">
-                        <div>
-                            <span class="user-name">${user.name}</span>
-                            <span class="user-id">(${user.id})</span>
+                        <div class="user-info-row">
+                            <div>
+                                <span class="user-name">${user.name}</span>
+                                <span class="user-id">(${user.id})</span>
+                            </div>
+                            ${badgeHtml}
                         </div>
-                        <button class="del-user-btn" onclick="deleteUser('${user.id}')">삭제</button>
+                        <div class="action-row">
+                            ${actionHtml}
+                        </div>
                     </div>`;
             });
             listArea.innerHTML = html;
         }
 
-        // 팀원 추가
         function addUser() {
             const id = document.getElementById('newId').value.trim();
             const name = document.getElementById('newName').value.trim();
@@ -130,18 +158,41 @@
                 alert("이미 등록된 사번입니다."); return;
             }
 
-            totalUserList.push({ id: id, name: name, dept: myDept });
+            // 신규 등록 시 기기 상태는 'none'으로 초기화
+            totalUserList.push({ id: id, name: name, dept: myDept, authStatus: 'none', deviceId: null });
             localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
 
             document.getElementById('newId').value = '';
             document.getElementById('newName').value = '';
             renderUserList();
-            alert(`${name} 기관사님이 등록되었습니다.`);
         }
 
-        // 팀원 삭제
+        // 🚨 승인 버튼 눌렀을 때
+        function approveDevice(id) {
+            let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const userIndex = totalUserList.findIndex(u => String(u.id) === String(id));
+            if(userIndex !== -1) {
+                totalUserList[userIndex].authStatus = 'approved';
+                localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
+                renderUserList();
+            }
+        }
+
+        // 🚨 기기 해제 (폰 바꿨을 때)
+        function resetDevice(id) {
+            if(!confirm("기기 등록을 해제하시겠습니까?\n해당 사용자는 다음 접속 시 다시 기기 인증을 받아야 합니다.")) return;
+            let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
+            const userIndex = totalUserList.findIndex(u => String(u.id) === String(id));
+            if(userIndex !== -1) {
+                totalUserList[userIndex].authStatus = 'none';
+                totalUserList[userIndex].deviceId = null; // 기기 정보 초기화
+                localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
+                renderUserList();
+            }
+        }
+
         function deleteUser(id) {
-            if(!confirm("해당 팀원을 명단에서 삭제하시겠습니까?")) return;
+            if(!confirm("해당 팀원을 명단에서 완전히 삭제하시겠습니까?")) return;
             let totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
             totalUserList = totalUserList.filter(u => String(u.id) !== String(id));
             localStorage.setItem('totalUserList', JSON.stringify(totalUserList));
