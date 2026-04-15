@@ -6,69 +6,47 @@
     <title>교육 상세 - DTRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 기존 스타일 유지 */
-        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; box-sizing: border-box; position: sticky; top:0; z-index:100; }
+        /* 네비게이션 */
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top:0; z-index:100; box-sizing: border-box; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
-        .container { width: 92%; max-width: 420px; padding: 25px 0; padding-bottom: 120px; }
-        
-        /* 🎮 시뮬레이션 타이머 박스 스타일 */
-        .sim-timer-card { 
+
+        .container { width: 92%; max-width: 420px; padding: 20px 0; padding-bottom: 120px; }
+
+        /* 🎮 시뮬레이션 회차 카드 */
+        .sim-status-card { 
             display: none; background: #fff0f0; border: 2px solid #ff4d4d; border-radius: 20px; 
             padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 20px rgba(255, 77, 77, 0.1); 
         }
-        .timer-label { font-size: 0.9rem; color: #ff4d4d; font-weight: bold; margin-bottom: 5px; display: block; }
-        .timer-clock { font-size: 2rem; font-weight: bold; color: #333; font-family: 'Courier New', Courier, monospace; }
-        .timer-hint { font-size: 0.8rem; color: #888; margin-top: 10px; }
+        .status-label { font-size: 0.9rem; color: #ff4d4d; font-weight: bold; margin-bottom: 5px; display: block; }
+        .count-val { font-size: 2rem; font-weight: bold; color: #333; }
+        .log-text { font-size: 0.8rem; color: #666; margin-top: 10px; line-height: 1.4; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 10px; }
 
-        .content-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
+        .content-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
         .edu-badge { display: inline-block; padding: 4px 10px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
-        .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; }
-        .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
+        .edu-title { font-size: 1.2rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; text-align: left; }
         
-        /* 이미지/PDF 뷰어 관련 */
-        .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
-        .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 5px; display: block; }
-        .click-hint { font-size: 0.85rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 15px; display: block; animation: blink 2s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .img-preview, #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; cursor: pointer; overflow: hidden; background: #fafafa; }
-        
-        /* 퀴즈 모달(팝업) 스타일 */
+        /* 뷰어 영역 */
+        .viewer-area { width: 100%; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; cursor: pointer; }
+        canvas { width: 100%; height: auto; }
+        .img-preview { width: 100%; display: none; }
+
+        /* 🎮 퀴즈 모달 */
         .quiz-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; }
-        .quiz-box { background: white; width: 90%; max-width: 360px; border-radius: 25px; padding: 30px; box-sizing: border-box; }
-        .quiz-header { font-size: 0.9rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; }
-        .quiz-question { font-size: 1.15rem; font-weight: bold; color: #222; margin-bottom: 25px; line-height: 1.4; }
+        .quiz-box { background: white; width: 90%; max-width: 360px; border-radius: 25px; padding: 30px; }
+        .quiz-q { font-size: 1.15rem; font-weight: bold; margin-bottom: 20px; line-height: 1.4; }
         .quiz-btn { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; font-size: 1rem; text-align: left; cursor: pointer; }
-        .quiz-btn:active { background: #e0f2fe; border-color: var(--dtro-blue); }
 
         /* 하단 바 */
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 101; }
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
         .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; }
-
-        /* 줌 모달 (기존 유지) */
-        .zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; overflow: auto; text-align: center; }
-        .modal-close { position: fixed; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 8px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; z-index: 1000000; }
-        #zoomImg { width: 100%; height: auto; margin-top: 60px; }
     </style>
 </head>
 <body>
-
-    <div id="zoomModal" class="zoom-modal">
-        <button class="modal-close" onclick="closeZoom()">✕ 닫기</button>
-        <img id="zoomImg" src="">
-    </div>
-
-    <div id="quizModal" class="quiz-modal">
-        <div class="quiz-box">
-            <div class="quiz-header" id="quizStep">문제 1 / 10</div>
-            <div class="quiz-question" id="quizText">질문을 불러오는 중...</div>
-            <div id="quizOptions"></div>
-        </div>
-    </div>
 
     <div class="top-nav">
         <button class="nav-btn" onclick="goMain()">← 메인으로</button>
@@ -76,37 +54,37 @@
         <div style="width:75px;"></div>
     </div>
     
-    <div class="container" id="mainContainer">
-        <div id="simTimerCard" class="sim-timer-card">
-            <span class="timer-label">🎮 시뮬레이션 학습 진행 중</span>
-            <div id="timerDisplay" class="timer-clock">00:00:00</div>
-            <div class="timer-hint">* 30~40분 랜덤 시간이 충족되어야 평가가 가능합니다.</div>
+    <div class="container">
+        <div id="simCard" class="sim-status-card">
+            <span class="status-label">🎮 시뮬레이션 학습 회차 기록</span>
+            <div id="countDisplay" class="count-val">0 / 3 회</div>
+            <div id="timeLog" class="log-text">접속 시 랜덤 학습 시간이 기록됩니다.</div>
         </div>
 
         <div class="content-card">
-            <span id="displayType" class="edu-badge">게시교육</span>
+            <span id="displayType" class="edu-badge">분류</span>
             <span id="displayTitle" class="edu-title">제목</span>
-            <div id="displayContent" class="edu-content">내용 로딩 중...</div>
-            <div class="file-section">
-                <span class="file-label">📎 첨부 파일 학습</span>
-                <span class="click-hint" id="clickHint" style="display:none;">🔍 터치하면 크게 확대됩니다</span>
-                <img id="imageViewer" class="img-preview" onclick="openZoom('image')">
-                <div id="pdfWrapper" onclick="openZoom('pdf')"><canvas id="pdfCanvas"></canvas></div>
-                <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
+            
+            <div class="viewer-area" id="viewerArea">
+                <img id="imageViewer" class="img-preview">
+                <canvas id="pdfCanvas" style="display:none;"></canvas>
+                <p id="noFile" style="padding:40px; color:#ccc; font-size:0.9rem; text-align:center;">자료 로딩 중...</p>
             </div>
-        </div>
-
-        <div class="content-card" id="sigCardArea" style="display:none; padding:20px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <p style="font-weight:bold; margin:0;">✒️ 본인 확인 서명</p>
-                <button onclick="clearCanvas()" style="background:#f1f1f1; border:1px solid #ddd; border-radius:5px; font-size:0.75rem; padding:3px 8px;">🔄 다시쓰기</button>
-            </div>
-            <canvas id="sigCanvas" style="width:100%; height:180px; background:#fafafa; border:1px dashed #ccc; border-radius:10px; touch-action:none;"></canvas>
+            
+            <div id="displayContent" style="font-size: 0.95rem; color: #555; line-height: 1.6; text-align: left; white-space: pre-wrap;"></div>
         </div>
     </div>
-    
-    <div class="bottom-bar" id="bottomBar">
-        <button class="submit-btn" id="mainSubmitBtn" onclick="handleFinalAction()">✅ 학습 완료 (이수)</button>
+
+    <div class="bottom-bar">
+        <button class="submit-btn" id="mainBtn" onclick="handleAction()">✅ 학습 완료 (이수)</button>
+    </div>
+
+    <div id="quizModal" class="quiz-modal">
+        <div class="quiz-box">
+            <div id="quizStep" style="color:var(--dtro-blue); font-weight:bold; margin-bottom:10px;">문제 1 / 10</div>
+            <div id="quizText" class="quiz-q">질문 로딩 중...</div>
+            <div id="quizOptions"></div>
+        </div>
     </div>
 
     <script>
@@ -114,13 +92,13 @@
         
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
+        const userId = localStorage.getItem('currentUserId');
+        
         let currentEdu = null;
-        let isSimulation = false;
-        let timerSeconds = 0;
-        let targetSeconds = 0;
-        let timerInterval = null;
+        let isSim = false;
+        let visitCount = 0;
+        let finalTimeLog = "";
 
-        // 1. 초기 로드 및 데이터 세팅
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             currentEdu = list.find(e => String(e.id) === String(eduId));
@@ -128,21 +106,17 @@
             if(currentEdu) {
                 document.getElementById('displayTitle').innerText = currentEdu.title;
                 document.getElementById('displayContent').innerText = currentEdu.content;
-                document.getElementById('displayType').innerText = currentEdu.category || "일반교육";
-                
+                document.getElementById('displayType').innerText = currentEdu.category;
+
                 // 시뮬레이션 여부 체크
-                if(currentEdu.category === "시뮬레이션 교육" || (currentEdu.simulation && currentEdu.simulation.isSimulation)) {
-                    isSimulation = true;
-                    startSimulation();
-                } else if(currentEdu.signatureType === "서명 필요") {
-                    document.getElementById('sigCardArea').style.display = 'block';
-                    initSignature();
+                if(currentEdu.category === "시뮬레이션 교육") {
+                    isSim = true;
+                    runSimLogic();
                 }
 
                 // 파일 렌더링
                 if(currentEdu.fileData) {
-                    document.getElementById('noFileText').style.display = 'none';
-                    document.getElementById('clickHint').style.display = 'block';
+                    document.getElementById('noFile').style.display = 'none';
                     if(currentEdu.fileData.startsWith('data:image/')) {
                         const img = document.getElementById('imageViewer');
                         img.src = currentEdu.fileData; img.style.display = 'block';
@@ -153,155 +127,112 @@
             }
         };
 
-        // 🎮 2. 시뮬레이션 전용 로직
-        function startSimulation() {
-            document.getElementById('simTimerCard').style.display = 'block';
-            document.getElementById('sigCardArea').style.display = 'none'; // 시뮬레이션은 서명 안함
-            const btn = document.getElementById('mainSubmitBtn');
-            btn.innerText = "⌛ 학습 시간을 채워주세요";
-            btn.classList.add('btn-locked');
-            btn.disabled = true;
+        // 🎮 시뮬레이션 핵심 로직 (3회 입장 + 랜덤 시간)
+        function runSimLogic() {
+            const V_KEY = `v_${eduId}_${userId}`;
+            const T_KEY = `t_${eduId}_${userId}`;
+            
+            visitCount = parseInt(localStorage.getItem(V_KEY)) || 0;
+            let savedLog = localStorage.getItem(T_KEY) || "";
 
-            // 관리자가 정해준 랜덤 시간(없으면 기본 30분)
-            targetSeconds = currentEdu.simulation ? currentEdu.simulation.goalSeconds : 1800;
+            if(visitCount < 3) {
+                visitCount++;
+                localStorage.setItem(V_KEY, visitCount);
+                
+                // 30~40분 랜덤 생성
+                const sec = Math.floor(Math.random() * (2450 - 1800 + 1)) + 1800;
+                const timeStr = `${Math.floor(sec/60)}분 ${sec%60}초`;
+                savedLog += (savedLog ? " | " : "") + `${visitCount}회차:${timeStr}`;
+                localStorage.setItem(T_KEY, savedLog);
+            }
 
-            timerInterval = setInterval(() => {
-                timerSeconds++;
-                const h = Math.floor(timerSeconds / 3600).toString().padStart(2, '0');
-                const m = Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0');
-                const s = (timerSeconds % 60).toString().padStart(2, '0');
-                document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
+            finalTimeLog = savedLog;
+            document.getElementById('simCard').style.display = 'block';
+            document.getElementById('countDisplay').innerText = `${visitCount} / 3 회`;
+            document.getElementById('timeLog').innerText = savedLog;
 
-                if(timerSeconds >= targetSeconds) {
-                    clearInterval(timerInterval);
-                    btn.innerText = "🎮 10문제 평가 시작하기";
-                    btn.classList.remove('btn-locked');
-                    btn.disabled = false;
-                    document.getElementById('simTimerCard').style.background = "#eefaf2";
-                    document.getElementById('simTimerCard').style.borderColor = "#27ae60";
-                    document.querySelector('.timer-label').innerText = "✅ 학습 완료 (평가 가능)";
-                    document.querySelector('.timer-label').style.color = "#27ae60";
-                }
-            }, 1000);
+            const btn = document.getElementById('mainBtn');
+            if(visitCount >= 3) {
+                btn.innerText = "🎮 10문제 평가 시작 (60점 합격)";
+                btn.classList.remove('btn-locked');
+            } else {
+                btn.innerText = `⌛ ${3 - visitCount}회 더 접속 필요`;
+                btn.classList.add('btn-locked');
+                btn.disabled = true;
+            }
         }
 
-        // 🎮 3. 퀴즈 로직 (10문제 / 60점 합격)
-        let quizIdx = 0; let quizScore = 0;
-        const mockQuizzes = [
-            { q: "본 교육의 핵심 안전 수칙으로 옳은 것은?", a: ["개인 휴대폰 사용", "규정 속도 준수", "임의 노선 이탈"], ans: 1 },
-            { q: "비상시 가장 먼저 연락해야 할 곳은?", a: ["관제센터", "가족", "인근 경찰서"], ans: 0 },
-            { q: "출발 전 전동차 점검 필수 항목은?", a: ["객실 청소", "제동장치 및 출입문", "광고판 부착상태"], ans: 1 },
-            { q: "운행 중 졸음 예방을 위한 올바른 행동은?", a: ["눈 붙이기", "지압 및 환기", "음악 크게 틀기"], ans: 1 },
-            { q: "승강장 안전문 오작동 시 조치는?", a: ["무시하고 출발", "수동 개폐 후 확인", "승객에게 위임"], ans: 1 },
-            { q: "터널 내 정지 시 승객 안내 멘트는?", a: ["불안감 조성", "상황 설명 및 대기 안내", "무응답"], ans: 1 },
-            { q: "근무 교대 시 인계사항이 아닌 것은?", a: ["차량 상태", "지시사항", "어제 먹은 메뉴"], ans: 2 },
-            { q: "음주 후 근무 투입은 가능한가?", a: ["절대 불가", "조금은 가능", "상황 봐서 가능"], ans: 0 },
-            { q: "화재 발생 시 가장 먼저 사용할 장비는?", a: ["휴대폰", "소화기", "손수건"], ans: 1 },
+        // 🎮 퀴즈 시스템
+        let qIdx = 0; let score = 0;
+        const quizSet = [
+            { q: "전동차 안전 운행의 제1원칙은?", a: ["조기 도착", "안전 확인 및 규정 준수", "임의 판단"], ans: 1 },
+            { q: "비상 정지 버튼 작동 시 조치는?", a: ["즉시 관제 보고", "무시하고 서행", "일단 퇴근"], ans: 0 },
+            { q: "졸음운전 예방에 도움되는 것은?", a: ["스마트폰 게임", "환기 및 스트레칭", "옆 사람과 대화"], ans: 1 },
+            { q: "화재 발생 시 대피 유도 방향은?", a: ["연기 진행 방향", "연기 반대 방향", "상관 없음"], ans: 1 },
+            { q: "근무 전 음주는 허용되는가?", a: ["절대 불가", "맥주 한잔은 OK", "졸음 깰 정도만"], ans: 0 },
+            { q: "승객 구호 장비 위치 숙지는?", a: ["관리자의 의무", "본인의 의무", "승객의 의무"], ans: 1 },
+            { q: "이례상황 발생 시 안내방송은?", a: ["신속하고 정확하게", "최대한 늦게", "안 해도 됨"], ans: 0 },
+            { q: "출입문 고장 시 대처법은?", a: ["발로 찬다", "수동 잠금 후 보고", "그냥 열고 간다"], ans: 1 },
+            { q: "오늘 교육 내용을 이해했는가?", a: ["예", "아니오"], ans: 0 },
             { q: "마지막 문제입니다. 이수하시겠습니까?", a: ["예", "아니오"], ans: 0 }
         ];
 
-        function handleFinalAction() {
-            if(isSimulation) {
-                document.getElementById('quizModal').style.display = 'flex';
-                loadQuiz();
-            } else {
-                submitEdu();
-            }
+        function handleAction() {
+            if(isSim) { document.getElementById('quizModal').style.display = 'flex'; loadQuiz(); }
+            else { submitFinal(); }
         }
 
         function loadQuiz() {
-            if(quizIdx >= 10) {
-                finishQuiz(); return;
-            }
-            const q = mockQuizzes[quizIdx];
-            document.getElementById('quizStep').innerText = `문제 ${quizIdx + 1} / 10`;
+            if(qIdx >= 10) { finishQuiz(); return; }
+            const q = quizSet[qIdx];
+            document.getElementById('quizStep').innerText = `문제 ${qIdx + 1} / 10`;
             document.getElementById('quizText').innerText = q.q;
             document.getElementById('quizOptions').innerHTML = q.a.map((opt, i) => 
                 `<button class="quiz-btn" onclick="checkQuiz(${i})">${i+1}. ${opt}</button>`
             ).join('');
         }
 
-        function checkQuiz(idx) {
-            if(idx === mockQuizzes[quizIdx].ans) quizScore += 10;
-            quizIdx++;
-            loadQuiz();
-        }
+        function checkQuiz(i) { if(i === quizSet[qIdx].ans) score += 10; qIdx++; loadQuiz(); }
 
         function finishQuiz() {
             document.getElementById('quizModal').style.display = 'none';
-            if(quizScore >= 60) {
-                alert(`🎉 합격! (${quizScore}점)\n학습 및 평가 기록을 전송합니다.`);
-                submitEdu();
-            } else {
-                alert(`⚠️ 불합격 (${quizScore}점)\n60점 이상이어야 합니다. 처음부터 다시 학습하세요.`);
-                location.reload();
-            }
+            if(score >= 60) { alert(`🎉 합격! (${score}점)\n기록을 전송합니다.`); submitFinal(); }
+            else { alert(`⚠️ 불합격 (${score}점)\n다시 접속하여 처음부터 시도하세요.`); location.reload(); }
         }
 
-        // --- 기존 기능 유지 (PDF, 서명, 전송) ---
-        async function renderPDF(url) {
-            const pdf = await pdfjsLib.getDocument(url).promise;
-            const page = await pdf.getPage(1);
-            const canvas = document.getElementById('pdfCanvas');
-            const viewport = page.getViewport({ scale: 2 });
-            canvas.width = viewport.width; canvas.height = viewport.height;
-            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-            document.getElementById('pdfWrapper').style.display = 'block';
-        }
-
-        function goMain() { window.location.replace('user_main.html'); }
-        function openZoom(type) {
-            const modal = document.getElementById('zoomModal');
-            const img = document.getElementById('zoomImg');
-            img.src = type === 'image' ? document.getElementById('imageViewer').src : document.getElementById('pdfCanvas').toDataURL();
-            modal.style.display = 'block';
-            document.getElementById('viewportMeta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
-        }
-        function closeZoom() {
-            document.getElementById('zoomModal').style.display = 'none';
-            document.getElementById('viewportMeta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-        }
-
-        let sigCanvas, sigCtx, drawing = false;
-        function initSignature() {
-            sigCanvas = document.getElementById('sigCanvas'); sigCtx = sigCanvas.getContext('2d');
-            sigCanvas.width = sigCanvas.offsetWidth; sigCanvas.height = sigCanvas.offsetHeight;
-            sigCtx.lineWidth = 3; sigCtx.lineCap = "round"; sigCtx.strokeStyle = "#000";
-            sigCanvas.addEventListener("touchstart", (e) => { drawing = true; sigCtx.beginPath(); e.preventDefault(); });
-            sigCanvas.addEventListener("touchend", () => drawing = false);
-            sigCanvas.addEventListener("touchmove", (e) => {
-                if(!drawing) return;
-                const t = e.touches[0]; const r = sigCanvas.getBoundingClientRect();
-                sigCtx.lineTo(t.clientX - r.left, t.clientY - r.top); sigCtx.stroke();
-                e.preventDefault();
-            }, { passive: false });
-        }
-        function clearCanvas() { sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); sigCtx.beginPath(); }
-
-        function submitEdu() {
-            const sigData = (isSimulation || !document.getElementById('sigCanvas')) ? "N/A" : sigCanvas.toDataURL();
-            const timeData = isSimulation ? document.getElementById('timerDisplay').innerText : "일반이수";
-            
+        function submitFinal() {
             const payload = {
-                id: localStorage.getItem('currentUserId'),
-                name: localStorage.getItem('currentUserName'),
-                title: currentEdu.title,
-                signature: sigData,
-                score: isSimulation ? quizScore : "N/A",
-                time: timeData,
-                date: new Date().toLocaleString()
+                id: userId, name: localStorage.getItem('currentUserName'),
+                title: currentEdu.title, score: isSim ? score : "N/A",
+                time: isSim ? finalTimeLog : "일반이수", date: new Date().toLocaleString()
             };
 
             fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', {
                 method: 'POST', mode: 'no-cors', body: JSON.stringify(payload)
             }).then(() => {
-                let completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
-                completed.push({ eduId: eduId, userId: payload.id, date: new Date().toLocaleDateString() });
-                localStorage.setItem('completedEduList', JSON.stringify(completed));
+                let done = JSON.parse(localStorage.getItem('completedEduList')) || [];
+                done.push({ eduId: eduId, userId: userId });
+                localStorage.setItem('completedEduList', JSON.stringify(done));
+                
+                // 시뮬레이션용 임시 데이터 삭제
+                localStorage.removeItem(`v_${eduId}_${userId}`);
+                localStorage.removeItem(`t_${eduId}_${userId}`);
+                
                 alert("이수가 완료되었습니다.");
-                goMain();
+                location.replace('user_main.html');
             });
         }
+
+        async function renderPDF(url) {
+            const pdf = await pdfjsLib.getDocument(url).promise;
+            const page = await pdf.getPage(1);
+            const canvas = document.getElementById('pdfCanvas');
+            const viewport = page.getViewport({ scale: 1.5 });
+            canvas.width = viewport.width; canvas.height = viewport.height;
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            canvas.style.display = 'block';
+        }
+        function goMain() { location.replace('user_main.html'); }
     </script>
 </body>
 </html>
