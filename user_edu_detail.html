@@ -6,49 +6,68 @@
     <title>교육 상세 - DTRO</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; box-sizing: border-box; }
+        
+        /* 기존 스타일 유지 */
+        .top-nav { width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; box-sizing: border-box; position: sticky; top:0; z-index:100; }
         .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 15px; font-size: 0.85rem; color: #555; cursor: pointer; font-weight: bold; }
         .brand-logo { height: 42px; object-fit: contain; }
         .container { width: 92%; max-width: 420px; padding: 25px 0; padding-bottom: 120px; }
+        
+        /* 🎮 시뮬레이션 타이머 박스 스타일 */
+        .sim-timer-card { 
+            display: none; background: #fff0f0; border: 2px solid #ff4d4d; border-radius: 20px; 
+            padding: 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 8px 20px rgba(255, 77, 77, 0.1); 
+        }
+        .timer-label { font-size: 0.9rem; color: #ff4d4d; font-weight: bold; margin-bottom: 5px; display: block; }
+        .timer-clock { font-size: 2rem; font-weight: bold; color: #333; font-family: 'Courier New', Courier, monospace; }
+        .timer-hint { font-size: 0.8rem; color: #888; margin-top: 10px; }
+
         .content-card { background: white; border-radius: 25px; padding: 25px; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
         .edu-badge { display: inline-block; padding: 4px 10px; background: #eef6ff; color: var(--dtro-blue); border-radius: 8px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; }
         .edu-title { font-size: 1.3rem; font-weight: bold; color: #333; margin-bottom: 15px; display: block; }
         .edu-content { font-size: 1rem; color: #555; line-height: 1.7; white-space: pre-wrap; margin-bottom: 25px; }
         
+        /* 이미지/PDF 뷰어 관련 */
         .file-section { border-top: 1px dashed #eee; padding-top: 20px; }
         .file-label { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 5px; display: block; }
         .click-hint { font-size: 0.85rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 15px; display: block; animation: blink 2s infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .img-preview, #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; cursor: pointer; overflow: hidden; background: #fafafa; }
         
-        /* 🚨 터치할 수 있게 스타일 수정 */
-        .img-preview { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; cursor: pointer; }
-        #pdfWrapper { width: 100%; border-radius: 15px; border: 1px solid #eee; display: none; margin-bottom: 15px; overflow: hidden; background: #fafafa; cursor: pointer; }
-        #pdfCanvas { width: 100%; height: auto; }
+        /* 퀴즈 모달(팝업) 스타일 */
+        .quiz-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99999; justify-content: center; align-items: center; }
+        .quiz-box { background: white; width: 90%; max-width: 360px; border-radius: 25px; padding: 30px; box-sizing: border-box; }
+        .quiz-header { font-size: 0.9rem; font-weight: bold; color: var(--dtro-blue); margin-bottom: 15px; }
+        .quiz-question { font-size: 1.15rem; font-weight: bold; color: #222; margin-bottom: 25px; line-height: 1.4; }
+        .quiz-btn { width: 100%; padding: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; font-size: 1rem; text-align: left; cursor: pointer; }
+        .quiz-btn:active { background: #e0f2fe; border-color: var(--dtro-blue); }
 
-        .sig-card { display: none; background: white; border-radius: 25px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); text-align: left; }
-        .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .clear-btn { background: #f1f1f1; border: 1px solid #ddd; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: bold; }
-        .sig-canvas-area { width: 100%; height: 200px; background: #fafafa; border: 2px dashed #ddd; border-radius: 15px; touch-action: none; }
-        canvas { width: 100%; height: 100%; }
-
-        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; }
+        /* 하단 바 */
+        .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; box-sizing: border-box; border-top: 1px solid #eee; z-index: 101; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .btn-locked { background: #cbd5e1 !important; cursor: not-allowed; }
 
-        /* 🚨 전체화면 확대 모달 스타일 */
-        .zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; overflow: auto; text-align: center; }
-        .modal-close { position: fixed; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 8px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; z-index: 100000; }
-        .zoom-hint { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.9rem; z-index: 100000; pointer-events: none; white-space: nowrap; }
-        #zoomImg { width: 100%; height: auto; margin: auto; display: block; margin-top: 60px; margin-bottom: 60px; }
+        /* 줌 모달 (기존 유지) */
+        .zoom-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 999999; overflow: auto; text-align: center; }
+        .modal-close { position: fixed; top: 15px; right: 15px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.5); border-radius: 8px; padding: 8px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; z-index: 1000000; }
+        #zoomImg { width: 100%; height: auto; margin-top: 60px; }
     </style>
 </head>
 <body>
 
     <div id="zoomModal" class="zoom-modal">
         <button class="modal-close" onclick="closeZoom()">✕ 닫기</button>
-        <div class="zoom-hint">👆 두 손가락으로 화면을 확대할 수 있습니다</div>
         <img id="zoomImg" src="">
+    </div>
+
+    <div id="quizModal" class="quiz-modal">
+        <div class="quiz-box">
+            <div class="quiz-header" id="quizStep">문제 1 / 10</div>
+            <div class="quiz-question" id="quizText">질문을 불러오는 중...</div>
+            <div id="quizOptions"></div>
+        </div>
     </div>
 
     <div class="top-nav">
@@ -58,174 +77,230 @@
     </div>
     
     <div class="container" id="mainContainer">
+        <div id="simTimerCard" class="sim-timer-card">
+            <span class="timer-label">🎮 시뮬레이션 학습 진행 중</span>
+            <div id="timerDisplay" class="timer-clock">00:00:00</div>
+            <div class="timer-hint">* 30~40분 랜덤 시간이 충족되어야 평가가 가능합니다.</div>
+        </div>
+
         <div class="content-card">
             <span id="displayType" class="edu-badge">게시교육</span>
             <span id="displayTitle" class="edu-title">제목</span>
-            <div id="displayContent" class="edu-content">내용을 불러오는 중...</div>
+            <div id="displayContent" class="edu-content">내용 로딩 중...</div>
             <div class="file-section">
-                <span class="file-label">📎 첨부 파일 학습 (다운로드 불가)</span>
-                <span class="click-hint" id="clickHint" style="display:none;">🔍 이미지를 터치하면 크게 확대하여 볼 수 있습니다</span>
-                
-                <img id="imageViewer" class="img-preview" oncontextmenu="return false;" onclick="openZoom('image')">
+                <span class="file-label">📎 첨부 파일 학습</span>
+                <span class="click-hint" id="clickHint" style="display:none;">🔍 터치하면 크게 확대됩니다</span>
+                <img id="imageViewer" class="img-preview" onclick="openZoom('image')">
                 <div id="pdfWrapper" onclick="openZoom('pdf')"><canvas id="pdfCanvas"></canvas></div>
                 <p id="noFileText" style="color:#ccc; font-size:0.9rem; text-align:center;">첨부된 파일이 없습니다.</p>
             </div>
         </div>
 
-        <div class="sig-card" id="sigCardArea">
-            <div class="sig-header">
+        <div class="content-card" id="sigCardArea" style="display:none; padding:20px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                 <p style="font-weight:bold; margin:0;">✒️ 본인 확인 서명</p>
-                <button class="clear-btn" onclick="clearCanvas()">🔄 다시 쓰기</button>
+                <button onclick="clearCanvas()" style="background:#f1f1f1; border:1px solid #ddd; border-radius:5px; font-size:0.75rem; padding:3px 8px;">🔄 다시쓰기</button>
             </div>
-            <div class="sig-canvas-area"><canvas id="sigCanvas"></canvas></div>
+            <canvas id="sigCanvas" style="width:100%; height:180px; background:#fafafa; border:1px dashed #ccc; border-radius:10px; touch-action:none;"></canvas>
         </div>
     </div>
     
     <div class="bottom-bar" id="bottomBar">
-        <button class="submit-btn" id="mainSubmitBtn" onclick="submitEdu()">✅ 학습 완료 (이수)</button>
+        <button class="submit-btn" id="mainSubmitBtn" onclick="handleFinalAction()">✅ 학습 완료 (이수)</button>
     </div>
 
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-
+        
         const urlParams = new URLSearchParams(window.location.search);
         const eduId = urlParams.get('id');
-        const isReviewMode = urlParams.get('review') === 'true'; 
-        let isSignatureRequired = false;
+        let currentEdu = null;
+        let isSimulation = false;
+        let timerSeconds = 0;
+        let targetSeconds = 0;
+        let timerInterval = null;
 
-        function goMain() { window.location.replace('user_main.html'); }
-
-        (function() {
-            for(let i = 0; i < 10; i++) window.history.pushState(null, null, window.location.href);
-            window.onpopstate = function() { 
-                // 줌 모달이 열려있을 때 뒤로가기를 누르면 모달만 닫기
-                if(document.getElementById('zoomModal').style.display === 'block') {
-                    closeZoom();
-                    window.history.pushState(null, null, window.location.href);
-                } else {
-                    goMain(); 
-                }
-            };
-        })();
-
+        // 1. 초기 로드 및 데이터 세팅
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const edu = list.find(e => String(e.id) === String(eduId));
+            currentEdu = list.find(e => String(e.id) === String(eduId));
             
-            if(edu) {
-                document.getElementById('displayTitle').innerText = edu.title;
-                document.getElementById('displayContent').innerText = edu.content;
-                document.getElementById('displayType').innerText = edu.category || edu.type || "일반교육";
+            if(currentEdu) {
+                document.getElementById('displayTitle').innerText = currentEdu.title;
+                document.getElementById('displayContent').innerText = currentEdu.content;
+                document.getElementById('displayType').innerText = currentEdu.category || "일반교육";
                 
-                if(isReviewMode || edu.signatureType === "오프라인") {
-                    document.getElementById('bottomBar').style.display = 'none'; 
-                    document.getElementById('sigCardArea').style.display = 'none'; 
-                    document.getElementById('mainContainer').style.paddingBottom = '30px';
-                } 
-                else if(edu.signatureType === "서명 필요" || edu.signatureType === "필요") {
-                    isSignatureRequired = true;
+                // 시뮬레이션 여부 체크
+                if(currentEdu.category === "시뮬레이션 교육" || (currentEdu.simulation && currentEdu.simulation.isSimulation)) {
+                    isSimulation = true;
+                    startSimulation();
+                } else if(currentEdu.signatureType === "서명 필요") {
                     document.getElementById('sigCardArea').style.display = 'block';
-                    document.getElementById('mainSubmitBtn').innerText = "✅ 서명 완료 및 제출";
-                    initCanvas();
+                    initSignature();
                 }
 
-                if(edu.fileData) {
+                // 파일 렌더링
+                if(currentEdu.fileData) {
                     document.getElementById('noFileText').style.display = 'none';
-                    document.getElementById('clickHint').style.display = 'block'; // 🚨 안내문구 띄우기
-
-                    if(edu.fileData.startsWith('data:image/')) {
+                    document.getElementById('clickHint').style.display = 'block';
+                    if(currentEdu.fileData.startsWith('data:image/')) {
                         const img = document.getElementById('imageViewer');
-                        img.src = edu.fileData;
-                        img.style.display = 'block';
-                    } else if(edu.fileData.startsWith('data:application/pdf')) {
-                        renderPDF(edu.fileData);
+                        img.src = currentEdu.fileData; img.style.display = 'block';
+                    } else if(currentEdu.fileData.startsWith('data:application/pdf')) {
+                        renderPDF(currentEdu.fileData);
                     }
                 }
             }
         };
 
-        async function renderPDF(dataUrl) {
-            try {
-                const loadingTask = pdfjsLib.getDocument(dataUrl);
-                const pdf = await loadingTask.promise;
-                const page = await pdf.getPage(1); 
-                
-                const canvas = document.getElementById('pdfCanvas');
-                const context = canvas.getContext('2d');
-                const viewport = page.getViewport({ scale: 2.0 }); 
+        // 🎮 2. 시뮬레이션 전용 로직
+        function startSimulation() {
+            document.getElementById('simTimerCard').style.display = 'block';
+            document.getElementById('sigCardArea').style.display = 'none'; // 시뮬레이션은 서명 안함
+            const btn = document.getElementById('mainSubmitBtn');
+            btn.innerText = "⌛ 학습 시간을 채워주세요";
+            btn.classList.add('btn-locked');
+            btn.disabled = true;
 
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
+            // 관리자가 정해준 랜덤 시간(없으면 기본 30분)
+            targetSeconds = currentEdu.simulation ? currentEdu.simulation.goalSeconds : 1800;
 
-                const renderContext = { canvasContext: context, viewport: viewport };
-                await page.render(renderContext).promise;
-                document.getElementById('pdfWrapper').style.display = 'block';
-            } catch (e) {
-                console.error("PDF 렌더링 실패:", e);
-                document.getElementById('noFileText').innerText = "PDF 미리보기를 불러올 수 없습니다.";
-                document.getElementById('noFileText').style.display = 'block';
-                document.getElementById('clickHint').style.display = 'none';
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const h = Math.floor(timerSeconds / 3600).toString().padStart(2, '0');
+                const m = Math.floor((timerSeconds % 3600) / 60).toString().padStart(2, '0');
+                const s = (timerSeconds % 60).toString().padStart(2, '0');
+                document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
+
+                if(timerSeconds >= targetSeconds) {
+                    clearInterval(timerInterval);
+                    btn.innerText = "🎮 10문제 평가 시작하기";
+                    btn.classList.remove('btn-locked');
+                    btn.disabled = false;
+                    document.getElementById('simTimerCard').style.background = "#eefaf2";
+                    document.getElementById('simTimerCard').style.borderColor = "#27ae60";
+                    document.querySelector('.timer-label').innerText = "✅ 학습 완료 (평가 가능)";
+                    document.querySelector('.timer-label').style.color = "#27ae60";
+                }
+            }, 1000);
+        }
+
+        // 🎮 3. 퀴즈 로직 (10문제 / 60점 합격)
+        let quizIdx = 0; let quizScore = 0;
+        const mockQuizzes = [
+            { q: "본 교육의 핵심 안전 수칙으로 옳은 것은?", a: ["개인 휴대폰 사용", "규정 속도 준수", "임의 노선 이탈"], ans: 1 },
+            { q: "비상시 가장 먼저 연락해야 할 곳은?", a: ["관제센터", "가족", "인근 경찰서"], ans: 0 },
+            { q: "출발 전 전동차 점검 필수 항목은?", a: ["객실 청소", "제동장치 및 출입문", "광고판 부착상태"], ans: 1 },
+            { q: "운행 중 졸음 예방을 위한 올바른 행동은?", a: ["눈 붙이기", "지압 및 환기", "음악 크게 틀기"], ans: 1 },
+            { q: "승강장 안전문 오작동 시 조치는?", a: ["무시하고 출발", "수동 개폐 후 확인", "승객에게 위임"], ans: 1 },
+            { q: "터널 내 정지 시 승객 안내 멘트는?", a: ["불안감 조성", "상황 설명 및 대기 안내", "무응답"], ans: 1 },
+            { q: "근무 교대 시 인계사항이 아닌 것은?", a: ["차량 상태", "지시사항", "어제 먹은 메뉴"], ans: 2 },
+            { q: "음주 후 근무 투입은 가능한가?", a: ["절대 불가", "조금은 가능", "상황 봐서 가능"], ans: 0 },
+            { q: "화재 발생 시 가장 먼저 사용할 장비는?", a: ["휴대폰", "소화기", "손수건"], ans: 1 },
+            { q: "마지막 문제입니다. 이수하시겠습니까?", a: ["예", "아니오"], ans: 0 }
+        ];
+
+        function handleFinalAction() {
+            if(isSimulation) {
+                document.getElementById('quizModal').style.display = 'flex';
+                loadQuiz();
+            } else {
+                submitEdu();
             }
         }
 
-        // 🚨 전체화면 확대 열기 로직
+        function loadQuiz() {
+            if(quizIdx >= 10) {
+                finishQuiz(); return;
+            }
+            const q = mockQuizzes[quizIdx];
+            document.getElementById('quizStep').innerText = `문제 ${quizIdx + 1} / 10`;
+            document.getElementById('quizText').innerText = q.q;
+            document.getElementById('quizOptions').innerHTML = q.a.map((opt, i) => 
+                `<button class="quiz-btn" onclick="checkQuiz(${i})">${i+1}. ${opt}</button>`
+            ).join('');
+        }
+
+        function checkQuiz(idx) {
+            if(idx === mockQuizzes[quizIdx].ans) quizScore += 10;
+            quizIdx++;
+            loadQuiz();
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizModal').style.display = 'none';
+            if(quizScore >= 60) {
+                alert(`🎉 합격! (${quizScore}점)\n학습 및 평가 기록을 전송합니다.`);
+                submitEdu();
+            } else {
+                alert(`⚠️ 불합격 (${quizScore}점)\n60점 이상이어야 합니다. 처음부터 다시 학습하세요.`);
+                location.reload();
+            }
+        }
+
+        // --- 기존 기능 유지 (PDF, 서명, 전송) ---
+        async function renderPDF(url) {
+            const pdf = await pdfjsLib.getDocument(url).promise;
+            const page = await pdf.getPage(1);
+            const canvas = document.getElementById('pdfCanvas');
+            const viewport = page.getViewport({ scale: 2 });
+            canvas.width = viewport.width; canvas.height = viewport.height;
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            document.getElementById('pdfWrapper').style.display = 'block';
+        }
+
+        function goMain() { window.location.replace('user_main.html'); }
         function openZoom(type) {
             const modal = document.getElementById('zoomModal');
-            const zoomImg = document.getElementById('zoomImg');
-            
-            if (type === 'image') {
-                zoomImg.src = document.getElementById('imageViewer').src;
-            } else if (type === 'pdf') {
-                // PDF 캔버스를 고화질 이미지로 변환해서 확대창에 띄움
-                zoomImg.src = document.getElementById('pdfCanvas').toDataURL('image/png');
-            }
-            
+            const img = document.getElementById('zoomImg');
+            img.src = type === 'image' ? document.getElementById('imageViewer').src : document.getElementById('pdfCanvas').toDataURL();
             modal.style.display = 'block';
-            
-            // 🚨 화면 확대 잠금 해제 (최대 5배 줌 허용)
             document.getElementById('viewportMeta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
         }
-
-        // 🚨 전체화면 확대 닫기 로직
         function closeZoom() {
             document.getElementById('zoomModal').style.display = 'none';
-            
-            // 🚨 화면 확대 다시 잠금 (앱 레이아웃 깨짐 방지)
             document.getElementById('viewportMeta').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
         }
 
-        let canvas, ctx, drawing = false;
-        function initCanvas() {
-            canvas = document.getElementById('sigCanvas'); ctx = canvas.getContext('2d');
-            canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
-            ctx.strokeStyle = "#222"; ctx.lineWidth = 3; ctx.lineCap = "round";
-            canvas.addEventListener("touchstart", (e) => { drawing = true; ctx.beginPath(); e.preventDefault(); });
-            canvas.addEventListener("touchend", () => { drawing = false; });
-            canvas.addEventListener("touchmove", (e) => {
+        let sigCanvas, sigCtx, drawing = false;
+        function initSignature() {
+            sigCanvas = document.getElementById('sigCanvas'); sigCtx = sigCanvas.getContext('2d');
+            sigCanvas.width = sigCanvas.offsetWidth; sigCanvas.height = sigCanvas.offsetHeight;
+            sigCtx.lineWidth = 3; sigCtx.lineCap = "round"; sigCtx.strokeStyle = "#000";
+            sigCanvas.addEventListener("touchstart", (e) => { drawing = true; sigCtx.beginPath(); e.preventDefault(); });
+            sigCanvas.addEventListener("touchend", () => drawing = false);
+            sigCanvas.addEventListener("touchmove", (e) => {
                 if(!drawing) return;
-                const touch = e.touches[0]; const rect = canvas.getBoundingClientRect();
-                ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top); ctx.stroke();
+                const t = e.touches[0]; const r = sigCanvas.getBoundingClientRect();
+                sigCtx.lineTo(t.clientX - r.left, t.clientY - r.top); sigCtx.stroke();
                 e.preventDefault();
             }, { passive: false });
         }
-
-        function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.beginPath(); }
+        function clearCanvas() { sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height); sigCtx.beginPath(); }
 
         function submitEdu() {
-            if(!confirm("이수를 완료하시겠습니까?")) return;
-            const signatureData = isSignatureRequired ? canvas.toDataURL() : "N/A"; 
+            const sigData = (isSimulation || !document.getElementById('sigCanvas')) ? "N/A" : sigCanvas.toDataURL();
+            const timeData = isSimulation ? document.getElementById('timerDisplay').innerText : "일반이수";
             
-            const sendData = { id: localStorage.getItem('currentUserId'), name: localStorage.getItem('currentUserName'), title: document.getElementById('displayTitle').innerText, signature: signatureData, date: new Date().toLocaleString() };
-            fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', { method: 'POST', mode: 'no-cors', cache: 'no-cache', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sendData) })
-            .then(() => {
+            const payload = {
+                id: localStorage.getItem('currentUserId'),
+                name: localStorage.getItem('currentUserName'),
+                title: currentEdu.title,
+                signature: sigData,
+                score: isSimulation ? quizScore : "N/A",
+                time: timeData,
+                date: new Date().toLocaleString()
+            };
+
+            fetch('https://script.google.com/macros/s/AKfycbyAcZ0CvItLoKpsQP8ie6MSz7OMK-fkW90MU1ZiuIQTPIN5jtAbRDkqoJQWxYLBOqf0/exec', {
+                method: 'POST', mode: 'no-cors', body: JSON.stringify(payload)
+            }).then(() => {
                 let completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
-                completed.push({ eduId: eduId, userId: localStorage.getItem('currentUserId'), completedDate: new Date().toLocaleDateString() });
+                completed.push({ eduId: eduId, userId: payload.id, date: new Date().toLocaleDateString() });
                 localStorage.setItem('completedEduList', JSON.stringify(completed));
-                
                 alert("이수가 완료되었습니다.");
-                window.location.replace('user_main.html');
-            })
-            .catch(() => alert("전송 실패"));
+                goMain();
+            });
         }
     </script>
 </body>
