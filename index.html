@@ -160,14 +160,24 @@
             document.getElementById('authModal').style.display = 'flex';
         }
 
+        // 🚀 사용자 로그인 로직 수정 (1234 자동인식 제거)
         function userLogin() {
             const inputId = document.getElementById('userId').value.trim();
             const inputPw = document.getElementById('userPw').value;
+            
             const totalUserList = JSON.parse(localStorage.getItem('totalUserList')) || [];
-            const savedTeamPw = localStorage.getItem('teamPw') || "1234";
+            
+            // 관리자 설정(adminConfig) 우선 참조, 없으면 개별 키(teamPw) 참조 (기본값 제거)
+            const adminConfig = JSON.parse(localStorage.getItem('adminConfig')) || {};
+            const savedTeamPw = adminConfig.teamPassword || localStorage.getItem('teamPw');
             
             const userIndex = totalUserList.findIndex(u => String(u.id) === String(inputId));
             const myDeviceUUID = localStorage.getItem('myDeviceUUID');
+            
+            if (!savedTeamPw) {
+                alert("현재 팀 공용 비밀번호가 설정되지 않았습니다.\n관리자 모드(비밀번호 1234 인증)에서 먼저 설정해 주세요.");
+                return;
+            }
             
             if (userIndex === -1) { alert("관리자 명단에 등록되지 않은 사번입니다."); return; }
             if (inputPw !== savedTeamPw) { alert("팀 공용 비밀번호가 틀렸습니다."); return; }
@@ -209,8 +219,6 @@
             const userIndex = totalUserList.findIndex(u => String(u.id) === String(id));
             const myDeviceUUID = localStorage.getItem('myDeviceUUID');
 
-            // 🚨 [보안 추가] 1기기 1사번 철통 검사!
-            // 이 스마트폰(myDeviceUUID)이 이미 다른 사람의 사번으로 대기중이거나 승인된 상태인지 검사합니다.
             const isDeviceAlreadyUsed = totalUserList.some(u => u.deviceId === myDeviceUUID && String(u.id) !== String(id));
             
             if (isDeviceAlreadyUsed) {
