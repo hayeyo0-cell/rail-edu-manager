@@ -8,15 +8,16 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         
-        /* 🛠️ 로고 위치 및 상단바 수정 */
+        /* 🛠️ 로고 중앙 정렬을 위한 상단바 설계 */
         .top-nav { 
             width: 100%; background: white; padding: 0 15px; 
             display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 1px solid #eee; position: sticky; top:0; z-index:1000; 
-            box-sizing: border-box; height: 60px; 
+            box-sizing: border-box; height: 65px;
         }
-        .brand-logo { height: 38px; width: auto; object-fit: contain; } /* 로고 크기 확대 */
-        .logout-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 7px 12px; font-size: 0.8rem; color: #888; cursor: pointer; font-weight: bold; }
+        .nav-spacer { width: 75px; } /* 로그아웃 버튼과 같은 너비로 설정하여 로고를 중앙으로 밈 */
+        .brand-logo { height: 40px; width: auto; object-fit: contain; }
+        .logout-btn { min-width: 75px; background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 10px; font-size: 0.8rem; color: #888; cursor: pointer; font-weight: bold; }
         
         .container { width: 92%; max-width: 420px; padding: 15px 0; }
         .section-title { font-size: 1.05rem; font-weight: bold; color: var(--dtro-blue); margin: 20px 0 12px 0; display: flex; align-items: center; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
@@ -38,7 +39,7 @@
 <body>
 
     <div class="top-nav">
-        <img src="logo.png" class="brand-logo" alt="DTRO Logo">
+        <div class="nav-spacer"></div> <img src="logo.png" class="brand-logo" alt="DTRO Logo">
         <button class="logout-btn" onclick="handleLogout()">로그아웃</button>
     </div>
 
