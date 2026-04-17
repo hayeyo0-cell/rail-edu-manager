@@ -5,7 +5,7 @@
     <meta id="viewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>사용자 메인 - DTRO</title>
     <style>
-        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; --error-red: #ff4d4d; }
+        :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
         .top-nav { width: 100%; background: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top:0; z-index:1000; box-sizing: border-box; }
         .logout-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 5px 10px; font-size: 0.7rem; color: #888; cursor: pointer; }
@@ -19,13 +19,11 @@
         .edu-card { background: white; border-radius: 20px; padding: 18px; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .badge { padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; background: #eef6ff; color: var(--dtro-blue); }
-        .dday-badge { padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; background: #fff1f2; color: #f43f5e; }
-        .edu-title { font-weight: bold; font-size: 1.05rem; color: #333; margin-bottom: 6px; display: block; line-height: 1.3; letter-spacing: -0.5px; }
+        .edu-title { font-weight: bold; font-size: 1.05rem; color: #333; margin-bottom: 6px; display: block; line-height: 1.3; }
         .deadline-text { font-size: 0.85rem; color: #666; margin-bottom: 15px; display: block; }
         .btn-start { width: 100%; padding: 12px; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 0.95rem; cursor: pointer; }
         .archive-list-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; align-items: center; cursor: pointer; border: 1px solid #f0f0f0; }
         .archive-info h4 { margin: 0; font-size: 0.95rem; color: #333; }
-        .archive-info p { margin: 2px 0 0 0; font-size: 0.75rem; color: #999; }
         .empty-box { text-align:center; color:#ccc; padding:30px; background:white; border-radius:20px; font-size: 0.85rem; }
     </style>
 </head>
@@ -46,7 +44,7 @@
             <span style="font-size:1.4rem; margin-right:12px;">📁</span>
             <div class="archive-info">
                 <h4>나의 이수 완료 내역</h4>
-                <p>이번 달 완료한 교육 목록 확인</p>
+                <p style="margin:2px 0 0 0; font-size:0.75rem; color:#999;">이번 달 완료 내역 확인</p>
             </div>
             <span style="margin-left:auto; color:#ccc;">〉</span>
         </div>
@@ -59,25 +57,25 @@
 
         window.onload = function() {
             if(!userId) { location.replace('index.html'); return; }
-            autoCleanMonthlyData(); // 🚀 월 단위 자동 삭제 실행
+            autoCleanMonthlyData(); // 🧹 안전한 자동 삭제 실행
             renderFilters();
             loadEduData();
         };
 
         function autoCleanMonthlyData() {
             const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            const completedEduList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+            const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             const now = new Date();
+            // 이번 달 1일 0시 기준 (주의: 관리자 정보는 건드리지 않음)
             const firstDayOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
-            const cleanedEduList = allEduList.filter(edu => edu.id >= firstDayOfThisMonth);
+            const cleanedEduList = allEduList.filter(edu => Number(edu.id) >= firstDayOfThisMonth);
             const validIds = cleanedEduList.map(e => String(e.id));
-            const cleanedCompleted = completedEduList.filter(c => validIds.includes(String(c.eduId)));
+            const cleanedCompleted = completedList.filter(c => validIds.includes(String(c.eduId)));
 
             if (allEduList.length !== cleanedEduList.length) {
                 localStorage.setItem('totalEduList', JSON.stringify(cleanedEduList));
                 localStorage.setItem('completedEduList', JSON.stringify(cleanedCompleted));
-                console.log("지난 달 데이터 자동 정리 완료");
             }
         }
 
@@ -94,7 +92,6 @@
             const listArea = document.getElementById('userEduListArea');
             const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            const today = new Date().setHours(0,0,0,0);
             
             let filtered = allEduList.filter(edu => {
                 const isMyDept = edu.dept === userDept;
@@ -108,24 +105,32 @@
             }
 
             listArea.innerHTML = filtered.sort((a,b)=>b.id-a.id).map(edu => {
-                const isSimulation = edu.category === "시뮬레이션 교육";
+                const isSim = edu.category.includes("시뮬레이션");
                 return `
                 <div class="edu-card">
                     <div class="card-header">
                         <span class="badge">${edu.category}</span>
-                        <span style="font-size:0.75rem; color:#bbb;">${edu.date}</span>
+                        <span style="font-size:0.7rem; color:#bbb;">${edu.date}</span>
                     </div>
                     <span class="edu-title">${edu.title}</span>
                     <span class="deadline-text">⌛ 마감: ${edu.deadline || '상시'}</span>
-                    <button class="btn-start" style="background:${isSimulation ? '#ff4757':'#0072bc'};" 
+                    <button class="btn-start" style="background:${isSim ? '#ff4757':'#0072bc'};" 
                         onclick="location.href='user_edu_detail.html?id=${edu.id}'">
-                        ${isSimulation ? '시뮬레이션 시작' : '교육 입장하기'} →
+                        ${isSim ? '시뮬레이션 시작' : '교육 입장하기'} →
                     </button>
                 </div>`;
             }).join('');
         }
 
-        function handleLogout() { if(confirm("로그아웃 하시겠습니까?")) { localStorage.clear(); location.replace('index.html'); } }
+        function handleLogout() {
+            if(confirm("로그아웃 하시겠습니까?")) {
+                // ⚠️ clear() 대신 필요한 것만 삭제하여 관리자 정보 보존
+                localStorage.removeItem('currentUserId');
+                localStorage.removeItem('currentUserName');
+                localStorage.removeItem('currentUserDept');
+                location.replace('index.html');
+            }
+        }
     </script>
 </body>
 </html>
