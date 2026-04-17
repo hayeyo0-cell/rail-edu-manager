@@ -15,19 +15,22 @@
         .container { width: 92%; max-width: 420px; padding: 15px 0 140px 0; }
         .content-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
         
-        /* 🔍 자료 보기 영역 */
-        .viewer-area { width: 100%; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; cursor: zoom-in; position: relative; }
+        /* 🔍 자료 미리보기 (크기 최적화) */
+        .viewer-area { width: 100%; max-height: 220px; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; cursor: zoom-in; position: relative; }
         canvas, .img-preview { width: 100%; height: auto; display: none; border-radius: 12px; }
         
-        /* 🖋️ 서명 패드 (크게 확대) */
-        #signatureArea { display: none; background: #ffffff; border: 2px solid var(--dtro-blue); border-radius: 20px; padding: 15px; margin-top: 20px; text-align: center; }
-        #sigPad { background: #fdfdfd; border: 1px dashed #bbb; border-radius: 12px; width: 100%; height: 220px; touch-action: none; cursor: crosshair; }
-        .sig-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        /* 🖋️ 서명 유도 영역 (터치 시 팝업) */
+        #signatureArea { display: none; background: #f0f7ff; border: 2px dashed var(--dtro-blue); border-radius: 20px; padding: 20px; margin-top: 15px; text-align: center; cursor: pointer; }
+        #sigImage { display: none; max-height: 100px; margin: 10px auto; border: 1px solid #eee; background: white; border-radius: 10px; }
 
-        /* 🖼️ 전체화면 확대 모달 */
-        .zoom-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index: 99999; justify-content:center; align-items:center; flex-direction:column; }
+        /* 📱 전체 화면 서명 모달 */
+        .sig-full-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 99999; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        #sigPadFull { background: #fdfdfd; border: 2px solid #ddd; border-radius: 15px; width: 100%; flex: 1; touch-action: none; }
+        .sig-modal-btns { display: flex; gap: 10px; margin-top: 15px; }
+
+        /* 🖼️ 전체화면 이미지 확대 모달 */
+        .zoom-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index: 99998; justify-content:center; align-items:center; flex-direction:column; }
         .zoom-img { max-width:100%; max-height:100%; object-fit:contain; }
-        .zoom-close { position:absolute; top:30px; right:30px; color:white; font-size:40px; font-weight:bold; cursor:pointer; }
 
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; border-top: 1px solid #eee; box-sizing: border-box; z-index: 1001; }
         .submit-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
@@ -43,27 +46,38 @@
     
     <div class="container">
         <div class="content-card">
-            <h3 id="displayTitle" style="margin-top:0; font-size: 1.25rem;">교육 제목</h3>
+            <h3 id="displayTitle" style="margin:0 0 10px 0; font-size: 1.2rem;">교육 제목</h3>
             <div class="viewer-area">
                 <img id="imageViewer" class="img-preview" onclick="openZoom(this.src)">
                 <canvas id="pdfCanvas" onclick="openZoomCanvas()"></canvas>
                 <div id="loadingText" style="padding:40px; color:#ccc; text-align:center;">자료 로딩 중...</div>
             </div>
-            <div id="displayContent" style="font-size: 0.95rem; color: #555; line-height: 1.6; white-space: pre-wrap; margin-bottom: 10px;"></div>
+            <div id="displayContent" style="font-size: 0.9rem; color: #555; line-height: 1.6; white-space: pre-wrap; margin-bottom: 15px;"></div>
 
-            <div id="signatureArea">
-                <div style="font-size: 0.9rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 10px; text-align: left;">🖋️ 본인 확인 서명</div>
-                <canvas id="sigPad"></canvas>
-                <div class="sig-tools">
-                    <span style="font-size: 0.75rem; color: #999;">위 칸에 성명을 정자로 쓰세요.</span>
-                    <button onclick="clearSig()" style="background:none; border:none; color:#ff4d4d; font-size:0.85rem; font-weight:bold; text-decoration:underline;">다시 쓰기</button>
+            <div id="signatureArea" onclick="openSigModal()">
+                <div id="sigIntro">
+                    <div style="font-size: 1.1rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 5px;">🖋️ 여기를 터치하여 서명하세요</div>
+                    <div style="color: #999; font-size: 0.85rem;">본인 확인을 위한 서명이 필요한 교육입니다.</div>
                 </div>
+                <img id="sigImage">
+                <div id="sigRedoText" style="display:none; color:var(--dtro-blue); font-size:0.8rem; text-decoration:underline; margin-top:5px;">서명 수정하기</div>
             </div>
         </div>
     </div>
 
+    <div id="sigFullModal" class="sig-full-modal">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span style="font-size: 1.2rem; font-weight: bold; color: var(--dtro-blue);">본인 확인 서명</span>
+            <button onclick="closeSigModal()" style="padding: 8px 15px; border-radius: 8px; border: 1px solid #ddd; background: #eee;">닫기</button>
+        </div>
+        <canvas id="sigPadFull"></canvas>
+        <div class="sig-modal-btns">
+            <button onclick="clearSig()" style="flex: 1; padding: 15px; border-radius: 12px; border: 1px solid #ff4d4d; color: #ff4d4d; background: white; font-weight: bold;">다시 쓰기</button>
+            <button onclick="saveSig()" style="flex: 2; padding: 15px; border-radius: 12px; border: none; background: var(--dtro-blue); color: white; font-weight: bold; font-size: 1.1rem;">서명 완료</button>
+        </div>
+    </div>
+
     <div id="zoomModal" class="zoom-modal" onclick="closeZoom()">
-        <span class="zoom-close">&times;</span>
         <img id="zoomContent" class="zoom-img">
         <div style="position:absolute; bottom:30px; color:#aaa; font-size:0.8rem;">터치하면 닫힙니다 (두 손가락 확대 가능)</div>
     </div>
@@ -97,27 +111,26 @@
                     }
                 }
 
-                // 서명 타입 확인
                 if(currentEdu.signatureType === "전자서명") {
                     document.getElementById('signatureArea').style.display = 'block';
-                    document.getElementById('mainBtn').innerText = "🖋️ 서명 후 이수 완료";
-                    initSigPad();
+                    document.getElementById('mainBtn').innerText = "🖋️ 서명 후 이수 가능";
                 }
             }
         };
 
-        // 🖋️ 서명 패드 초기화 (모바일 최적화)
+        // --- 🖋️ 서명 팝업 로직 ---
+        function openSigModal() {
+            document.getElementById('sigFullModal').style.display = 'flex';
+            initSigPad();
+        }
+
         function initSigPad() {
-            sigCanvas = document.getElementById('sigPad');
+            sigCanvas = document.getElementById('sigPadFull');
             sigCtx = sigCanvas.getContext('2d');
-            
             const rect = sigCanvas.getBoundingClientRect();
             sigCanvas.width = rect.width;
             sigCanvas.height = rect.height;
-
-            sigCtx.lineWidth = 3; 
-            sigCtx.lineCap = 'round'; 
-            sigCtx.strokeStyle = '#222';
+            sigCtx.lineWidth = 4; sigCtx.lineCap = 'round'; sigCtx.strokeStyle = '#222';
 
             const getPos = (e) => {
                 const r = sigCanvas.getBoundingClientRect();
@@ -125,28 +138,9 @@
                 const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 return { x: clientX - r.left, y: clientY - r.top };
             };
-
-            const start = (e) => { 
-                drawing = true; 
-                const p = getPos(e); 
-                sigCtx.beginPath(); 
-                sigCtx.moveTo(p.x, p.y); 
-                if(e.type === 'touchstart') e.preventDefault();
-            };
-
-            const move = (e) => { 
-                if(!drawing) return; 
-                const p = getPos(e); 
-                sigCtx.lineTo(p.x, p.y); 
-                sigCtx.stroke(); 
-                if(e.type === 'touchmove') e.preventDefault();
-            };
-
+            const start = (e) => { drawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); e.preventDefault(); };
+            const move = (e) => { if(!drawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); e.preventDefault(); };
             const stop = () => { drawing = false; };
-
-            sigCanvas.addEventListener('mousedown', start);
-            sigCanvas.addEventListener('mousemove', move);
-            window.addEventListener('mouseup', stop);
 
             sigCanvas.addEventListener('touchstart', start, {passive: false});
             sigCanvas.addEventListener('touchmove', move, {passive: false});
@@ -155,12 +149,26 @@
 
         function clearSig() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
 
+        function saveSig() {
+            const blank = document.createElement('canvas');
+            blank.width = sigCanvas.width; blank.height = sigCanvas.height;
+            if(sigCanvas.toDataURL() === blank.toDataURL()) { alert("서명을 해주세요."); return; }
+            
+            const sigImg = document.getElementById('sigImage');
+            sigImg.src = sigCanvas.toDataURL();
+            sigImg.style.display = 'block';
+            document.getElementById('sigIntro').style.display = 'none';
+            document.getElementById('sigRedoText').style.display = 'block';
+            document.getElementById('mainBtn').innerText = "✅ 이수 완료하기";
+            closeSigModal();
+        }
+
+        function closeSigModal() { document.getElementById('sigFullModal').style.display = 'none'; }
+
         function handleFinalAction() {
             if(currentEdu.signatureType === "전자서명") {
-                const blank = document.createElement('canvas');
-                blank.width = sigCanvas.width; blank.height = sigCanvas.height;
-                if(sigCanvas.toDataURL() === blank.toDataURL()) {
-                    alert("하단 서명란에 이름을 적어주세요.");
+                if(document.getElementById('sigImage').style.display === 'none') {
+                    alert("서명을 먼저 완료해 주세요.");
                     return;
                 }
             }
@@ -170,20 +178,17 @@
         function submitFinal() {
             const userId = localStorage.getItem('currentUserId');
             const completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            
             completed.push({ 
-                eduId: eduId, 
-                userId: userId, 
+                eduId: eduId, userId: userId, 
                 completedDate: new Date().toLocaleString(),
-                signature: currentEdu.signatureType === "전자서명" ? sigCanvas.toDataURL() : null
+                signature: currentEdu.signatureType === "전자서명" ? document.getElementById('sigImage').src : null
             });
-            
             localStorage.setItem('completedEduList', JSON.stringify(completed));
             alert("이수 처리가 완료되었습니다.");
             location.replace('user_main.html');
         }
 
-        // 🔍 확대 로직
+        // --- 🔍 확대 로직 ---
         function openZoom(src) {
             document.getElementById('zoomContent').src = src;
             document.getElementById('zoomModal').style.display = 'flex';
