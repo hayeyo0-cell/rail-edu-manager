@@ -9,36 +9,35 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-gray); margin:0; display:flex; flex-direction:column; align-items:center; }
         
-        /* 🛠️ 로고 위치 및 상단바 디자인 보정 (보관함 화면과 통일) */
+        /* 🛠️ 로고 중앙 정렬 상단바 */
         .top-nav { 
             width: 100%; background: white; padding: 0 15px; 
             display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 1px solid #eee; position: sticky; top:0; z-index: 1000; 
             box-sizing: border-box; height: 60px;
         }
-        .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: bold; cursor: pointer; min-width: 65px; }
-        .brand-logo { height: 35px; width: auto; object-fit: contain; }
-        
+        .nav-btn { min-width: 75px; background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 7px 10px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+        .brand-logo { height: 38px; width: auto; object-fit: contain; }
+        .nav-spacer { width: 75px; }
+
         .container { width: 92%; max-width: 420px; padding: 15px 0 140px 0; }
         .content-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
-        
-        /* 🔍 자료 미리보기 영역 */
         .viewer-area { width: 100%; max-height: 220px; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; cursor: zoom-in; position: relative; }
         canvas, .img-preview { width: 100%; height: auto; display: none; border-radius: 12px; }
         
-        /* 🖋️ 서명 유도 영역 */
         #signatureArea { display: none; background: #f0f7ff; border: 2px dashed var(--dtro-blue); border-radius: 20px; padding: 20px; margin-top: 15px; text-align: center; cursor: pointer; }
         #sigImage { display: none; max-height: 100px; margin: 10px auto; border: 1px solid #eee; background: white; border-radius: 10px; }
 
-        /* 📱 전체 화면 서명 모달 */
-        .sig-full-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 99999; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        /* 📱 서명 모달 - 뒷배경 완벽 차단 및 불투명 처리 */
+        .sig-full-modal { 
+            display: none; position: fixed; top: 0; left: 0; 
+            width: 100vw; height: 100vh; background: #ffffff; /* 순백색 배경 */
+            z-index: 99999; flex-direction: column; padding: 20px; box-sizing: border-box; 
+        }
         #sigPadFull { background: #fdfdfd; border: 2px solid #ddd; border-radius: 15px; width: 100%; flex: 1; touch-action: none; }
         .sig-modal-btns { display: flex; gap: 10px; margin-top: 15px; }
 
-        /* 🖼️ 확대 모달 */
-        .zoom-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index: 99998; justify-content:center; align-items:center; flex-direction:column; }
-        .zoom-img { max-width:100%; max-height:100%; object-fit:contain; }
-
+        .zoom-modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); z-index: 99998; justify-content:center; align-items:center; }
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; border-top: 1px solid #eee; box-sizing: border-box; z-index: 1001; }
         .submit-btn { width: 100%; padding: 16px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
     </style>
@@ -48,7 +47,8 @@
     <div class="top-nav">
         <button class="nav-btn" onclick="location.replace('user_main.html')">← 뒤로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
-        <div style="width:65px;"></div> </div>
+        <div class="nav-spacer"></div>
+    </div>
     
     <div class="container">
         <div class="content-card">
@@ -63,7 +63,7 @@
             <div id="signatureArea" onclick="openSigModal()">
                 <div id="sigIntro">
                     <div style="font-size: 1.1rem; color: var(--dtro-blue); font-weight: bold; margin-bottom: 5px;">🖋️ 여기를 터치하여 서명하세요</div>
-                    <div style="color: #999; font-size: 0.85rem;">본인 확인을 위한 서명이 필요한 교육입니다.</div>
+                    <div style="color: #999; font-size: 0.85rem;">본인 확인 서명이 필요한 교육입니다.</div>
                 </div>
                 <img id="sigImage">
                 <div id="sigRedoText" style="display:none; color:var(--dtro-blue); font-size:0.8rem; text-decoration:underline; margin-top:5px;">서명 다시하기</div>
@@ -83,10 +83,7 @@
         </div>
     </div>
 
-    <div id="zoomModal" class="zoom-modal" onclick="closeZoom()">
-        <img id="zoomContent" class="zoom-img">
-        <div style="position:absolute; bottom:30px; color:#aaa; font-size:0.8rem;">터치하면 닫힙니다 (두 손가락 확대 가능)</div>
-    </div>
+    <div id="zoomModal" class="zoom-modal" onclick="closeZoom()"><img id="zoomContent" class="zoom-img"></div>
 
     <div class="bottom-bar">
         <button class="submit-btn" id="mainBtn" onclick="handleFinalAction()">✅ 학습 완료 (이수)</button>
@@ -102,21 +99,15 @@
         window.onload = function() {
             const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
             currentEdu = list.find(e => String(e.id) === String(eduId));
-            
             if(currentEdu) {
                 document.getElementById('displayTitle').innerText = currentEdu.title;
                 document.getElementById('displayContent').innerText = currentEdu.content;
-                
                 if(currentEdu.fileData) {
                     document.getElementById('loadingText').style.display = 'none';
                     if(currentEdu.fileData.includes('image/')) {
-                        const img = document.getElementById('imageViewer');
-                        img.src = currentEdu.fileData; img.style.display = 'block';
-                    } else if(currentEdu.fileData.includes('pdf')) {
-                        renderPDF(currentEdu.fileData);
-                    }
+                        const img = document.getElementById('imageViewer'); img.src = currentEdu.fileData; img.style.display = 'block';
+                    } else if(currentEdu.fileData.includes('pdf')) { renderPDF(currentEdu.fileData); }
                 }
-
                 if(currentEdu.signatureType === "전자서명") {
                     document.getElementById('signatureArea').style.display = 'block';
                     document.getElementById('mainBtn').innerText = "🖋️ 서명 후 이수 가능";
@@ -124,129 +115,58 @@
             }
         };
 
-        // --- 🖋️ 서명 팝업 로직 (강력한 터치 인식 버전) ---
-        function openSigModal() {
-            document.getElementById('sigFullModal').style.display = 'flex';
-            setTimeout(initSigPad, 100); 
-        }
-
+        function openSigModal() { document.getElementById('sigFullModal').style.display = 'flex'; setTimeout(initSigPad, 100); }
         function initSigPad() {
-            sigCanvas = document.getElementById('sigPadFull');
-            sigCtx = sigCanvas.getContext('2d');
-            
+            sigCanvas = document.getElementById('sigPadFull'); sigCtx = sigCanvas.getContext('2d');
             const rect = sigCanvas.getBoundingClientRect();
-            sigCanvas.width = rect.width;
-            sigCanvas.height = rect.height;
-
-            sigCtx.lineWidth = 4;
-            sigCtx.lineCap = 'round';
-            sigCtx.lineJoin = 'round';
-            sigCtx.strokeStyle = '#000000';
-
+            sigCanvas.width = rect.width; sigCanvas.height = rect.height;
+            sigCtx.lineWidth = 4; sigCtx.lineCap = 'round'; sigCtx.strokeStyle = '#000';
             const getPos = (e) => {
                 const r = sigCanvas.getBoundingClientRect();
-                let clientX, clientY;
-                if (e.touches && e.touches.length > 0) {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
-                } else {
-                    clientX = e.clientX;
-                    clientY = e.clientY;
-                }
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 return { x: clientX - r.left, y: clientY - r.top };
             };
-
-            const start = (e) => {
-                e.preventDefault(); 
-                drawing = true;
-                const p = getPos(e);
-                sigCtx.beginPath();
-                sigCtx.moveTo(p.x, p.y);
-            };
-
-            const move = (e) => {
-                if (!drawing) return;
-                e.preventDefault();
-                const p = getPos(e);
-                sigCtx.lineTo(p.x, p.y);
-                sigCtx.stroke();
-            };
-
-            const stop = () => { if (drawing) { sigCtx.closePath(); drawing = false; } };
-
-            // 기존 이벤트 제거 후 재등록 (중복 방지 및 강제 차단 해제)
-            sigCanvas.removeEventListener('touchstart', start);
-            sigCanvas.removeEventListener('touchmove', move);
-            
+            const start = (e) => { e.preventDefault(); drawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); };
+            const move = (e) => { if (!drawing) return; e.preventDefault(); const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); };
+            const stop = () => { drawing = false; };
             sigCanvas.addEventListener('touchstart', start, { passive: false });
             sigCanvas.addEventListener('touchmove', move, { passive: false });
             sigCanvas.addEventListener('touchend', stop);
-            
             sigCanvas.addEventListener('mousedown', start);
             sigCanvas.addEventListener('mousemove', move);
             window.addEventListener('mouseup', stop);
         }
 
         function clearSig() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
-
         function saveSig() {
-            const blank = document.createElement('canvas');
-            blank.width = sigCanvas.width; blank.height = sigCanvas.height;
+            const blank = document.createElement('canvas'); blank.width = sigCanvas.width; blank.height = sigCanvas.height;
             if(sigCanvas.toDataURL() === blank.toDataURL()) { alert("서명을 해주세요."); return; }
-            
-            const sigImg = document.getElementById('sigImage');
-            sigImg.src = sigCanvas.toDataURL();
-            sigImg.style.display = 'block';
+            document.getElementById('sigImage').src = sigCanvas.toDataURL();
+            document.getElementById('sigImage').style.display = 'block';
             document.getElementById('sigIntro').style.display = 'none';
             document.getElementById('sigRedoText').style.display = 'block';
             document.getElementById('mainBtn').innerText = "✅ 이수 완료하기";
             closeSigModal();
         }
-
         function closeSigModal() { document.getElementById('sigFullModal').style.display = 'none'; }
 
         function handleFinalAction() {
-            if(currentEdu.signatureType === "전자서명") {
-                if(document.getElementById('sigImage').style.display === 'none') {
-                    alert("서명을 먼저 완료해 주세요.");
-                    return;
-                }
+            if(currentEdu.signatureType === "전자서명" && document.getElementById('sigImage').style.display === 'none') { alert("서명을 완료해 주세요."); return; }
+            if(confirm("이수를 완료하시겠습니까?")) {
+                const completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
+                completed.push({ eduId, userId: localStorage.getItem('currentUserId'), completedDate: new Date().toLocaleString(), signature: document.getElementById('sigImage').src });
+                localStorage.setItem('completedEduList', JSON.stringify(completed));
+                alert("이수 완료!"); location.replace('user_main.html');
             }
-            if(confirm("이수를 완료하시겠습니까?")) submitFinal();
         }
-
-        function submitFinal() {
-            const userId = localStorage.getItem('currentUserId');
-            const completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
-            completed.push({ 
-                eduId: eduId, userId: userId, 
-                completedDate: new Date().toLocaleString(),
-                signature: currentEdu.signatureType === "전자서명" ? document.getElementById('sigImage').src : null
-            });
-            localStorage.setItem('completedEduList', JSON.stringify(completed));
-            alert("이수 처리가 완료되었습니다.");
-            location.replace('user_main.html');
-        }
-
-        // --- 🔍 확대 로직 ---
-        function openZoom(src) {
-            document.getElementById('zoomContent').src = src;
-            document.getElementById('zoomModal').style.display = 'flex';
-            document.getElementById('viewportMeta').content = "width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes";
-        }
-        function openZoomCanvas() { openZoom(document.getElementById('pdfCanvas').toDataURL("image/png")); }
-        function closeZoom() {
-            document.getElementById('zoomModal').style.display = 'none';
-            document.getElementById('viewportMeta').content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
-        }
+        function openZoom(src) { document.getElementById('zoomContent').src = src; document.getElementById('zoomModal').style.display = 'flex'; }
+        function closeZoom() { document.getElementById('zoomModal').style.display = 'none'; }
         async function renderPDF(url) {
-            const pdf = await pdfjsLib.getDocument(url).promise;
-            const page = await pdf.getPage(1);
-            const canvas = document.getElementById('pdfCanvas');
-            const viewport = page.getViewport({ scale: 2.0 });
+            const pdf = await pdfjsLib.getDocument(url).promise; const page = await pdf.getPage(1);
+            const canvas = document.getElementById('pdfCanvas'); const viewport = page.getViewport({ scale: 2.0 });
             canvas.width = viewport.width; canvas.height = viewport.height;
-            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-            canvas.style.display = 'block';
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise; canvas.style.display = 'block';
         }
     </script>
 </body>
