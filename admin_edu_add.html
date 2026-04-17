@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>새 교육 등록 - DTRO</title>
+    <title>교육 등록 및 수정 - DTRO</title>
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
@@ -47,23 +47,20 @@
         .save-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-size: 1.15rem; font-weight: bold; margin-top: 35px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,114,188,0.2); transition: transform 0.1s; }
         .save-btn:active { transform: scale(0.98); box-shadow: none; }
         
-        /* 🎮 시뮬레이션 옵션 전용 스타일 */
-        #simOptions { 
-            margin-top: 15px; padding: 15px; background: #fff5f5; border: 1px solid #ffcccc; border-radius: 15px; display: none;
-        }
+        #simOptions { margin-top: 15px; padding: 15px; background: #fff5f5; border: 1px solid #ffcccc; border-radius: 15px; display: none; }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="nav-btn" onclick="goBack()">← 메인으로</button>
+        <button class="nav-btn" onclick="goBack()">← 이전으로</button>
         <img src="logo.png" class="brand-logo" alt="DTRO">
         <div style="width:75px;"></div>
     </div>
 
     <div class="container">
         <div class="edu-card">
-            <span class="card-title">✍️ 새 교육 및 훈련 등록</span>
+            <span class="card-title" id="pageTitle">✍️ 새 교육 및 훈련 등록</span>
             <div class="dept-info-box">📍 담당 소속: <strong id="currentDept">경산승무팀</strong></div>
 
             <label class="input-label">교육 분류</label>
@@ -71,8 +68,6 @@
                 <option value="게시교육">게시교육</option>
                 <option value="대면교육">대면교육</option>
                 <option value="면담교육">면담교육</option>
-                <option value="기기점검">기기점검</option>
-                <option value="지시사항">지시사항</option>
                 <option value="시뮬레이션 교육">시뮬레이션 교육 (자동 시간기록)</option>
                 <option value="육성방송 훈련">육성방송 훈련</option>
             </select>
@@ -82,7 +77,6 @@
                 <select id="quizPackage">
                     <option value="set_2026_04">★ 26년 4월 전자학습 꾸러미 ★</option>
                     <option value="set_2026_05">★ 26년 5월 전자학습 꾸러미 ★</option>
-                    <option value="emergency_01">비상조치 시나리오 세트 01</option>
                 </select>
             </div>
 
@@ -95,7 +89,7 @@
             <label class="input-label">📝 앱 내 이수(확인) 방식</label>
             <div class="radio-group-col" id="sigGroup">
                 <label class="radio-item" id="labelSigYes">
-                    <input type="radio" name="needSig" value="서명 필요" onclick="updateRadioUI()"> 
+                    <input type="radio" name="needSig" value="전자서명" onclick="updateRadioUI()"> 
                     ✍️ 서명 후 이수 (앱에서 직접 서명)
                 </label>
                 <label class="radio-item active" id="labelSigNo">
@@ -104,75 +98,90 @@
                 </label>
                 <label class="radio-item" id="labelOffline">
                     <input type="radio" name="needSig" value="오프라인" onclick="updateRadioUI()"> 
-                    📢 오프라인 교육 (서명/이수 버튼 없음)
+                    📢 오프라인 교육 (내용만 확인)
                 </label>
             </div>
 
             <label class="input-label">상세 교육내용</label>
             <textarea id="eduContent" rows="6" placeholder="상세 내용을 입력하세요"></textarea>
 
-            <label class="input-label">📎 파일 첨부 (PDF 권장, 최대 2MB)</label>
+            <label class="input-label">📎 파일 첨부 (기존 파일 유지 시 선택 안 함)</label>
             <div class="file-upload-wrapper">
                 <div class="file-upload-btn">
                     <span style="font-size: 1.5rem;">📥</span>
-                    <span>여기를 터치하여 파일 선택</span>
+                    <span id="fileBtnText">여기를 터치하여 파일 선택</span>
                 </div>
-                <input type="file" id="eduFile" accept="image/*, .pdf, .hwp">
+                <input type="file" id="eduFile" accept="image/*, .pdf">
             </div>
             <div id="fileNameDisplay" class="file-name-display"></div>
 
-            <button class="save-btn" onclick="saveEdu()">설정 저장 및 배포</button>
+            <button class="save-btn" id="saveBtn" onclick="saveEdu()">설정 저장 및 배포</button>
         </div>
     </div>
 
     <script>
-        let isMoving = false;
-        (function() {
-            history.pushState(null, null, location.href);
-            window.addEventListener('popstate', function() {
-                if(isMoving) return;
-                goBack();
-            });
-        })();
-
-        function goBack() {
-            isMoving = true;
-            location.replace('admin_main.html');
-        }
-
-        const myDept = localStorage.getItem('userDept') || "소속 미지정";
+        const urlParams = new URLSearchParams(window.location.search);
+        const editId = urlParams.get('editId'); // 수정 모드 확인
+        let selectedFileData = ""; 
+        const myDept = localStorage.getItem('userDept') || "경산승무팀";
         document.getElementById('currentDept').innerText = myDept;
 
-        // 시뮬레이션 옵션 노출 제어
+        window.onload = function() {
+            if (editId) {
+                document.getElementById('pageTitle').innerText = "✏️ 교육 정보 수정하기";
+                document.getElementById('saveBtn').innerText = "수정 내용 적용하기";
+                loadOriginalData();
+            }
+        };
+
+        // ✏️ 기존 데이터 불러오기 로직
+        function loadOriginalData() {
+            const list = JSON.parse(localStorage.getItem('totalEduList')) || [];
+            const target = list.find(e => String(e.id) === String(editId));
+            
+            if (target) {
+                document.getElementById('eduType').value = target.category;
+                document.getElementById('eduTitle').value = target.title;
+                document.getElementById('eduContent').value = target.content;
+                document.getElementById('eduDeadline').value = target.deadline !== "기한 없음" ? target.deadline : "";
+                
+                // 라디오 버튼(서명 방식) 세팅
+                const radios = document.getElementsByName('needSig');
+                radios.forEach(r => {
+                    if(r.value === target.signatureType) r.checked = true;
+                });
+                
+                toggleSimOptions();
+                updateRadioUI();
+                
+                if (target.fileData) {
+                    const nameDisplay = document.getElementById('fileNameDisplay');
+                    nameDisplay.innerText = "📎 기존 첨부 파일이 있습니다. (변경 시 새로 선택)";
+                    nameDisplay.style.display = 'block';
+                    selectedFileData = target.fileData; // 기존 파일 유지
+                }
+            }
+        }
+
         function toggleSimOptions() {
             const type = document.getElementById('eduType').value;
-            const simBox = document.getElementById('simOptions');
-            simBox.style.display = (type === "시뮬레이션 교육") ? "block" : "none";
+            document.getElementById('simOptions').style.display = (type === "시뮬레이션 교육") ? "block" : "none";
         }
 
         function updateRadioUI() {
             const val = document.querySelector('input[name="needSig"]:checked').value;
-            document.getElementById('labelSigYes').classList.toggle('active', val === '서명 필요');
+            document.getElementById('labelSigYes').classList.toggle('active', val === '전자서명');
             document.getElementById('labelSigNo').classList.toggle('active', val === '단순 확인');
             document.getElementById('labelOffline').classList.toggle('active', val === '오프라인');
         }
 
-        let selectedFileData = ""; 
         document.getElementById('eduFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const nameDisplay = document.getElementById('fileNameDisplay');
-            
             if (file) {
-                if (file.size > 2 * 1024 * 1024) {
-                    alert("⚠️ 파일 용량이 너무 큽니다! (최대 2MB 제한)");
-                    this.value = ''; 
-                    nameDisplay.style.display = 'none';
-                    selectedFileData = "";
-                    return;
-                }
-                nameDisplay.innerText = `📎 첨부됨: ${file.name}`;
+                if (file.size > 2 * 1024 * 1024) { alert("파일이 너무 큽니다(최대 2MB)"); return; }
+                nameDisplay.innerText = `📎 새 파일 선택됨: ${file.name}`;
                 nameDisplay.style.display = 'block';
-
                 const reader = new FileReader();
                 reader.onload = function(event) { selectedFileData = event.target.result; };
                 reader.readAsDataURL(file);
@@ -184,30 +193,34 @@
             const content = document.getElementById('eduContent').value.trim();
             const sigType = document.querySelector('input[name="needSig"]:checked').value;
             const eduType = document.getElementById('eduType').value;
-            const quizPkg = document.getElementById('quizPackage').value; // 꾸러미 ID
-            let deadline = document.getElementById('eduDeadline').value || "기한 없음";
+            const deadline = document.getElementById('eduDeadline').value || "기한 없음";
 
-            if(!title || !content) { 
-                alert("제목과 상세 내용을 필수로 입력해 주세요!"); 
-                return; 
-            }
+            if(!title || !content) { alert("제목과 내용을 입력하세요!"); return; }
 
-            // --- 시뮬레이션 교육용 데이터 생성 로직 ---
-            let simulationData = null;
-            if (eduType === "시뮬레이션 교육") {
-                // 사용자는 3회 클릭만 하면 되지만, 데이터상으로는 30~40분(1800~2400초) 랜덤 기록 배정
-                const randomGoalSeconds = Math.floor(Math.random() * (2400 - 1800 + 1)) + 1800;
-                simulationData = {
-                    isSimulation: true,
-                    packageId: quizPkg,     // 어떤 문제 세트인지 저장
-                    goalSeconds: randomGoalSeconds,
-                    passScore: 60
-                };
-            }
+            let totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
 
-            const totalEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
-            
-            try {
+            if (editId) {
+                // [수정 모드]
+                const index = totalEduList.findIndex(e => String(e.id) === String(editId));
+                if (index !== -1) {
+                    totalEduList[index].category = eduType;
+                    totalEduList[index].title = title;
+                    totalEduList[index].content = content;
+                    totalEduList[index].deadline = deadline;
+                    totalEduList[index].signatureType = sigType;
+                    totalEduList[index].fileData = selectedFileData;
+                    
+                    localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
+                    alert("성공적으로 수정되었습니다!");
+                    location.replace('admin_edu_list.html');
+                }
+            } else {
+                // [신규 등록 모드]
+                let simulationData = null;
+                if (eduType === "시뮬레이션 교육") {
+                    simulationData = { isSimulation: true, packageId: document.getElementById('quizPackage').value };
+                }
+
                 totalEduList.push({
                     id: Date.now(),
                     dept: myDept,
@@ -215,26 +228,19 @@
                     title: title,
                     content: content,
                     deadline: deadline,
-                    signatureType: sigType, 
+                    signatureType: sigType,
                     fileData: selectedFileData,
-                    simulation: simulationData, 
+                    simulation: simulationData,
                     date: new Date().toLocaleDateString()
                 });
 
                 localStorage.setItem('totalEduList', JSON.stringify(totalEduList));
-                
-                const msg = eduType === "시뮬레이션 교육" 
-                    ? "🎮 시뮬레이션 교육(3회 입장 방식)이 배포되었습니다!" 
-                    : "🎉 교육 등록이 완료되었습니다!";
-                
-                alert(msg);
-                isMoving = true;
+                alert("배포 완료!");
                 location.replace('admin_main.html');
-                
-            } catch (error) {
-                alert("⚠️ 저장 공간 부족! 오래된 게시물을 삭제해 주세요.");
             }
         }
+
+        function goBack() { location.replace(editId ? 'admin_edu_list.html' : 'admin_main.html'); }
     </script>
 </body>
 </html>
