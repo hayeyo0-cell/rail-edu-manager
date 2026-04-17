@@ -7,9 +7,32 @@
     <style>
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background-color: var(--bg-gray); margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-        .top-nav { width: 100%; background: white; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top:0; z-index:1000; box-sizing: border-box; }
-        .logout-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 5px 10px; font-size: 0.7rem; color: #888; cursor: pointer; }
-        .brand-logo { height: 32px; object-fit: contain; }
+        
+        /* 🛠️ 상단 네비게이션바 수평 정렬 보강 */
+        .top-nav { 
+            width: 100%; 
+            background: white; 
+            padding: 10px 15px; /* 상하 패딩을 약간 늘려 여유를 줌 */
+            display: flex; 
+            justify-content: space-between; /* 양 끝 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            border-bottom: 1px solid #eee; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-sizing: border-box; 
+        }
+
+        /* 🛠️ 로고 스타일 수정 */
+        .brand-logo { 
+            height: 30px; /* 로고 높이를 고정하여 비율 유지 */
+            width: auto; 
+            object-fit: contain; 
+            display: block;
+        }
+
+        .logout-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 5px 10px; font-size: 0.7rem; color: #888; cursor: pointer; font-weight: bold; }
+        
         .container { width: 92%; max-width: 420px; padding: 15px 0; }
         .section-title { font-size: 1.05rem; font-weight: bold; color: var(--dtro-blue); margin: 20px 0 12px 0; display: flex; align-items: center; border-left: 4px solid var(--dtro-blue); padding-left: 10px; }
         .filter-container { display: flex; overflow-x: auto; gap: 6px; margin-bottom: 15px; padding: 5px 0; -webkit-overflow-scrolling: touch; }
@@ -51,13 +74,14 @@
     </div>
 
     <script>
+        // ... (기존 script 로직 동일하게 유지) ...
         const userId = localStorage.getItem('currentUserId');
         const userDept = localStorage.getItem('currentUserDept') || "";
         let currentFilter = '전체';
 
         window.onload = function() {
             if(!userId) { location.replace('index.html'); return; }
-            autoCleanMonthlyData(); // 🧹 안전한 자동 삭제 실행
+            autoCleanMonthlyData(); 
             renderFilters();
             loadEduData();
         };
@@ -66,7 +90,6 @@
             const allEduList = JSON.parse(localStorage.getItem('totalEduList')) || [];
             const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
             const now = new Date();
-            // 이번 달 1일 0시 기준 (주의: 관리자 정보는 건드리지 않음)
             const firstDayOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
             const cleanedEduList = allEduList.filter(edu => Number(edu.id) >= firstDayOfThisMonth);
@@ -124,7 +147,6 @@
 
         function handleLogout() {
             if(confirm("로그아웃 하시겠습니까?")) {
-                // ⚠️ clear() 대신 필요한 것만 삭제하여 관리자 정보 보존
                 localStorage.removeItem('currentUserId');
                 localStorage.removeItem('currentUserName');
                 localStorage.removeItem('currentUserDept');
