@@ -9,15 +9,15 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-gray); margin:0; display:flex; flex-direction:column; align-items:center; }
         
-        /* 🛠️ 로고 크기 확대 및 중앙 정렬 (보관함 화면과 1:1 일치) */
+        /* 🛠️ 로고 크기 및 중앙 정렬 (보관함 화면과 동일하게 강제 고정) */
         .top-nav { 
             width: 100%; background: white; padding: 0 15px; 
             display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 1px solid #eee; position: sticky; top:0; z-index: 1000; 
-            box-sizing: border-box; height: 65px; /* 높이 확보 */
+            box-sizing: border-box; height: 65px; 
         }
         .nav-btn { min-width: 80px; background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 8px 10px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
-        .brand-logo { height: 40px !important; width: auto !important; object-fit: contain; } /* ⬅️ 강제 크기 고정 */
+        .brand-logo { height: 42px !important; width: auto !important; object-fit: contain; } /* 크기 강제 고정 */
         .nav-spacer { width: 80px; }
 
         .container { width: 92%; max-width: 420px; padding: 15px 0 140px 0; }
@@ -28,10 +28,10 @@
         #signatureArea { display: none; background: #f0f7ff; border: 2px dashed var(--dtro-blue); border-radius: 20px; padding: 25px 20px; margin-top: 15px; text-align: center; cursor: pointer; }
         #sigImage { display: none; max-height: 120px; margin: 10px auto; border: 1px solid #eee; background: white; border-radius: 10px; }
 
-        /* 📱 서명 모달 - 뒷배경 완벽 차단 */
+        /* 📱 서명 모달 - 뒷배경 완벽 차단 및 불투명 */
         .sig-full-modal { 
             display: none; position: fixed; top: 0; left: 0; 
-            width: 100vw; height: 100vh; background: #ffffff !important; 
+            width: 100%; height: 100%; background: #ffffff !important; 
             z-index: 99999; flex-direction: column; padding: 20px; box-sizing: border-box; 
         }
         #sigPadFull { background: #fdfdfd; border: 2px solid #0072bc; border-radius: 15px; width: 100%; flex: 1; touch-action: none !important; }
@@ -114,13 +114,22 @@
             }
         };
 
-        function openSigModal() { document.getElementById('sigFullModal').style.display = 'flex'; setTimeout(initSigPad, 150); }
+        function openSigModal() { 
+            document.getElementById('sigFullModal').style.display = 'flex'; 
+            setTimeout(initSigPad, 200); // 팝업이 완전히 뜬 후 캔버스 초기화 (좌표 보정용)
+        }
         
         function initSigPad() {
-            sigCanvas = document.getElementById('sigPadFull'); sigCtx = sigCanvas.getContext('2d');
+            sigCanvas = document.getElementById('sigPadFull'); 
+            sigCtx = sigCanvas.getContext('2d');
             const rect = sigCanvas.getBoundingClientRect();
-            sigCanvas.width = rect.width; sigCanvas.height = rect.height;
-            sigCtx.lineWidth = 5; sigCtx.lineCap = 'round'; sigCtx.strokeStyle = '#000';
+            sigCanvas.width = rect.width; 
+            sigCanvas.height = rect.height;
+            
+            sigCtx.lineWidth = 5; 
+            sigCtx.lineCap = 'round'; 
+            sigCtx.lineJoin = 'round'; 
+            sigCtx.strokeStyle = '#000';
 
             const getPos = (e) => {
                 const r = sigCanvas.getBoundingClientRect();
@@ -129,15 +138,23 @@
                 return { x: clientX - r.left, y: clientY - r.top };
             };
 
-            // 🚀 브라우저 간섭을 완벽 차단하는 핸들러
-            const start = (e) => { e.preventDefault(); drawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); };
-            const move = (e) => { if (!drawing) return; e.preventDefault(); const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); };
+            const start = (e) => { 
+                if (e.cancelable) e.preventDefault(); 
+                drawing = true; 
+                const p = getPos(e); 
+                sigCtx.beginPath(); 
+                sigCtx.moveTo(p.x, p.y); 
+            };
+            const move = (e) => { 
+                if (!drawing) return; 
+                if (e.cancelable) e.preventDefault(); 
+                const p = getPos(e); 
+                sigCtx.lineTo(p.x, p.y); 
+                sigCtx.stroke(); 
+            };
             const stop = () => { drawing = false; };
 
-            // 기존 리스너 제거 후 다시 등록
-            sigCanvas.removeEventListener('touchstart', start);
-            sigCanvas.removeEventListener('touchmove', move);
-
+            // 기존 리스너 중복 방지 및 강력한 차단 모드 적용
             sigCanvas.addEventListener('touchstart', start, { passive: false });
             sigCanvas.addEventListener('touchmove', move, { passive: false });
             sigCanvas.addEventListener('touchend', stop);
@@ -149,7 +166,7 @@
         function clearSig() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
         function saveSig() {
             const blank = document.createElement('canvas'); blank.width = sigCanvas.width; blank.height = sigCanvas.height;
-            if(sigCanvas.toDataURL() === blank.toDataURL()) { alert("서명을 해주세요."); return; }
+            if(sigCanvas.toDataURL() === blank.toDataURL()) { alert("서명을 작성해 주세요."); return; }
             const sigImg = document.getElementById('sigImage');
             sigImg.src = sigCanvas.toDataURL(); sigImg.style.display = 'block';
             document.getElementById('sigIntro').style.display = 'none';
@@ -162,10 +179,11 @@
         function handleFinalAction() {
             if(currentEdu.signatureType === "전자서명" && document.getElementById('sigImage').style.display === 'none') { alert("서명을 먼저 완료해 주세요."); return; }
             if(confirm("이수를 완료하시겠습니까?")) {
+                const userId = localStorage.getItem('currentUserId');
                 const completed = JSON.parse(localStorage.getItem('completedEduList')) || [];
-                completed.push({ eduId, userId: localStorage.getItem('currentUserId'), completedDate: new Date().toLocaleString(), signature: document.getElementById('sigImage').src });
+                completed.push({ eduId, userId, completedDate: new Date().toLocaleString(), signature: document.getElementById('sigImage').src });
                 localStorage.setItem('completedEduList', JSON.stringify(completed));
-                alert("이수 완료!"); location.replace('user_main.html');
+                alert("이수 처리가 완료되었습니다."); location.replace('user_main.html');
             }
         }
         function openZoom(src) { document.getElementById('zoomContent').src = src; document.getElementById('zoomModal').style.display = 'flex'; }
