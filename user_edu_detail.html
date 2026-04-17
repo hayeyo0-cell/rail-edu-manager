@@ -9,7 +9,6 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-gray); margin:0; display:flex; flex-direction:column; align-items:center; }
         
-        /* 상단바: 로고 정중앙 고정 */
         .top-nav { 
             width: 100%; background: white; padding: 0 15px; 
             display: flex; justify-content: space-between; align-items: center; 
@@ -23,11 +22,9 @@
         .container { width: 92%; max-width: 420px; padding: 15px 0 180px 0; }
         .content-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); margin-bottom: 20px; }
         
-        /* 🔍 자료 영역 */
         .viewer-area { width: 100%; max-height: 250px; border-radius: 15px; border: 1px solid #eee; background: #fafafa; margin-bottom: 15px; overflow: hidden; position: relative; }
         canvas, .img-preview { width: 100%; height: auto; display: none; border-radius: 12px; }
         
-        /* 🖋️ 본문에 바로 노출되는 서명 섹션 */
         .signature-section { 
             background: white; border-radius: 25px; padding: 20px; 
             box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border: 2px solid var(--dtro-blue);
@@ -36,16 +33,17 @@
         .sig-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .sig-title { font-weight: bold; color: var(--dtro-blue); font-size: 1.1rem; }
         
-        /* 서명 패드: 크기를 키우고 터치 간섭 방지 */
         #sigPad { 
             background: #f9f9f9; border: 1px solid #ddd; border-radius: 15px; 
-            width: 100%; height: 200px; /* 높이를 충분히 확보 */
-            touch-action: none; /* 브라우저 스크롤 방지 핵심 */
+            width: 100%; height: 200px;
+            touch-action: none;
             display: block;
         }
 
         .bottom-bar { position: fixed; bottom: 0; width: 100%; max-width: 420px; background: white; padding: 15px; border-top: 1px solid #eee; box-sizing: border-box; z-index: 1001; }
         .submit-btn { width: 100%; padding: 18px; background: var(--dtro-blue); color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
+        /* 🚫 이수 완료 후 버튼 스타일 */
+        .submit-btn:disabled { background: #bbb; cursor: default; }
         .clear-btn { background: #f1f1f1; border: none; padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; color: #666; font-weight: bold; cursor: pointer; }
     </style>
 </head>
@@ -102,24 +100,37 @@
                     } else if(currentEdu.fileData.includes('pdf')) { renderPDF(currentEdu.fileData); }
                 }
 
-                if(currentEdu.signatureType === "전자서명") {
-                    document.getElementById('sigSection').style.display = 'block';
-                    document.getElementById('mainBtn').innerText = "🖋️ 서명 후 이수 완료";
-                    // 페이지 로드 후 캔버스 초기화
-                    setTimeout(initSigPad, 300);
+                // 🔍 [수정 핵심] 이수 여부 확인 로직
+                const userId = localStorage.getItem('currentUserId');
+                const completedList = JSON.parse(localStorage.getItem('completedEduList')) || [];
+                // 해당 유저가 이 교육을 이미 이수했는지 확인
+                const isAlreadyDone = completedList.some(c => String(c.eduId) === String(eduId) && String(c.userId) === String(userId));
+
+                if(isAlreadyDone) {
+                    // 1. 이미 이수했다면 서명란 숨기기
+                    document.getElementById('sigSection').style.display = 'none';
+                    // 2. 하단 버튼 상태 변경 (클릭 불가)
+                    const mainBtn = document.getElementById('mainBtn');
+                    mainBtn.innerText = "✅ 이수 완료된 교육입니다";
+                    mainBtn.disabled = true;
+                } else {
+                    // 미이수 상태이고 서명이 필요한 경우에만 서명란 노출
+                    if(currentEdu.signatureType === "전자서명") {
+                        document.getElementById('sigSection').style.display = 'block';
+                        document.getElementById('mainBtn').innerText = "🖋️ 서명 후 이수 완료";
+                        setTimeout(initSigPad, 300);
+                    }
                 }
             }
         };
 
         function initSigPad() {
             sigCanvas = document.getElementById('sigPad');
+            if(!sigCanvas) return;
             sigCtx = sigCanvas.getContext('2d');
-            
-            // 캔버스 크기를 실제 보여지는 크기에 맞춤
             const rect = sigCanvas.getBoundingClientRect();
             sigCanvas.width = rect.width;
             sigCanvas.height = 200;
-
             sigCtx.lineWidth = 4;
             sigCtx.lineCap = 'round';
             sigCtx.strokeStyle = '#000';
@@ -131,20 +142,8 @@
                 return { x: clientX - r.left, y: clientY - r.top };
             };
 
-            const start = (e) => { 
-                if(e.target === sigCanvas) e.preventDefault(); 
-                drawing = true; 
-                const p = getPos(e); 
-                sigCtx.beginPath(); 
-                sigCtx.moveTo(p.x, p.y); 
-            };
-            const move = (e) => { 
-                if(!drawing) return; 
-                if(e.target === sigCanvas) e.preventDefault(); 
-                const p = getPos(e); 
-                sigCtx.lineTo(p.x, p.y); 
-                sigCtx.stroke(); 
-            };
+            const start = (e) => { if(e.target === sigCanvas) e.preventDefault(); drawing = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); };
+            const move = (e) => { if(!drawing) return; if(e.target === sigCanvas) e.preventDefault(); const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); };
             const stop = () => { drawing = false; };
 
             sigCanvas.addEventListener('touchstart', start, { passive: false });
@@ -155,7 +154,7 @@
             window.addEventListener('mouseup', stop);
         }
 
-        function clearSig() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
+        function clearSig() { if(sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
 
         function handleFinalAction() {
             if(currentEdu.signatureType === "전자서명") {
@@ -176,7 +175,8 @@
                 });
                 localStorage.setItem('completedEduList', JSON.stringify(completed));
                 alert("이수가 완료되었습니다.");
-                location.replace('user_main.html');
+                // ✅ 이수 후 즉시 화면을 갱신해서 서명란을 숨깁니다.
+                location.reload();
             }
         }
 
