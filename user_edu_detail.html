@@ -9,8 +9,15 @@
         :root { --dtro-blue: #0072bc; --bg-gray: #f8f9fb; }
         body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-gray); margin:0; display:flex; flex-direction:column; align-items:center; }
         
-        .top-nav { width: 100%; background: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top:0; z-index: 1000; box-sizing: border-box; }
-        .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 6px; padding: 5px 12px; font-size: 0.8rem; font-weight: bold; cursor: pointer; }
+        /* 🛠️ 로고 위치 및 상단바 디자인 보정 (보관함 화면과 통일) */
+        .top-nav { 
+            width: 100%; background: white; padding: 0 15px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid #eee; position: sticky; top:0; z-index: 1000; 
+            box-sizing: border-box; height: 60px;
+        }
+        .nav-btn { background: white; border: 1px solid #eaeaea; border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: bold; cursor: pointer; min-width: 65px; }
+        .brand-logo { height: 35px; width: auto; object-fit: contain; }
         
         .container { width: 92%; max-width: 420px; padding: 15px 0 140px 0; }
         .content-card { background: white; border-radius: 25px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.04); }
@@ -23,7 +30,7 @@
         #signatureArea { display: none; background: #f0f7ff; border: 2px dashed var(--dtro-blue); border-radius: 20px; padding: 20px; margin-top: 15px; text-align: center; cursor: pointer; }
         #sigImage { display: none; max-height: 100px; margin: 10px auto; border: 1px solid #eee; background: white; border-radius: 10px; }
 
-        /* 📱 전체 화면 서명 모달 (강력한 z-index) */
+        /* 📱 전체 화면 서명 모달 */
         .sig-full-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 99999; flex-direction: column; padding: 20px; box-sizing: border-box; }
         #sigPadFull { background: #fdfdfd; border: 2px solid #ddd; border-radius: 15px; width: 100%; flex: 1; touch-action: none; }
         .sig-modal-btns { display: flex; gap: 10px; margin-top: 15px; }
@@ -40,9 +47,8 @@
 
     <div class="top-nav">
         <button class="nav-btn" onclick="location.replace('user_main.html')">← 뒤로</button>
-        <img src="logo.png" style="height:30px;">
-        <div style="width:50px;"></div>
-    </div>
+        <img src="logo.png" class="brand-logo" alt="DTRO">
+        <div style="width:65px;"></div> </div>
     
     <div class="container">
         <div class="content-card">
@@ -118,10 +124,10 @@
             }
         };
 
-        // --- 🖋️ 서명 팝업 로직 (강화된 버전) ---
+        // --- 🖋️ 서명 팝업 로직 (강력한 터치 인식 버전) ---
         function openSigModal() {
             document.getElementById('sigFullModal').style.display = 'flex';
-            setTimeout(initSigPad, 50); // 팝업이 완전히 뜬 후 캔버스 초기화
+            setTimeout(initSigPad, 100); 
         }
 
         function initSigPad() {
@@ -168,7 +174,7 @@
 
             const stop = () => { if (drawing) { sigCtx.closePath(); drawing = false; } };
 
-            // 기존 이벤트 제거 후 재등록 (중복 방지)
+            // 기존 이벤트 제거 후 재등록 (중복 방지 및 강제 차단 해제)
             sigCanvas.removeEventListener('touchstart', start);
             sigCanvas.removeEventListener('touchmove', move);
             
